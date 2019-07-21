@@ -1,6 +1,6 @@
-#include <uns/sensor/DistanceSensor.hpp>
+#include <micro/sensor/DistanceSensor.hpp>
 
-using namespace uns;
+namespace micro {
 
 Status DistanceSensor::initialize() {
     this->sonar.initialize();
@@ -12,3 +12,5 @@ Status DistanceSensor::run() {
     this->sonar.startMeasurement();
     return Status::OK;
 }
+
+} // namespace micro

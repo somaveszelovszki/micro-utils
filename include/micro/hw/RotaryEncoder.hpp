@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/bsp/tim.hpp>
+#include <micro/bsp/tim.hpp>
 
-namespace uns {
+namespace micro {
 namespace hw {
 
 class RotaryEncoder {
@@ -28,4 +28,4 @@ private:
     int32_t offset;             // The counter's offset.
 };
 } // namespace hw
-} // namespace uns
+} // namespace micro

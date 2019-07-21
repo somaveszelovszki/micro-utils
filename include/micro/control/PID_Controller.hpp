@@ -1,18 +1,18 @@
 #pragma once
 
-#include <uns/base/Runnable.hpp>
-#include <uns/util/unit_utils.hpp>
+#include <micro/utils/runnable.hpp>
+#include <micro/utils/unit_utils.hpp>
 
-namespace uns {
+namespace micro {
 /* @brief PID controller implementation.
  **/
 template <typename T_meas, typename T_out>
-class PID_Controller : public Runnable {
+class PID_Controller : public runnable_t {
 public:
     /* @brief Constructor - sets period time and term weights.
      **/
     PID_Controller(millisecond_t Ts, millisecond_t Ti, millisecond_t Td, float32_t Kc, const T_out& outMin, const T_out& outMax)
-        : Runnable(period)
+        : runnable_t(period)
         , desired(0.0f)
         , b0(Kc * (1 + period / Ti + Td / period))
         , b1(-Kc * (1 + 2 * Td / Ts))
@@ -45,10 +45,10 @@ public:
     Status run(const T_meas& measured) {
         this->updateTimeDiff();
 
-        float32_t ek = uns::valueOf(this->desired - measured);
+        float32_t ek = micro::valueOf(this->desired - measured);
 
         this->output = this->output + this->b0 * ek + this->b1 * this->ek1 + this->b2 * this->ek2;
-        this->output = uns::clamp(this->output, this->outMin, this->outMax);
+        this->output = micro::clamp(this->output, this->outMin, this->outMax);
         this->ek2 = this->ek1;
         this->ek1 = ek;
 
@@ -64,4 +64,4 @@ private:
     float32_t outMax;
     T_out output;       // The output - updated in every cycle, holds the output value until the next update.
 };
-} // namespace uns
+} // namespace micro

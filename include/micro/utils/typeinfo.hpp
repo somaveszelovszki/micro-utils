@@ -1,6 +1,6 @@
 #pragma once
 
-namespace uns {
+namespace micro {
 
 template <typename T> struct typeinfo {};
 
@@ -12,4 +12,4 @@ template <> struct typeinfo<type> {         \
     }                                       \
 }
 
-} // namespace uns
+} // namespace micro

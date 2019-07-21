@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 #include <algorithm>
 
-namespace uns {
+namespace micro {
 
 template <typename T>
 uint32_t length(const T *ar, const T& end = T(0)) {
@@ -111,4 +111,4 @@ bool isZeroArray(const T *ar, uint32_t size) {
     return isZero;
 }
 
-} // namespace uns
+} // namespace micro

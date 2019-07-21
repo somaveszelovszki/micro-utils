@@ -1,8 +1,8 @@
-#include <uns/BitContainer.hpp>
+#include <micro/container/bit_container.hpp>
 
-using namespace uns;
+namespace micro {
 
-const uint8_t ContainerSelector<8>::masks[8] = {
+const uint8_t container_selector<8>::masks[8] = {
     0b00000001,
     0b00000010,
     0b00000100,
@@ -13,7 +13,7 @@ const uint8_t ContainerSelector<8>::masks[8] = {
     0b10000000
 };
 
-const uint32_t ContainerSelector<32>::masks[32] = {
+const uint32_t container_selector<32>::masks[32] = {
     0b00000000000000000000000000000001,
     0b00000000000000000000000000000010,
     0b00000000000000000000000000000100,
@@ -47,3 +47,5 @@ const uint32_t ContainerSelector<32>::masks[32] = {
     0b01000000000000000000000000000000,
     0b10000000000000000000000000000000
 };
+
+} // namespace micro

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uns/util/storage.hpp>
+#include <micro/utils/storage.hpp>
 
 #include <algorithm>
 
-namespace uns {
+namespace micro {
 template <typename T>
 class optional {
 public:
@@ -98,4 +98,4 @@ optional<T> make_optional(Args&&... args) {
     return optional<T>(nullptr, std::forward<Args>(args)...);
 }
 
-} // namespace uns
+} // namespace micro

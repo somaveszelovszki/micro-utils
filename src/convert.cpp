@@ -1,13 +1,13 @@
-#include <uns/util/convert.hpp>
-#include <uns/util/numeric.hpp>
-#include <uns/util/arrays.hpp>
+#include <micro/utils/convert.hpp>
+#include <micro/utils/numeric.hpp>
+#include <micro/utils/arrays.hpp>
 
 #include <cstring>
 #include <cstdlib>
 
-using namespace uns;
+namespace micro {
 
-void uns::toBytes(int16_t value, uint8_t bytes[], BitOrder order) {
+void toBytes(int16_t value, uint8_t bytes[], BitOrder order) {
     if (order == BitOrder::ENDIAN_LITTLE) {
         bytes[0] = static_cast<uint8_t>(value);
         bytes[1] = static_cast<uint8_t>(value >> 8);
@@ -17,7 +17,7 @@ void uns::toBytes(int16_t value, uint8_t bytes[], BitOrder order) {
     }
 }
 
-void uns::toBytes(int32_t value, uint8_t bytes[], BitOrder order) {
+void toBytes(int32_t value, uint8_t bytes[], BitOrder order) {
     if (order == BitOrder::ENDIAN_LITTLE) {
         bytes[0] = static_cast<uint8_t>(value);
         bytes[1] = static_cast<uint8_t>(value >> 8);
@@ -31,13 +31,13 @@ void uns::toBytes(int32_t value, uint8_t bytes[], BitOrder order) {
     }
 }
 
-void uns::toBytes(float32_t value, uint8_t bytes[], BitOrder order) {
+void toBytes(float32_t value, uint8_t bytes[], BitOrder order) {
     int32_t intVal;
     memcpy(&intVal, &value, 4);
     toBytes(intVal, bytes, order);
 }
 
-int16_t uns::toInt16(const uint8_t bytes[], BitOrder order) {
+int16_t toInt16(const uint8_t bytes[], BitOrder order) {
     int16_t result;
     if (order == BitOrder::ENDIAN_LITTLE) {
         result = static_cast<int32_t>(bytes[0])
@@ -49,7 +49,7 @@ int16_t uns::toInt16(const uint8_t bytes[], BitOrder order) {
     return result;
 }
 
-int32_t uns::toInt32(const uint8_t bytes[], BitOrder order) {
+int32_t toInt32(const uint8_t bytes[], BitOrder order) {
     int32_t result;
     if (order == BitOrder::ENDIAN_LITTLE) {
         result = static_cast<int32_t>(bytes[0])
@@ -65,14 +65,14 @@ int32_t uns::toInt32(const uint8_t bytes[], BitOrder order) {
     return result;
 }
 
-float32_t uns::toFloat32(const uint8_t bytes[], BitOrder order) {
+float32_t toFloat32(const uint8_t bytes[], BitOrder order) {
     int32_t intVal = toInt32(bytes, order);
     float32_t resultFloatVal;
     memcpy(&resultFloatVal, &intVal, 4);
     return resultFloatVal;
 }
 
-uint32_t uns::atoi(const char * const s, int32_t *pResult, uint32_t len) {
+uint32_t atoi(const char * const s, int32_t *pResult, uint32_t len) {
     uint32_t idx = 0;
 
     if (!len) {
@@ -102,7 +102,7 @@ uint32_t uns::atoi(const char * const s, int32_t *pResult, uint32_t len) {
     return idx;
 }
 
-uint32_t uns::atof(const char * const s, float32_t *pResult, uint32_t len) {
+uint32_t atof(const char * const s, float32_t *pResult, uint32_t len) {
     int32_t dec, frac;
 
     if (!len) {
@@ -115,15 +115,15 @@ uint32_t uns::atof(const char * const s, float32_t *pResult, uint32_t len) {
         idx = 1;
     }
 
-    idx += uns::atoi(&s[idx], &dec, len);
+    idx += atoi(&s[idx], &dec, len);
 
     if (++idx < len) {  // idx is incremented because of the dot character before the fraction
         len -= idx;     // calculates residual length
 
-        uint32_t fracCount = uns::atoi(&s[idx], &frac, len);
+        uint32_t fracCount = atoi(&s[idx], &frac, len);
         if (fracCount > 0) {
             idx += fracCount;
-            *pResult = dec + frac / uns::powerOf(10.0f, fracCount);
+            *pResult = dec + frac / powerOf(10.0f, fracCount);
         } else {
             idx = 0;    // if no fraction has been parsed, string is invalid
         }
@@ -138,7 +138,7 @@ uint32_t uns::atof(const char * const s, float32_t *pResult, uint32_t len) {
     return idx;
 }
 
-uint32_t uns::itoa(int32_t n, char *const s, uint32_t numSize, uint32_t padding) {
+uint32_t itoa(int32_t n, char *const s, uint32_t numSize, uint32_t padding) {
     bool sign;
 
     if ((sign = n < 0))
@@ -166,11 +166,11 @@ uint32_t uns::itoa(int32_t n, char *const s, uint32_t numSize, uint32_t padding)
 
     s[idx] = '\0';
 
-    uns::reverse(s, idx);
+    reverse(s, idx);
     return idx;
 }
 
-uint32_t uns::ftoa(float32_t n, char * const s, uint32_t decSize, uint32_t fracSize) {
+uint32_t ftoa(float32_t n, char * const s, uint32_t decSize, uint32_t fracSize) {
     static const uint32_t padding = 4;
 
     uint32_t idx = 0;
@@ -183,11 +183,11 @@ uint32_t uns::ftoa(float32_t n, char * const s, uint32_t decSize, uint32_t fracS
     }
 
     int32_t dec = static_cast<int32_t>(n);
-    int32_t frac = static_cast<int32_t>((n - static_cast<float32_t>(dec)) * uns::powerOf(10, padding));
-    if ((decLen = uns::itoa(dec, &s[idx], decSize)) > 0) {
+    int32_t frac = static_cast<int32_t>((n - static_cast<float32_t>(dec)) * powerOf(10, padding));
+    if ((decLen = itoa(dec, &s[idx], decSize)) > 0) {
         idx += decLen;
         s[idx++] = '.';
-        if ((fracLen = uns::itoa(frac, &s[idx], fracSize, padding)) > 0) {
+        if ((fracLen = itoa(frac, &s[idx], fracSize, padding)) > 0) {
             idx += fracLen;
         } else {
             idx = 0;
@@ -198,3 +198,5 @@ uint32_t uns::ftoa(float32_t n, char * const s, uint32_t decSize, uint32_t fracS
 
     return idx;
 }
+
+} // namespace micro

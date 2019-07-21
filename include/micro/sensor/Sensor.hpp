@@ -1,14 +1,14 @@
 #pragma once
 
-#include <uns/base/Runnable.hpp>
+#include <micro/utils/runnable.hpp>
 
-namespace uns {
+namespace micro {
 
 template <typename M>
-class Sensor : public Runnable {
+class Sensor : public runnable_t {
 
 public:
-    explicit Sensor(millisecond_t _period) : Runnable(_period) {}
+    explicit Sensor(millisecond_t _period) : runnable_t(_period) {}
 
     /* @brief Gets measured value.
      * @returns The measured value.
@@ -21,4 +21,4 @@ protected:
     M meas; // The measured value.
 };
 
-} // namespace uns
+} // namespace micro

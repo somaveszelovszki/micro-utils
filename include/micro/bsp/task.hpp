@@ -1,6 +1,6 @@
 #pragma once
 
-namespace uns {
+namespace micro {
 
 typedef void* task_handle_t;    // Task handle - type is OS library-dependent.
 
@@ -25,4 +25,4 @@ void taskDelete(task_handle_t *hTask);
 
 void taskDeleteCurrent();
 
-} // namespace uns
+} // namespace micro

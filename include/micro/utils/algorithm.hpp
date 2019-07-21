@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
-namespace uns {
+namespace micro {
 
 /* @brief Performs test-and-set.
  * @note This function must be called from a task!
@@ -88,4 +88,4 @@ private:
     bool hasValue_;
 };
 
-} // namespace uns
+} // namespace micro

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <uns/util/storage.hpp>
-#include <uns/bsp/mutex.hpp>
+#include <micro/utils/storage.hpp>
+#include <micro/bsp/mutex.hpp>
 
 #include <algorithm>
 #include <type_traits>
 
-namespace uns {
+namespace micro {
 
 template <typename T>
 class atomic {
@@ -26,28 +26,28 @@ public:
     }
 
     void wait_copy(T& result) const volatile {
-        while (!isOk(uns::mutexTake(this->hmutex, millisecond_t(1)))) {}
+        while (!isOk(micro::mutexTake(this->hmutex, millisecond_t(1)))) {}
         result = *const_cast<T*>(this->data.value_ptr());
-        uns::mutexRelease(this->hmutex);
+        micro::mutexRelease(this->hmutex);
     }
 
     void wait_set(const T& value) volatile {
-        while (!isOk(uns::mutexTake(this->hmutex, millisecond_t(1)))) {}
+        while (!isOk(micro::mutexTake(this->hmutex, millisecond_t(1)))) {}
         this->data.construct(value);
-        uns::mutexRelease(this->hmutex);
+        micro::mutexRelease(this->hmutex);
     }
 
     volatile T* wait_ptr() volatile {
-        while (!isOk(uns::mutexTake(this->hmutex, millisecond_t(1)))) {}
+        while (!isOk(micro::mutexTake(this->hmutex, millisecond_t(1)))) {}
         return this->data.value_ptr();
     }
 
     volatile T* accept_ptr() volatile {
-        return isOk(uns::mutexTake_ISR(this->hmutex)) ? this->data.value_ptr() : nullptr;
+        return isOk(micro::mutexTake_ISR(this->hmutex)) ? this->data.value_ptr() : nullptr;
     }
 
     void release_ptr() volatile {
-        uns::mutexRelease(this->hmutex);
+        micro::mutexRelease(this->hmutex);
     }
 
     mutex_handle_t* getMutex() {
@@ -60,7 +60,7 @@ private:
 };
 
 template <typename T> struct is_atomic {
-    enum { value = uns::is_base_of_template<atomic, T>::value };
+    enum { value = micro::is_base_of_template<atomic, T>::value };
 };
 
-} // namespace uns
+} // namespace micro

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
 #include <algorithm>
 
-namespace uns {
+namespace micro {
 template <typename T>
 class storage_t {
 public:
@@ -85,4 +85,4 @@ private:
     typename std::aligned_storage<sizeof(T), alignof(T)>::type buffer;
 };
 
-} // namespace uns
+} // namespace micro

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 #include <type_traits>
 
-namespace uns {
+namespace micro {
 
 /* @brief Rational number structure with operators.
  **/
@@ -27,7 +27,7 @@ public:
     /* @brief Multiplies two rational numbers.
      * @note Does not simplify result.
      * @param other The other rational number.
-     * @returns The unsimplified result of the multiplication.
+     * @returns The microimplified result of the multiplication.
      **/
     constexpr rational operator*(const rational& other) const {
         return rational::simplify({ this->num * other.num, this->den * other.den });
@@ -36,7 +36,7 @@ public:
     /* @brief Divides two rational numbers.
      * @note Does not simplify result.
      * @param other The other rational number.
-     * @returns The unsimplified result of the division.
+     * @returns The microimplified result of the division.
      **/
     constexpr rational operator/(const rational& other) const {
         return rational::simplify({ this->num * other.den, this->den * other.num });
@@ -69,4 +69,4 @@ public:
         return { this->den, this->num };
     }
 };
-} // namespace uns
+} // namespace micro

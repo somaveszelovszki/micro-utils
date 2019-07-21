@@ -1,8 +1,8 @@
-#include <uns/control/LineController.hpp>
-#include <uns/util/debug.hpp>
-#include <uns/util/unit_utils.hpp>
+#include <micro/control/LineController.hpp>
+#include <micro/utils/debug.hpp>
+#include <micro/utils/unit_utils.hpp>
 
-namespace uns {
+namespace micro {
 
 LineController::LineController(meter_t _wheelBase, meter_t _sensorWheelDist)
     : wheelBase(_wheelBase)
@@ -13,7 +13,7 @@ Status LineController::run(m_per_sec_t speed, meter_t baseline, const Line& line
     static constexpr float32_t KSI_COEFF = SQRT_2;
     static constexpr m_per_sec_t MIN_SPEED = mm_per_sec_t(5);
 
-    if (uns::abs(speed) < MIN_SPEED) {
+    if (micro::abs(speed) < MIN_SPEED) {
         this->output = radian_t::ZERO();
     } else {
 
@@ -46,7 +46,7 @@ Status LineController::run(m_per_sec_t speed, meter_t baseline, const Line& line
         float32_t ud = -K_orientation * line.angle.get();
 
         // The wheel turn at the sensor
-        const radian_t servoInFi = uns::clamp(radian_t(ub - up - ud), -uns::PI_2, uns::PI_2);
+        const radian_t servoInFi = micro::clamp(radian_t(ub - up - ud), -micro::PI_2, micro::PI_2);
 
         //result = atan(tan(servoInFi)*(this->wheelbase/(this->projectedWheelBase)));
         this->output = servoInFi * (this->wheelBase / this->projectedWheelBase);   // nearly equal to atan(tan(servoInFi)*(this->wheelbase/(this->projectedWheelBase)))
@@ -54,4 +54,5 @@ Status LineController::run(m_per_sec_t speed, meter_t baseline, const Line& line
 
     return Status::OK;
 }
-} // namespace uns
+
+} // namespace micro

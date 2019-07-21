@@ -1,11 +1,11 @@
 #pragma once
 
-#include <uns/util/types.hpp>
-#include <uns/bsp/it.hpp>
+#include <micro/utils/types.hpp>
+#include <micro/bsp/it.hpp>
 
 #include <algorithm>
 
-namespace uns {
+namespace micro {
 
 template <typename T>
 class swap_xchg {
@@ -33,13 +33,13 @@ public:
      * @note This function solves concurrency problems by swapping pointers in a critical section.
      */
     void swap() {
-        uns::enterCritical();
+        micro::enterCritical();
         std::swap(this->value_GET, this->value_SET);
-        uns::exitCritical();
+        micro::exitCritical();
     }
 
 private:
     T *value_GET, *value_SET;    // Getter and setter pointers to the underlying data sets.
 };
 
-} // namespace uns
+} // namespace micro

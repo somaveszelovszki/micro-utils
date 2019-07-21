@@ -1,19 +1,18 @@
-#include <uns/task/common.hpp>
+#include <micro/task/common.hpp>
 
-namespace {
-bool _error = false;    // Indicates if an error has occurred.
-} // namespace
-
-namespace uns {
+namespace micro {
 namespace task {
 
+
+bool error_ = false;    // Indicates if an error has occurred.
+
 void setErrorFlag() {
-    _error = true;
+    error_ = true;
 }
 
 bool hasErrorHappened() {
-    return _error;
+    return error_;
 }
 
-}  // namespace task
-} // namespace uns
+} // namespace task
+} // namespace micro

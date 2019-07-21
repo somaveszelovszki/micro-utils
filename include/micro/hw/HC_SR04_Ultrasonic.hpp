@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uns/bsp/gpio.hpp>
-#include <uns/util/units.hpp>
+#include <micro/bsp/gpio.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 namespace hw {
 
 class HC_SR04_Ultrasonic {
@@ -31,4 +31,4 @@ private:
 };
 
 } // namespace hw
-} // namespace uns
+} // namespace micro

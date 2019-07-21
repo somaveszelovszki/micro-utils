@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uns/util/units.hpp>
-#include <uns/Line.hpp>
+#include <micro/utils/units.hpp>
+#include <micro/utils/Line.hpp>
 
-namespace uns {
+namespace micro {
 
 class LineController {
 public:
@@ -19,4 +19,4 @@ private:
 	const meter_t projectedWheelBase; // The original wheel base + the sensor distance.
 	radian_t output;
 };
-} // namespace uns
+} // namespace micro

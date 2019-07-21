@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
 #include <type_traits>
 
-namespace uns {
+namespace micro {
 
 #define dimension_name(name) name, name ## 2, name ## 3
 
@@ -483,5 +483,5 @@ typedef detail::dim_class<Dimension::angular_velocity> angular_velocity_t;
 create_div_unit_instance(radian, second, rad_per_sec);
 create_div_unit_instance(degree, second, deg_per_sec);
 
-} // namespace uns
+} // namespace micro
 

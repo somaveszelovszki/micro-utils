@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uns/util/storage.hpp>
-#include <uns/util/numeric.hpp>
+#include <micro/utils/storage.hpp>
+#include <micro/utils/numeric.hpp>
 
-namespace uns {
+namespace micro {
 
 template <typename T, uint32_t capacity_>
 class vec {
@@ -207,4 +207,4 @@ private:
     storage_type data_[capacity_];
     uint32_t size_;
 };
-} // namespace uns
+} // namespace micro

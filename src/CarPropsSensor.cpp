@@ -1,15 +1,15 @@
-#include <uns/config/cfg_car.hpp>
-#include <uns/sensor/CarPropsSensor.hpp>
-#include <uns/util/debug.hpp>
-#include <uns/util/unit_utils.hpp>
+#include <cfg_car.hpp>
+#include <micro/sensor/CarPropsSensor.hpp>
+#include <micro/utils/debug.hpp>
+#include <micro/utils/unit_utils.hpp>
 
-using namespace uns;
+namespace micro {
 
 const speed_t& SpeedFilter::update(const speed_t& measuredValue) {
 //    const speed_t prevFiltered = this->filteredValue;
 //    const speed_t expected = this->filteredValue + this->prevDiff;
 //
-//    this->filteredValue = uns::avg(expected, measuredValue);
+//    this->filteredValue = micro::avg(expected, measuredValue);
 //    this->prevDiff = this->filteredValue - prevFiltered;
     this->filteredValue = measuredValue;
     return this->filteredValue;
@@ -28,9 +28,11 @@ Status CarPropsSensor::run(angle_t d_angle) {
 
     const meter_t d_dist = this->meas.speed * d_time;
     this->meas.pose.angle += d_angle / 2;
-    this->meas.pose.pos.X += d_dist * uns::cos(this->meas.pose.angle);
-    this->meas.pose.pos.Y += d_dist * uns::sin(this->meas.pose.angle);
-    this->meas.pose.angle = uns::normalize360(this->meas.pose.angle + d_angle / 2);
+    this->meas.pose.pos.X += d_dist * micro::cos(this->meas.pose.angle);
+    this->meas.pose.pos.Y += d_dist * micro::sin(this->meas.pose.angle);
+    this->meas.pose.angle = micro::normalize360(this->meas.pose.angle + d_angle / 2);
 
     return status;
 }
+
+} // namespace micro

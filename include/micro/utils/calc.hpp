@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/rational.hpp>
+#include <micro/utils/rational.hpp>
 
-namespace uns {
+namespace micro {
 namespace detail {
 
 /* @brief Helper structure for getting type with larger memory-usage. Default structure.
@@ -85,7 +85,7 @@ template <typename T1, typename T2> struct calc;
  * @param div_expr Division expression.
  * @param rescale_expr Rescale expression.
  **/
-#define __uns_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr)                                \
+#define __micro_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr)                                \
 typedef typename calc_type<T1, T2>::type result_type;                                                   \
                                                                                                         \
 static result_type mul(const T1& t1, const T2& t2) {return mul_expr; }                                  \
@@ -104,21 +104,21 @@ static constexpr T const_rescale(const T& value, const T1& t1, const T2& t2) { r
  * @param T1 The first type.
  * @param T2 The second type.
  **/
-#define __uns_calc_struct_decl(T1, T2) template <> struct calc<T1, T2>
+#define __micro_calc_struct_decl(T1, T2) template <> struct calc<T1, T2>
 
 /* @brief Defines a calculation structure's declaration with a template first type.
  * @param T2 The second type.
  **/
-#define __uns_calc_struct_template_first_decl(T2) template <typename T1> struct calc<T1, T2>
+#define __micro_calc_struct_template_first_decl(T2) template <typename T1> struct calc<T1, T2>
 
 /* @brief Defines a calculation structure's declaration with a template second type.
  * @param T1 The first type.
  **/
-#define __uns_calc_struct_template_second_decl(T1) template <typename T2> struct calc<T1, T2>
+#define __micro_calc_struct_template_second_decl(T1) template <typename T2> struct calc<T1, T2>
 
 /* @brief Defines a calculation structure's declaration with two template types.
  **/
-#define __uns_calc_struct_template_both_decl() template <typename T1, typename T2> struct calc
+#define __micro_calc_struct_template_both_decl() template <typename T1, typename T2> struct calc
 
 /* @brief Defines a calculation structure.
  * @param T1 The first type.
@@ -127,7 +127,7 @@ static constexpr T const_rescale(const T& value, const T1& t1, const T2& t2) { r
  * @param div_expr Division expression.
  * @param rescale_expr Rescale expression.
  **/
-#define uns_calc_struct(T1, T2, mul_expr, div_expr, rescale_expr) __uns_calc_struct_decl(T1, T2) { __uns_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
+#define micro_calc_struct(T1, T2, mul_expr, div_expr, rescale_expr) __micro_calc_struct_decl(T1, T2) { __micro_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
 
 /* @brief Defines a calculation structure with a template first type.
  * @param T2 The second type.
@@ -135,7 +135,7 @@ static constexpr T const_rescale(const T& value, const T1& t1, const T2& t2) { r
  * @param div_expr Division expression.
  * @param rescale_expr Rescale expression.
  **/
-#define uns_calc_struct_template_first(T2, mul_expr, div_expr, rescale_expr) __uns_calc_struct_template_first_decl(T2) { __uns_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
+#define micro_calc_struct_template_first(T2, mul_expr, div_expr, rescale_expr) __micro_calc_struct_template_first_decl(T2) { __micro_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
 
 /* @brief Defines a calculation structure with a template second type.
  * @param T1 The first type.
@@ -143,56 +143,56 @@ static constexpr T const_rescale(const T& value, const T1& t1, const T2& t2) { r
  * @param div_expr Division expression.
  * @param rescale_expr Rescale expression.
  **/
-#define uns_calc_struct_template_second(T1, mul_expr, div_expr, rescale_expr) __uns_calc_struct_template_second_decl(T1) { __uns_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
+#define micro_calc_struct_template_second(T1, mul_expr, div_expr, rescale_expr) __micro_calc_struct_template_second_decl(T1) { __micro_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
 
 /* @brief Defines a calculation structure with two template types.
  * @param mul_expr Multiplication expression.
  * @param div_expr Division expression.
  * @param rescale_expr Rescale expression.
  **/
-#define uns_calc_struct_template_both(mul_expr, div_expr, rescale_expr) __uns_calc_struct_template_both_decl() { __uns_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
+#define micro_calc_struct_template_both(mul_expr, div_expr, rescale_expr) __micro_calc_struct_template_both_decl() { __micro_calc_struct_body(T1, T2, mul_expr, div_expr, rescale_expr) }
 
 /* @brief Calculation type for two template types.
  **/
-uns_calc_struct_template_both(
+micro_calc_struct_template_both(
     t1 * t2,
     t1 / t2,
     value * t1 / t2);
 
 /* @brief Calculation type for a template type and a rational number.
  **/
-uns_calc_struct_template_first(rational,
+micro_calc_struct_template_first(rational,
     t1 * t2,
     t1 / t2,
     value * t1 * t2.den / t2.num);
 
 /* @brief Calculation type for rational number and a template type.
  **/
-uns_calc_struct_template_second(rational,
+micro_calc_struct_template_second(rational,
     t1 * t2,
     t1 / t2,
     value * t1.num / (t1.den * t2));
 
 /* @brief Calculation type rational numbers.
  **/
-uns_calc_struct(rational, rational,
+micro_calc_struct(rational, rational,
     t1 * t2,
     t1 / t2,
     value * t1.num * t2.den / (t1.den * t2.num));
 
 /* @brief Calculation type for rational and 32-bit floating point number.
  **/
-uns_calc_struct(rational, float32_t,
+micro_calc_struct(rational, float32_t,
     t1.num * t2 / t1.den,
     t1.num / (t2 * t1.den),
     value * t1.num / (t1.den * t2));
 
 /* @brief Calculation type for 32-bit floating point number and rational.
  **/
-uns_calc_struct(float32_t, rational,
+micro_calc_struct(float32_t, rational,
     t1 * t2.num / t2.den,
     t1 * t2.den / t2.den,
     value * t1 * t2.den / t2.num);
 
 } // namespace detail
-} // namespace uns
+} // namespace micro

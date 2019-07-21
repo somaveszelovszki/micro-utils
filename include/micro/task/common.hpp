@@ -1,6 +1,6 @@
 #pragma once
 
-namespace uns {
+namespace micro {
 namespace task {
 
 /* @brief This function is to be called on an error - sets error flag. Error flag can be checked with hasErrorHappened().
@@ -14,4 +14,4 @@ void setErrorFlag();
 bool hasErrorHappened();
 
 } // namespace task
-} // namespace uns
+} // namespace micro

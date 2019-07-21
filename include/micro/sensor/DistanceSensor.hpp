@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uns/hw/HC_SR04_Ultrasonic.hpp>
-#include <uns/sensor/Sensor.hpp>
-#include <uns/sensor/Filter.hpp>
+#include <micro/hw/HC_SR04_Ultrasonic.hpp>
+#include <micro/sensor/Sensor.hpp>
+#include <micro/sensor/Filter.hpp>
 
-namespace uns {
+namespace micro {
 
 constexpr float32_t COMPLIANCE_RATE = 0.3f;         // Compliance for new measurement - relative to previous measurement.
 constexpr meter_t DEADBAND = centimeter_t(10.0f);   // Deadband for new measurement.
@@ -37,4 +37,4 @@ private:
     BounceFilter<distance_t, 2> filter; // Filter for the measured distances. Drops positive and negative peaks.
 };
 
-} // namespace uns
+} // namespace micro

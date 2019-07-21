@@ -1,8 +1,7 @@
-#include <uns/panel/LineDetectPanel.hpp>
-#include <uns/panel/handshake.hpp>
+#include <micro/panel/LineDetectPanel.hpp>
+#include <micro/panel/handshake.hpp>
 
-namespace uns {
-namespace panel {
+namespace micro {
 
 LineDetectPanel::LineDetectPanel(uart_handle_t* _huart)
     : huart(_huart) {}
@@ -10,9 +9,9 @@ LineDetectPanel::LineDetectPanel(uart_handle_t* _huart)
 Status LineDetectPanel::start() {
     static constexpr uint8_t startChars[2] = { 'S', '\n' };
 
-    Status status = panel::handshake(this->huart, startChars, 2);
+    Status status = handshake(this->huart, startChars, 2);
     if (isOk(status)) {
-        uns::UART_Receive_DMA(this->huart, this->linesBuffer, 1 + cfg::MAX_NUM_LINES);
+        UART_Receive_DMA(this->huart, this->linesBuffer, 1 + cfg::MAX_NUM_LINES);
     }
 
     return status;
@@ -25,5 +24,4 @@ void LineDetectPanel::getLinePositions(LinePositions& result) const {
     }
 }
 
-}  // namespace panel
-}  // namespace uns
+} // namespace micro

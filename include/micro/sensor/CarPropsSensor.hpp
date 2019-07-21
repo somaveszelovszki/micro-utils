@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uns/sensor/Sensor.hpp>
-#include <uns/sensor/Filter.hpp>
-#include <uns/CarProps.hpp>
+#include <micro/sensor/Sensor.hpp>
+#include <micro/sensor/Filter.hpp>
+#include <micro/utils/CarProps.hpp>
 
-namespace uns {
+namespace micro {
 
 constexpr uint32_t INCREMENT_PER_WHEEL_ROT = 46344; // Increments per wheel rotation - measured value.
 constexpr float32_t SPEED_COMPLIANCE_RATE = 1.1f;
@@ -51,4 +51,4 @@ private:
     bool speed_updated;
 };
 
-} // namespace uns
+} // namespace micro

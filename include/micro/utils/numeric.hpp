@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 #include <type_traits>
 #include <cmath>
 
-namespace uns {
+namespace micro {
 namespace detail {
 static constexpr float32_t COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for equality check.
 }
@@ -67,7 +67,7 @@ inline bool isBtw(const T1& value, const T2& b1, const T3& b2) {
  */
 template <typename T>
 inline T clamp(const T& value, const T& b1, const T& b2) {
-    return b2 > b1 ? uns::min(uns::max(value, b1), b2) : uns::min(uns::max(value, b2), b1);
+    return b2 > b1 ? micro::min(micro::max(value, b1), b2) : micro::min(micro::max(value, b2), b1);
 }
 
 /**
@@ -177,7 +177,7 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, Sign>::type sgn(con
  */
 template <typename T1, typename T2>
 inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type eq(const T1& value, const T2& ref) {
-    return uns::eq(value, ref, detail::COMMON_EQ_ABS_EPS);
+    return micro::eq(value, ref, detail::COMMON_EQ_ABS_EPS);
 }
 
 /**
@@ -189,7 +189,7 @@ inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmet
  */
 template <typename T1, typename T2>
 inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type isZero(const T1& value, const T2& eps) {
-    return uns::eq(value, 0, eps);
+    return micro::eq(value, 0, eps);
 }
 
 /**
@@ -201,7 +201,7 @@ inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmet
  */
 template <typename T>
 inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isZero(const T& value) {
-    return uns::eq(value, T(0));
+    return micro::eq(value, T(0));
 }
 
 /**
@@ -278,5 +278,5 @@ inline uint32_t decr_underflow(uint32_t value, uint32_t exclusive_max) {
     return value-- == 0 ? exclusive_max - 1 : value;
 }
 
-} // namespace uns
+} // namespace micro
 

@@ -1,22 +1,22 @@
 #pragma once
 
-#include <uns/BitContainer.hpp>
-#include <uns/util/arrays.hpp>
+#include <micro/bit_container.hpp>
+#include <micro/utils/arrays.hpp>
 #include <type_traits>
 
-namespace uns {
+namespace micro {
 
 /* @brief Array for storing binary values memory-efficiently. Values are stored in 32-bit containers to reduce memory need.
  * @tparam N Number of values stored in the array. Should be a multiple of 32 for the best efficiency.
  **/
 template <uint32_t N>
-class BitArray {
+class bit_array {
 
 private:
     static constexpr uint32_t C = 32;                   // Container size.
     static constexpr uint32_t NC = (N + (C - 1)) / C;   // Number of containers.
 
-    typedef BitContainer<C> bit_container_type;         // The bit container type.
+    typedef bit_container<C> bit_container_type;        // The bit container type.
     typedef typename bit_container_type::type type;     // The underlying data type.
     bit_container_type data[NC];                        // Array of containers storing the binary values.
 
@@ -57,7 +57,7 @@ public:
      * @param The result byte array.
      **/
     void toBytes(uint8_t * const result) {
-        uns::copy<NC>(static_cast<type*>(this->data), reinterpret_cast<type*>(result));
+        micro::copy<NC>(static_cast<type*>(this->data), reinterpret_cast<type*>(result));
     }
 
     /* @brief Resets all bits.
@@ -68,4 +68,4 @@ public:
         }
     }
 };
-} // namespace uns
+} // namespace micro

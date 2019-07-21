@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 
 /* @brief Enters critical section.
  **/
@@ -22,4 +22,4 @@ void exitCritical();
  */
 void exitCritical_ISR(uint32_t uxSavedInterruptStatus);
 
-} // namespace uns
+} // namespace micro

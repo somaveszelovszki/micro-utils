@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void adc_handle_t;      // ADC handle - type is bsp library-dependent.
 typedef res_id_t adc_channel_t; // ADC channel identifier type.
@@ -33,4 +33,4 @@ Status ADC_SetChannel(adc_handle_t *hadc, adc_channel_t channel);
  **/
 Status ADC_ReadValue(adc_handle_t *hadc, uint32_t *pResult);
 
-} // namespace uns
+} // namespace micro

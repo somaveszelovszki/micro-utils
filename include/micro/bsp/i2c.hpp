@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void i2c_handle_t;     // I2C handle - type is bsp library-dependent.
 
@@ -91,4 +91,4 @@ Status I2C_Slave_Receive_DMA(i2c_handle_t *hi2c, uint8_t *rxBuffer, uint32_t siz
  * @timeout The maximum timeout to wait for I2C to be free to use.
  **/
 Status I2C_Slave_Receive(i2c_handle_t *hi2c, uint8_t *rxBuffer, uint32_t size, millisecond_t timeout);
-} // namespace uns
+} // namespace micro

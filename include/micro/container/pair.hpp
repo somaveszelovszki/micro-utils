@@ -1,5 +1,5 @@
-#ifndef UNS_UTIL_PAIR_HPP_
-#define UNS_UTIL_PAIR_HPP_
+#ifndef micro_UTIL_PAIR_HPP_
+#define micro_UTIL_PAIR_HPP_
 
 template <typename T1, typename T2>
 struct pair {
@@ -14,4 +14,4 @@ struct pair {
     T2 second;
 };
 
-#endif /* UNS_UTIL_PAIR_HPP_ */
+#endif /* micro_UTIL_PAIR_HPP_ */

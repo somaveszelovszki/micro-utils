@@ -24,11 +24,11 @@ typedef uint32_t res_id_t;  // Resource id type - used when referencing hardware
 #define STR_MAX_LEN_GLOBAL_TYPE 32u     // Maximum length of global parameter name.
 #define MAX_NUM_GLOBAL_PARAMS   128u    // Maximum number of global parameters, that can be set from monitoring app.
 
-#define uns_sizeof_LogMessage   (LOG_MSG_MAX_SIZE + 4)  // Size of a debug::Log object.
-#define uns_sizeof_ControlProps (4 + (4 + 4))           // Size of a ControlProps queue item (speed + sizeof(LineData)).
+#define micro_sizeof_LogMessage   (LOG_MSG_MAX_SIZE + 4)  // Size of a debug::Log object.
+#define micro_sizeof_ControlProps (4 + (4 + 4))           // Size of a ControlProps queue item (speed + sizeof(LineData)).
 
-typedef uint8_t LogQueueItem_t[uns_sizeof_LogMessage];              // Defines buffer type of Log queue item.
-typedef uint8_t ControlPropsQueueItem_t[uns_sizeof_ControlProps];   // Defines buffer type of ControlProps queue item.
+typedef uint8_t LogQueueItem_t[micro_sizeof_LogMessage];              // Defines buffer type of Log queue item.
+typedef uint8_t ControlPropsQueueItem_t[micro_sizeof_ControlProps];   // Defines buffer type of ControlProps queue item.
 
 void onHardFault();
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/bsp/tim.hpp>
+#include <micro/bsp/tim.hpp>
 
-namespace uns {
+namespace micro {
 namespace hw {
 /* @brief Controls a servo motor using a timer configured in PWM mode.
  **/
@@ -41,4 +41,4 @@ public:
     }
 };
 } // namespace hw
-} // namespace uns
+} // namespace micro

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
-namespace uns {
+namespace micro {
 
 /* @brief Converts 16-bit signed integer value to bytes.
  * @param value The 16-bit signed integer value to convert to bytes.
@@ -61,4 +61,4 @@ uint32_t itoa(int32_t n, char *const s, uint32_t numSize, uint32_t padding = 0);
 
 uint32_t ftoa(float32_t n, char * const s, uint32_t decSize, uint32_t fragSize);
 
-} // namespace uns
+} // namespace micro

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void* queue_handle_t;    // Queue handle - type is OS library-dependent.
 
@@ -32,4 +32,4 @@ Status queueSend(queue_handle_t *hQueue, const void *txBuffer);
  **/
 Status queueReceive(queue_handle_t *hQueue, void *rxBuffer);
 
-} // namespace uns
+} // namespace micro

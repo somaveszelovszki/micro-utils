@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void mutex_handle_t;   // Mutex handle - type is OS library-dependent.
 
@@ -47,4 +47,4 @@ Status mutexRelease(mutex_handle_t *hMutex);
  **/
 Status mutexRelease_ISR(mutex_handle_t *hMutex);
 
-} // namespace uns
+} // namespace micro

@@ -1,7 +1,7 @@
-#include <uns/hw/RotaryEncoder.hpp>
-#include <uns/util/numeric.hpp>
+#include <micro/hw/RotaryEncoder.hpp>
+#include <micro/utils/numeric.hpp>
 
-using namespace uns;
+namespace micro {
 
 hw::RotaryEncoder::RotaryEncoder(tim_handle_t *_htim)
     : htim(_htim)
@@ -9,14 +9,14 @@ hw::RotaryEncoder::RotaryEncoder(tim_handle_t *_htim)
     , offset(0) {}
 
 Status hw::RotaryEncoder::initialize() {
-    this->offset = this->prevPos = uns::getTimerCounter(this->htim);
+    this->offset = this->prevPos = micro::getTimerCounter(this->htim);
     return Status::OK;
 }
 
 int32_t hw::RotaryEncoder::getDiff() {
     static constexpr int32_t MAX_VALUE = 65536;
 
-    int32_t currentPos = uns::getTimerCounter(this->htim), diff = currentPos - this->prevPos;
+    int32_t currentPos = micro::getTimerCounter(this->htim), diff = currentPos - this->prevPos;
 
     this->prevPos = currentPos;
 
@@ -28,3 +28,5 @@ int32_t hw::RotaryEncoder::getDiff() {
 
     return diff;
 }
+
+} // namespace micro

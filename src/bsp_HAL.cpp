@@ -1,13 +1,12 @@
-#include <uns/config/cfg_board.hpp>
-
 #ifdef BSP_LIB_HAL
 
-#include <uns/bsp/gpio.hpp>
-#include <uns/bsp/tim.hpp>
-#include <uns/bsp/adc.hpp>
-#include <uns/bsp/i2c.hpp>
-#include <uns/bsp/spi.hpp>
-#include <uns/bsp/uart.hpp>
+#include <micro/bsp/gpio.hpp>
+#include <micro/bsp/tim.hpp>
+#include <micro/bsp/dma.hpp>
+#include <micro/bsp/adc.hpp>
+#include <micro/bsp/i2c.hpp>
+#include <micro/bsp/spi.hpp>
+#include <micro/bsp/uart.hpp>
 
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_gpio.h"
@@ -18,9 +17,7 @@
 #include "stm32f4xx_hal_uart.h"
 #include "stm32f4xx_hal_usart.h"
 
-using namespace uns;
-
-namespace {
+namespace micro {
 
 /* @brief Converts HAL status to Status.
  * @param status The HAL status.
@@ -35,7 +32,7 @@ Status toStatus(HAL_StatusTypeDef status) {
  * @returns The status as an Status.
  **/
 Status toStatus(HAL_SPI_StateTypeDef status) {
-    Status result;
+    Status result = Status::BUSY;
     switch(status) {
     case HAL_SPI_STATE_RESET:   result = Status::OK;    break;
     case HAL_SPI_STATE_READY:   result = Status::OK;    break;
@@ -44,9 +41,6 @@ Status toStatus(HAL_SPI_StateTypeDef status) {
     }
     return result;
 }
-} // namespace
-
-namespace uns {
 
 // TIMER
 
@@ -55,7 +49,8 @@ millisecond_t getTime() {
 }
 
 microsecond_t getExactTime() {
-    return getTime() + microsecond_t(getTimerCounter(cfg::tim_System));
+    return millisecond_t(0); // TODO
+    //return getTime() + microsecond_t(getTimerCounter(cfg::tim_System));
 }
 
 extern "C" TIM_HandleTypeDef  htim1;
@@ -414,91 +409,6 @@ dma_handle_t* getDMA_Handle(DMA dma) {
     return pDMA;
 }
 
-} // namespace uns
-
-// INTERRUPT CALLBACKS - Must be defined in a task's source file!
-
-extern void uns_MotorPanel_Uart_RxCpltCallback();               // Callback for motor panel UART RxCplt - called when receive finishes.
-extern void uns_Serial_Uart_RxCpltCallback();                   // Callback for Serial UART RxCplt - called when receive finishes.
-extern void uns_RadioModule_Uart_RxCpltCallback();              // Callback for radio module UART RxCplt - called when receive finishes.
-extern void uns_FrontLineDetectPanel_Uart_RxCpltCallback();     // Callback for front line detect panel UART RxCplt - called when receive finishes.
-extern void uns_RearLineDetectPanel_Uart_RxCpltCallback();      // Callback for rear line detect panel UART RxCplt - called when receive finishes.
-extern void uns_Bluetooth_Uart_RxCpltCallback();                // Callback for Bluetooth UART RxCplt - called when receive finishes.
-
-/* @brief Internal callback - called when SPI reception finishes.
- * @param hspi Pointer to the SPI handle.
- **/
-extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
-
-}
-
-/* @brief Internal callback - called when SPI transmission finishes.
- * @param hspi Pointer to the SPI handle.
- **/
-extern "C" void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
-
-}
-
-/* @brief Internal callback - called when SPI exchange finishes.
- * @param hspi Pointer to the SPI handle.
- **/
-extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-
-}
-
-/* @brief Internal callback - called when I2C reception finishes.
- * @param hi2c Pointer to the I2C handle.
- **/
-extern "C" void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-
-}
-
-
-/* @brief Internal callback - called when UAR receive finishes.
- * @param huart Pointer to the UART handle.
- **/
-extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart == cfg::uart_MotorPanel) {
-        uns_MotorPanel_Uart_RxCpltCallback();
-
-    } else if (huart == cfg::uart_Serial) {
-        uns_Serial_Uart_RxCpltCallback();
-
-    } else if (huart == cfg::uart_RadioModule) {
-        uns_RadioModule_Uart_RxCpltCallback();
-
-    } else if (huart == cfg::uart_FrontLineDetectPanel) {
-        uns_FrontLineDetectPanel_Uart_RxCpltCallback();
-
-    } else if (huart == cfg::uart_RearLineDetectPanel) {
-        uns_RearLineDetectPanel_Uart_RxCpltCallback();
-
-    } else if (huart == cfg::uart_Bluetooth) {
-        //uint32_t bytes = MAX_RX_BUFFER_SIZE - ((DMA_HandleTypeDef*)cfg::dma_Bluetooth.handle)->Instance->NDTR;
-        uns_Bluetooth_Uart_RxCpltCallback();
-        ((DMA_TypeDef*)cfg::dma_Bluetooth.instance)->HIFCR = DMA_FLAG_DMEIF1_5 | DMA_FLAG_FEIF1_5 | DMA_FLAG_HTIF1_5 | DMA_FLAG_TCIF1_5 | DMA_FLAG_TEIF1_5;    // clears DMA flags before next transfer
-        ((DMA_HandleTypeDef*)cfg::dma_Bluetooth.handle)->Instance->NDTR = MAX_RX_BUFFER_SIZE; // sets number of bytes to receive
-        ((DMA_HandleTypeDef*)cfg::dma_Bluetooth.handle)->Instance->CR |= DMA_SxCR_EN;         // starts DMA transfer
-    }
-}
-
-extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-
-}
-
-/* @brief Callback function for timer period elapsed event.
- * @param htim Pointer to the timer handle.
- **/
-extern "C" void uns_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-
-}
-
-extern "C" void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
-
-}
-
-extern "C" void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-
-}
+} // namespace micro
 
 #endif // BSP_LIB_HAL

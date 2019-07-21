@@ -1,9 +1,8 @@
 #pragma once
 
-#include <uns/bsp/uart.hpp>
+#include <micro/bsp/uart.hpp>
 
-namespace uns {
-namespace panel {
+namespace micro {
 
 class MotorPanel {
 public:
@@ -18,5 +17,4 @@ private:
     uint8_t speedBuffer[4];
 };
 
-}  // namespace panel
-}  // namespace uns
+}  // namespace micro

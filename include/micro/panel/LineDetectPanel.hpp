@@ -1,10 +1,9 @@
 #pragma once
 
-#include <uns/bsp/uart.hpp>
-#include <uns/Line.hpp>
+#include <micro/bsp/uart.hpp>
+#include <micro/utils/Line.hpp>
 
-namespace uns {
-namespace panel {
+namespace micro {
 
 class LineDetectPanel {
 public:
@@ -19,5 +18,4 @@ private:
     uint8_t linesBuffer[1 + cfg::MAX_NUM_LINES];
 };
 
-}  // namespace panel
-}  // namespace uns
+}  // namespace micro

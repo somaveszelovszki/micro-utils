@@ -1,13 +1,10 @@
-#include <uns/config/cfg_board.hpp>
-#include <uns/config/cfg_os.hpp>
-
 #ifdef OS_FREERTOS
 
-#include <uns/bsp/tim.hpp>
-#include <uns/bsp/it.hpp>
-#include <uns/bsp/queue.hpp>
-#include <uns/bsp/mutex.hpp>
-#include <uns/bsp/task.hpp>
+#include <micro/bsp/tim.hpp>
+#include <micro/bsp/it.hpp>
+#include <micro/bsp/queue.hpp>
+#include <micro/bsp/mutex.hpp>
+#include <micro/bsp/task.hpp>
 
 #include "cmsis_os.h"
 
@@ -22,7 +19,7 @@ extern "C" osThreadId   ControlTaskHandle;
 extern "C" osThreadId   DebugTaskHandle;
 extern "C" osThreadId   SetupTaskHandle;
 
-namespace uns {
+namespace micro {
 
 // TIMER
 
@@ -131,6 +128,6 @@ void taskDeleteCurrent() {
     vTaskDelete(nullptr);
 }
 
-} // namespace uns
+} // namespace micro
 
 #endif // OS_FREERTOS

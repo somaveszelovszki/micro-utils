@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void uart_handle_t;   // UART handle - type is bsp library-dependent.
 
@@ -67,4 +67,4 @@ Status UART_Transmit_DMA(uart_handle_t *huart, const uint8_t *txBuffer, uint32_t
  * @return Status indicating operation success.
  **/
 Status UART_Stop_DMA(uart_handle_t *huart);
-} // namespace uns
+} // namespace micro

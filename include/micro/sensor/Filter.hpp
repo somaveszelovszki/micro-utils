@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uns/util/numeric.hpp>
-#include <uns/util/unit_utils.hpp>
+#include <micro/utils/numeric.hpp>
+#include <micro/utils/unit_utils.hpp>
 
-namespace uns {
+namespace micro {
 
 /* @brief Base class for sensor data filters.
  * @tparam T Type of the data to filter.
@@ -74,7 +74,7 @@ const T& BounceFilter<T, N>::update(const T& measuredValue) {
     //
     // In both cases, measurement value will not be saved as output value, only put in the 'raw' array.
     // If a given number of the following samples are in range of this measurement, the sudden change has been validated, and output will be updated.
-    if(this->updateNumCalled() > 1 || uns::isInRange(measuredValue, this->filteredValue, this->complianceRate) || this->isInRangeOfRaw(measuredValue)) {
+    if(this->updateNumCalled() > 1 || micro::isInRange(measuredValue, this->filteredValue, this->complianceRate) || this->isInRangeOfRaw(measuredValue)) {
         this->filteredValue = measuredValue;
     }
 
@@ -87,7 +87,7 @@ template <typename T, uint8_t N>
 bool BounceFilter<T, N>::isInRangeOfRaw(const T& measuredValue) const {
     uint8_t i;
     for (i = 0; i < N; ++i) {
-        if (!uns::isInRange(measuredValue, this->raw[i], this->complianceRate)) {
+        if (!micro::isInRange(measuredValue, this->raw[i], this->complianceRate)) {
             break;
         }
     }
@@ -123,7 +123,7 @@ template <typename T>
 const T& NoJumpFilter<T>::update(const T& measuredValue) {
     // If measured value is in range of the filtered (output) value, it will be the next output, as it is a valid value.
     // If it is not in the range, it will not be saved.
-    if(this->updateNumCalled() > 1 || uns::eq(measuredValue, this->filteredValue, this->deadBand) || uns::isInRange(measuredValue, this->filteredValue, this->complianceRate)) {
+    if(this->updateNumCalled() > 1 || micro::eq(measuredValue, this->filteredValue, this->deadBand) || micro::isInRange(measuredValue, this->filteredValue, this->complianceRate)) {
         this->filteredValue = measuredValue;
     }
 
@@ -173,4 +173,4 @@ const T& LowPassFilter<T, N>::update(const T& measuredValue) {
     return this->filteredValue;
 }
 
-} // namespace uns
+} // namespace micro

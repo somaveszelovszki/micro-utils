@@ -1,13 +1,12 @@
 #pragma once
 
-#include <uns/config/cfg_perf.hpp>
-#include <uns/container/vec.hpp>
-#include <uns/util/types.hpp>
-#include <uns/bsp/uart.hpp>
+#include <micro/container/vec.hpp>
+#include <micro/utils/types.hpp>
+#include <micro/bsp/uart.hpp>
 
 #include <cstdarg>
 
-namespace uns {
+namespace micro {
 namespace debug {
 
 /* @brief Structure for storing debug messages.
@@ -30,7 +29,7 @@ namespace debug {
 
 typedef vec<char, LOG_MSG_MAX_SIZE> LogMessage;
 
-static_assert(sizeof(LogMessage) == uns_sizeof_LogMessage, "Size of 'debug::LogMessage' does not match required log item size!");
+static_assert(sizeof(LogMessage) == micro_sizeof_LogMessage, "Size of 'debug::LogMessage' does not match required log item size!");
 
 /* @brief Prints a debug code and a string to the console through USART.
  * Supported modifiers : %s, %c, %d, %f
@@ -52,14 +51,14 @@ void printlog(LogLevel level, const char *format, ...);
 void printerr(Status status, const char *format, ...);
 
 } // namespace debug
-} // namespace uns
+} // namespace micro
 
-#if LOGGING_ENABLED && 0
+#if LOG_ENABLED
 
-#define LOG_DEBUG(format, ...)      uns::debug::printlog(uns::LogLevel::Debug, format, ##__VA_ARGS__)
-#define LOG_INFO(format, ...)       uns::debug::printlog(uns::LogLevel::Info, format, ##__VA_ARGS__)
-#define LOG_WARNING(format, ...)    uns::debug::printlog(uns::LogLevel::Warning, format, ##__VA_ARGS__)
-#define LOG_ERROR_WITH_STATUS(status, format, ...)  uns::debug::printerr(status, format, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...)      micro::debug::printlog(micro::LogLevel::Debug, format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)       micro::debug::printlog(micro::LogLevel::Info, format, ##__VA_ARGS__)
+#define LOG_WARNING(format, ...)    micro::debug::printlog(micro::LogLevel::Warning, format, ##__VA_ARGS__)
+#define LOG_ERROR_WITH_STATUS(status, format, ...)  micro::debug::printerr(status, format, ##__VA_ARGS__)
 
 #else
 

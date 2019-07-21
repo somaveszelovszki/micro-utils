@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/numeric.hpp>
+#include <micro/utils/numeric.hpp>
 
-namespace uns {
+namespace micro {
 namespace base {
 
 template <typename A, typename B>
@@ -18,4 +18,4 @@ public:
 };
 
 } // namespace base
-} // namespace uns
+} // namespace micro

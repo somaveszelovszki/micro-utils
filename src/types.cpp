@@ -1,9 +1,8 @@
-#include <uns/util/types.hpp>
-#include <uns/util/debug.hpp>
+#include <micro/utils/types.hpp>
+#include <micro/utils/debug.hpp>
 
-using namespace uns;
+namespace micro {
 
-namespace uns {
 const char* getStatusString(Status status) {
 
     static const char * const STR_OK            = "OK";
@@ -16,7 +15,7 @@ const char* getStatusString(Status status) {
     static const char * const STR_BUFFER_FULL   = "BUFFER_FULL";
     static const char * const STR_unknown       = "unknown error";
 
-    const char *result;
+    const char *result = STR_unknown;
     switch (status) {
         case Status::OK:            result = STR_OK;            break;
         case Status::ERROR:         result = STR_ERROR;         break;
@@ -30,8 +29,9 @@ const char* getStatusString(Status status) {
     }
     return result;
 }
-} // namespace uns
+
+} // namespace micro
 
 extern "C" void onHardFault() {
-    LOG_ERROR_WITH_STATUS(Status::ERROR, "Hard fault!");
+    LOG_ERROR_WITH_STATUS(micro::Status::ERROR, "Hard fault!");
 }

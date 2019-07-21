@@ -1,21 +1,21 @@
 #pragma once
 
-#include <uns/util/arrays.hpp>
-#include <uns/util/numeric.hpp>
+#include <micro/utils/arrays.hpp>
+#include <micro/utils/numeric.hpp>
 
-namespace uns {
+namespace micro {
 
 /* @brief Ring buffer implementation.
  * @note This class is not concurrent.
  * @tparam T Type of the stored elements.
  * @tparam capacity The capacity of the buffer. Usable capacity is (capacity - 1), because the plus one element is used to determine if the buffer is empty or full.
  **/
-template <typename T, uint32_t capacity>
-class RingBuffer {
-public:
-    T data[capacity];           // The buffer.
-    volatile uint32_t head;     // The head - writing starts from this point.
-    volatile uint32_t tail;     // The tail - reading starts from this point.
+template <typename T, uint32_t capacity_>
+class ring_buffer {
+private:
+    T data_[capacity_];          // The buffer.
+    volatile uint32_t head_;     // The head - writing starts from this point.
+    volatile uint32_t tail_;     // The tail - reading starts from this point.
 
     static Status toStatus(bool result) {
         Status status = result ? Status::OK : Status::BUFFER_FULL;
@@ -25,37 +25,37 @@ public:
 public:
     /* @brief Default constructor - initializes head and tail indexes.
      **/
-    RingBuffer()
-        : head(0)
-        , tail(0) {}
+    ring_buffer()
+        : head_(0)
+        , tail_(0) {}
 
     /* @brief Gets writable buffer pointer.
      * @note Do not write to any elements other than this one!
      * @returns Pointer to the writable buffer.
      **/
     T* getWritableBuffer() {
-        return this->data + this->head;
+        return this->data_ + this->head_;
     }
 
     /* @brief Gets readable buffer pointer.
      * @returns Pointer to the readable buffer.
      **/
     const T* getReadableBuffer() const {
-        return this->data + this->tail;
+        return this->data_ + this->tail_;
     }
 
     /* @brief Updates head position.
      * @param _count The number of elements that have been read.
      **/
     void updateHead(uint32_t _count) {
-        this->head = (this->head + _count) % capacity;
+        this->head_ = (this->head_ + _count) % capacity_;
     }
 
     /* @brief Updates tail position.
      * @param _count The number of elements that have been written.
      **/
     void updateTail(uint32_t _count) {
-        this->tail = (this->tail + _count) % capacity;
+        this->tail_ = (this->tail_ + _count) % capacity_;
     }
 
     /* @brief Puts new element into the buffer.
@@ -79,9 +79,9 @@ public:
     Status get(T *pDest);
 
     Status check(T *pDest) {
-        bool _get = this->head != this->tail;
+        bool _get = this->head_ != this->tail_;
         if (_get) {
-            *pDest = this->data[this->tail];
+            *pDest = this->data_[this->tail_];
         }
         return toStatus(_get);
     }
@@ -98,15 +98,22 @@ public:
      * @returns The current number of elements stored in the buffer.
      **/
     uint32_t size() const {
-        uint32_t _size = this->head >= this->tail ? this->head - this->tail : capacity + this->head - this->tail;
+        uint32_t _size = this->head_ >= this->tail_ ? this->head_ - this->tail_ : capacity_ + this->head_ - this->tail_;
         return _size;
+    }
+
+    /* @brief Gets capacity of the buffer.
+     * @returns The capacity of the buffer.
+     **/
+    uint32_t capacity() const {
+        return capacity_;
     }
 
     /* @brief Gets size of the buffer that is safe to read without addressing out of the buffer (may not be equal to the buffer size).
      * @returns The buffer's safe size.
      **/
     uint32_t safeReadSize() const {
-        uint32_t safe_size = min(this->size(), capacity - this->tail);
+        uint32_t safe_size = min(this->size(), capacity_ - this->tail_);
         return safe_size;
     }
 
@@ -118,11 +125,11 @@ public:
     int32_t indexOf(const T& value, uint32_t start = 0);
 };
 
-template <typename T, uint32_t capacity>
-Status RingBuffer<T, capacity>::put(const T& value) {
-    bool _put = this->size() + 1 < capacity;
+template <typename T, uint32_t capacity_>
+Status ring_buffer<T, capacity_>::put(const T& value) {
+    bool _put = this->size() + 1 < capacity_;
     if (_put) {
-        this->data[this->head] = value;
+        this->data_[this->head_] = value;
         this->updateHead(1);
     }
 
@@ -130,17 +137,17 @@ Status RingBuffer<T, capacity>::put(const T& value) {
     return result;
 }
 
-template <typename T, uint32_t capacity>
-Status RingBuffer<T, capacity>::put(const T *const values, uint32_t _count) {
-    bool _put = this->size() + _count < capacity;
+template <typename T, uint32_t capacity_>
+Status ring_buffer<T, capacity_>::put(const T *const values, uint32_t _count) {
+    bool _put = this->size() + _count < capacity_;
 
     if (_put) {
-        uint32_t sizeAfterHead = min(_count, capacity - this->head),
+        uint32_t sizeAfterHead = min(_count, capacity_ - this->head_),
             sizeBeforeTail = _count > sizeAfterHead ? _count - sizeAfterHead : 0;
 
-        uns::copy(values, this->data + this->head, sizeAfterHead);
+        micro::copy(values, this->data_ + this->head_, sizeAfterHead);
         if (sizeBeforeTail > 0) {
-            uns::copy(values + sizeAfterHead, this->data, sizeBeforeTail);
+            micro::copy(values + sizeAfterHead, this->data_, sizeBeforeTail);
         }
 
         this->updateHead(_count);
@@ -150,11 +157,11 @@ Status RingBuffer<T, capacity>::put(const T *const values, uint32_t _count) {
     return result;
 }
 
-template <typename T, uint32_t capacity>
-Status RingBuffer<T, capacity>::get(T *pDest) {
+template <typename T, uint32_t capacity_>
+Status ring_buffer<T, capacity_>::get(T *pDest) {
     bool _get = !!this->size();
     if (_get) {
-        *pDest = this->data[tail];
+        *pDest = this->data_[this->tail_];
         this->updateTail(1);
     }
 
@@ -162,16 +169,16 @@ Status RingBuffer<T, capacity>::get(T *pDest) {
     return result;
 }
 
-template <typename T, uint32_t capacity>
-Status RingBuffer<T, capacity>::get(T * const buffer, uint32_t _count) {
+template <typename T, uint32_t capacity_>
+Status ring_buffer<T, capacity_>::get(T * const buffer, uint32_t _count) {
     bool _get = this->size() >= _count;
     if (_get) {
-        uint32_t sizeAfterTail = min(_count, capacity - this->tail),
+        uint32_t sizeAfterTail = min(_count, capacity_ - this->tail_),
             sizeBeforeHead = _count > sizeAfterTail ? _count - sizeAfterTail : 0;
 
-        uns::copy(this->data + this->tail, buffer, sizeAfterTail);
+        micro::copy(this->data_ + this->tail_, buffer, sizeAfterTail);
         if (sizeBeforeHead > 0) {
-            uns::copy(this->data, buffer, sizeBeforeHead);
+            micro::copy(this->data_, buffer, sizeBeforeHead);
         }
 
         this->updateTail(_count);
@@ -181,15 +188,15 @@ Status RingBuffer<T, capacity>::get(T * const buffer, uint32_t _count) {
     return result;
 }
 
-template<typename T, uint32_t capacity>
-int32_t RingBuffer<T, capacity>::indexOf(const T& value, uint32_t start) {
+template<typename T, uint32_t capacity_>
+int32_t ring_buffer<T, capacity_>::indexOf(const T& value, uint32_t start) {
     uint32_t i;
     int32_t idx = -1;
 
     // searches after tail
     uint32_t sizeAfterTail = this->safeReadSize();
     for (i = start; i < sizeAfterTail; ++i) {
-        if (this->data[this->tail + i] == value) {
+        if (this->data_[this->tail_ + i] == value) {
             idx = i;
             break;
         }
@@ -199,7 +206,7 @@ int32_t RingBuffer<T, capacity>::indexOf(const T& value, uint32_t start) {
     if (idx == -1) {
         uint32_t sizeBeforeHead = this->size() - sizeAfterTail;
         for (i = 0; i < sizeBeforeHead; ++i) {
-            if (this->data[i] == value) {
+            if (this->data_[i] == value) {
                 idx = sizeAfterTail + i;
                 break;
             }
@@ -208,4 +215,4 @@ int32_t RingBuffer<T, capacity>::indexOf(const T& value, uint32_t start) {
 
     return idx;
 }
-} // namespace uns
+} // namespace micro

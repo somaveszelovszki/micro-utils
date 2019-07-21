@@ -1,15 +1,15 @@
 #pragma once
 
-#include <uns/bsp/i2c.hpp>
-#include <uns/util/units.hpp>
-#include <uns/Point3.hpp>
+#include <micro/bsp/i2c.hpp>
+#include <micro/utils/units.hpp>
+#include <micro/utils/point3.hpp>
 
-namespace uns {
+namespace micro {
 namespace hw {
 
 /* @brief Stores gyroscope data.
  **/
-typedef Point3<angular_velocity_t> GyroData;
+typedef point3<rad_per_sec_t> GyroData;
 
 class LSM6DS3_Gyroscope {
 private:
@@ -23,7 +23,7 @@ public :
 
     /* @brief Initializes gyroscope.
      **/
-    Status initialize();
+    Status initialize(void);
 
     /* @brief Read gyroscope data from the sensor.
      * @param pResult Pointer to a GyroData structure that will store the current gyroscope data.
@@ -32,4 +32,4 @@ public :
     Status read(GyroData * const pResult);
 };
 } // namespace hw
-} // namespace uns
+} // namespace micro

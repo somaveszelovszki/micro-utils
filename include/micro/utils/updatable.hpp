@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/atomic.hpp>
+#include <micro/utils/atomic.hpp>
 
-namespace uns {
+namespace micro {
 
 template <typename T>
 class atomic_updatable {
@@ -36,4 +36,4 @@ private:
     atomic<T> value_;
     bool updated_;
 };
-}  // namespace uns
+} // namespace micro

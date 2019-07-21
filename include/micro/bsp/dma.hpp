@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void dma_handle_t;      // GPIO type - bsp library-dependent.
 typedef void dma_t;             // GPIO type - bsp library-dependent.
@@ -36,4 +36,4 @@ dma_t* getDMA(res_id_t dma);
 dma_handle_t* getDMA_Handle(DMA dma);
 
 void DMA_retrigger();
-} // namespace uns
+} // namespace micro

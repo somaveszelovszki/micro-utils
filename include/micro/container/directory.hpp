@@ -1,17 +1,17 @@
 #pragma once
 
-#include <uns/container/vec.hpp>
-#include <uns/container/pair.hpp>
+#include <micro/container/vec.hpp>
+#include <micro/container/pair.hpp>
 
-namespace uns {
+namespace micro {
 
 /* @brief Stores sorted key-value pairs.
  * @tparam K The key type.
  * @tparam V The value type.
- * @tparam capacity The map capacity.
+ * @tparam capacity The directory capacity.
   **/
 template <typename K, typename V, uint32_t capacity_>
-class map {
+class directory {
 public:
     typedef pair<K, V> entry_type;
 
@@ -30,7 +30,7 @@ public:
         return this->values_.capacity();
     }
 
-    /* @brief Puts a key-value pair into the map.
+    /* @brief Puts a key-value pair into the directory.
      * @param key The key.
      * @param Value The value.
      **/
@@ -62,7 +62,7 @@ public:
 
             do {
 
-                uint32_t mid = uns::avg(first, last);
+                uint32_t mid = micro::avg(first, last);
                 const entry_type& entry = this->values_[mid];
 
                 if (key < entry.first) {
@@ -84,7 +84,7 @@ public:
      * @returns Pointer to the value or nullptr if key not found.
      **/
     V* get(const K& key) {
-        return const_cast<V*>(const_cast<const map*>(this)->get(key));
+        return const_cast<V*>(const_cast<const directory*>(this)->get(key));
     }
 
     /* @brief Clears vector.
@@ -112,4 +112,4 @@ public:
 private:
     vec<entry_type, capacity_> values_;  // Vector of the values.
 };
-} // namespace uns
+} // namespace micro

@@ -1,8 +1,8 @@
-#include <uns/params.hpp>
-#include <uns/bsp/task.hpp>
-#include <uns/util/debug.hpp>
+#include <micro/debug/params.hpp>
+#include <micro/bsp/task.hpp>
+#include <micro/utils/debug.hpp>
 
-namespace uns {
+namespace micro {
 
 void Params::updateParam(uint8_t id, const uint8_t *buf, uint8_t size) {
     Param *param = this->values.get(id);
@@ -10,13 +10,13 @@ void Params::updateParam(uint8_t id, const uint8_t *buf, uint8_t size) {
         if (param->size == size) {
 
             if (param->hmutex != nullptr) {
-                while (!isOk(uns::mutexTake(param->hmutex, millisecond_t(1)))) {}
+                while (!isOk(micro::mutexTake(param->hmutex, millisecond_t(1)))) {}
                 memcpy(param->buf, buf, size);
-                uns::mutexRelease(param->hmutex);
+                micro::mutexRelease(param->hmutex);
             } else {
-                uns::taskSuspendAll();
+                taskSuspendAll();
                 memcpy(param->buf, buf, size);
-                uns::taskResumeAll();
+                taskResumeAll();
             }
 
         } else {
@@ -27,4 +27,4 @@ void Params::updateParam(uint8_t id, const uint8_t *buf, uint8_t size) {
     }
 }
 
-} // namespace uns
+} // namespace micro

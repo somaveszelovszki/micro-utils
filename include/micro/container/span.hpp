@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
-namespace uns {
+namespace micro {
 
 template <typename T>
 class span {
@@ -27,4 +27,4 @@ private:
     T * const data_;
     const uint32_t size_;
 };
-} // namespace uns
+} // namespace micro

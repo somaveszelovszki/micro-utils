@@ -1,10 +1,10 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 #include "cmsis_os.h"
 
 
-namespace uns {
+namespace micro {
 
 template <typename T>
 class sync {
@@ -34,4 +34,4 @@ public:
         return _updated;
     }
 };
-} // namespace uns
+} // namespace micro

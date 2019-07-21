@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void tim_handle_t;      // Timer handle type - real type is bsp library-dependent.
 typedef uint16_t tim_channel_t; // Timer channel identifier type.
@@ -65,4 +65,4 @@ void setTimerCounter(tim_handle_t *htim, uint32_t cntr);
  **/
 uint32_t getTimerCompare(tim_handle_t *htim, uint32_t channel);
 
-} // namespace uns
+} // namespace micro

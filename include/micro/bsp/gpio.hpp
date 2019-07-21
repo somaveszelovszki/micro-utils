@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/types.hpp>
+#include <micro/utils/types.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void gpio_handle_t;     // GPIO type - bsp library-dependent.
 typedef res_id_t gpio_pin_t;    // GPIO pin type - bsp library-dependent.
@@ -55,4 +55,4 @@ PinState GPIO_ReadPin(const gpio_pin_struct& gpio);
  * @param gpio Structure containing the GPIO instance and pin.
  **/
 void GPIO_TogglePin(const gpio_pin_struct& gpio);
-} // namespace uns
+} // namespace micro

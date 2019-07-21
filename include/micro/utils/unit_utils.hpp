@@ -1,9 +1,9 @@
 #pragma once
 
-#include <uns/util/numeric.hpp>
-#include <uns/util/constants.hpp>
+#include <micro/utils/numeric.hpp>
+#include <micro/utils/constants.hpp>
 
-namespace uns {
+namespace micro {
 
 /**
  * @brief Gets value.
@@ -45,7 +45,7 @@ inline typename std::enable_if<T::is_dim_class, Sign>::type sgn(const T& value) 
  */
 template <typename T1, typename T2>
 inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type eq(const T1& value, const T2& ref) {
-    return uns::eq(value, ref, T1(uns::detail::COMMON_EQ_ABS_EPS, nullptr));
+    return micro::eq(value, ref, T1(micro::detail::COMMON_EQ_ABS_EPS, nullptr));
 }
 
 /**
@@ -57,7 +57,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  */
 template <typename T1, typename T2>
 inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type isZero(const T1& value, const T2 eps) {
-    return uns::eq(value, T1::ZERO(), eps);
+    return micro::eq(value, T1::ZERO(), eps);
 }
 
 /**
@@ -69,7 +69,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  */
 template <typename T>
 inline typename std::enable_if<T::is_dim_class, bool>::type isZero(const T& value) {
-    return uns::eq(value, T::ZERO());
+    return micro::eq(value, T::ZERO());
 }
 
 /**
@@ -185,30 +185,30 @@ inline radian_t normalize180(radian_t value) {
 
 inline bool eqWithOverflow360(radian_t value, radian_t ref, radian_t eps) {
     static constexpr radian_t DEG_360 = 2 * PI;
-    return uns::eq(value, ref, eps) || uns::eq(value + DEG_360, ref, eps) || uns::eq(value - DEG_360, ref, eps);
+    return micro::eq(value, ref, eps) || micro::eq(value + DEG_360, ref, eps) || micro::eq(value - DEG_360, ref, eps);
 }
 
 inline bool eqWithOverflow180(radian_t value, radian_t ref, radian_t eps) {
-    return uns::eq(value, ref, eps) || uns::eq(value + PI, ref, eps) || uns::eq(value - PI, ref, eps);
+    return micro::eq(value, ref, eps) || micro::eq(value + PI, ref, eps) || micro::eq(value - PI, ref, eps);
 }
 
 inline radian_t round45(radian_t value) {
     static constexpr radian_t EPS = PI_4 / 2;
     radian_t result;
 
-    if (uns::eqWithOverflow360(value, PI_4, EPS)) {
+    if (micro::eqWithOverflow360(value, PI_4, EPS)) {
         result = PI_4;
-    } else if (uns::eqWithOverflow360(value, PI_2, EPS)) {
+    } else if (micro::eqWithOverflow360(value, PI_2, EPS)) {
         result = PI_2;
-    } else if (uns::eqWithOverflow360(value, 3 * PI_4, EPS)) {
+    } else if (micro::eqWithOverflow360(value, 3 * PI_4, EPS)) {
         result = 3 * PI_4;
-    } else if (uns::eqWithOverflow360(value, PI, EPS)) {
+    } else if (micro::eqWithOverflow360(value, PI, EPS)) {
         result = PI;
-    } else if (uns::eqWithOverflow360(value, 5 * PI_4, EPS)) {
+    } else if (micro::eqWithOverflow360(value, 5 * PI_4, EPS)) {
         result = 5 * PI_4;
-    } else if (uns::eqWithOverflow360(value, 3 * PI_2, EPS)) {
+    } else if (micro::eqWithOverflow360(value, 3 * PI_2, EPS)) {
         result = 3 * PI_2;
-    } else if (uns::eqWithOverflow360(value, 7 * PI_4, EPS)) {
+    } else if (micro::eqWithOverflow360(value, 7 * PI_4, EPS)) {
         result = 7 * PI_4;
     } else {
         result = radian_t::ZERO();
@@ -221,11 +221,11 @@ inline radian_t round90(radian_t value) {
     static constexpr radian_t EPS = PI_4;
     radian_t result;
 
-    if (uns::eqWithOverflow360(value, PI_2, EPS)) {
+    if (micro::eqWithOverflow360(value, PI_2, EPS)) {
         result = PI_2;
-    } else if (uns::eqWithOverflow360(value, PI, EPS)) {
+    } else if (micro::eqWithOverflow360(value, PI, EPS)) {
         result = PI;
-    } else if (uns::eqWithOverflow360(value, 3 * PI_2, EPS)) {
+    } else if (micro::eqWithOverflow360(value, 3 * PI_2, EPS)) {
         result = 3 * PI_2;
     } else {
         result = radian_t::ZERO();
@@ -281,17 +281,17 @@ inline distance_t pythag(distance_t a, distance_t b, distance_t c) {
 }
 
 inline radian_t straighten(radian_t angle, radian_t eps) {
-    if (uns::eq(angle, PI_2, eps)) {
+    if (micro::eq(angle, PI_2, eps)) {
         angle = PI_2;
-    } else if (uns::eq(angle, PI, eps)) {
+    } else if (micro::eq(angle, PI, eps)) {
         angle = PI;
-    } else if (uns::eq(angle, 3 * PI_2, eps)) {
+    } else if (micro::eq(angle, 3 * PI_2, eps)) {
         angle = 3 * PI_2;
-    } else if (uns::isZero(angle, eps) || uns::eq(angle, 2 * PI, eps)) {
+    } else if (micro::isZero(angle, eps) || micro::eq(angle, 2 * PI, eps)) {
         angle = radian_t::ZERO();
     }
 
     return angle;
 }
-} // namespace uns
+} // namespace micro
 

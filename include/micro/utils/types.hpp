@@ -1,11 +1,11 @@
 #pragma once
 
-#include <uns/util/types.h>
-#include <uns/util/typeinfo.hpp>
+#include "types.h"
+#include "typeinfo.hpp"
 
 #include <type_traits>
 
-namespace uns {
+namespace micro {
 
 DEFINE_TYPEINFO(bool);
 
@@ -19,10 +19,7 @@ DEFINE_TYPEINFO(int16_t);
 DEFINE_TYPEINFO(int32_t);
 DEFINE_TYPEINFO(int64_t);
 
-typedef float float32_t;
 DEFINE_TYPEINFO(float32_t);
-
-typedef double float64_t;
 DEFINE_TYPEINFO(float64_t);
 
 /**
@@ -119,4 +116,4 @@ struct is_base_of_template_impl
 template < template <typename...> class base,typename derived>
 using is_base_of_template = typename is_base_of_template_impl<base,derived>::type;
 
-} // namespace uns
+} // namespace micro

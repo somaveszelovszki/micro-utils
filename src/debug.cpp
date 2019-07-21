@@ -1,17 +1,14 @@
-#include <uns/util/debug.hpp>
-#include <uns/config/cfg_board.hpp>
-#include <uns/config/cfg_os.hpp>
-#include <uns/config/cfg_perf.hpp>
-#include <uns/container/vec.hpp>
-#include <uns/container/RingBuffer.hpp>
-#include <uns/util/numeric.hpp>
-#include <uns/util/convert.hpp>
-#include <uns/bsp/queue.hpp>
+#include <micro/utils/debug.hpp>
+#include <micro/container/vec.hpp>
+#include <micro/container/ring_buffer.hpp>
+#include <micro/utils/numeric.hpp>
+#include <micro/utils/convert.hpp>
+#include <micro/bsp/queue.hpp>
 
 #include <cstdarg>
 #include <cstring>
 
-namespace uns {
+namespace micro {
 namespace debug {
 
 constexpr uint32_t STR_MAX_LEN_INT        = 1 + 10;         // sign + decimal
@@ -30,12 +27,12 @@ constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + 
 //    this->append(&c, 1);
 //}
 
-#if LOGGING_ENABLED
+#if LOG_ENABLED
 void printlog(LogLevel level, const char *format, va_list args, Status status) {
     LogMessage msg;
 
     // TODO handle level
-    char numBuf[uns::max(STR_MAX_LEN_INT, STR_MAX_LEN_FLOAT) + 1];
+    char numBuf[micro::max(STR_MAX_LEN_INT, STR_MAX_LEN_FLOAT) + 1];
 
     uint32_t n = 0; // will store the index of the current character
 
@@ -58,7 +55,7 @@ void printlog(LogLevel level, const char *format, va_list args, Status status) {
 
             case 'd':
             {
-                const uint32_t len = uns::itoa(va_arg(args, int), numBuf, STR_MAX_LEN_INT);
+                const uint32_t len = micro::itoa(va_arg(args, int), numBuf, STR_MAX_LEN_INT);
                 if (len > 0) {
                     msg.append(numBuf, numBuf + strlen(numBuf));
                 }
@@ -67,14 +64,14 @@ void printlog(LogLevel level, const char *format, va_list args, Status status) {
 
             case 'f':
             {
-                const uint32_t len = uns::ftoa(static_cast<float32_t>(va_arg(args, double)), numBuf, STR_MAX_LEN_FLOAT_DEC, STR_MAX_LEN_FLOAT_FRAC);
+                const uint32_t len = micro::ftoa(static_cast<float32_t>(va_arg(args, double)), numBuf, STR_MAX_LEN_FLOAT_DEC, STR_MAX_LEN_FLOAT_FRAC);
                 if (len > 0) {
                     msg.append(numBuf, numBuf + strlen(numBuf));
                 }
                 break;
             }
             default:
-                // Unsupported printf modifier
+                // microupported printf modifier
                 break;
             }
         }
@@ -87,14 +84,14 @@ void printlog(LogLevel level, const char *format, va_list args, Status status) {
         static const char *statusTemplate = " | Status: ";
         static const uint32_t statusTemplateLen = strlen(statusTemplate);
 
-        const char *statusStr = uns::getStatusString(status);
+        const char *statusStr = micro::getStatusString(status);
 
         msg.append(statusTemplate, statusTemplate + statusTemplateLen);
         msg.append(statusStr, statusStr + strlen(statusStr));
     }
 
     if (msg.append('\0')) {
-        uns::queueSend(cfg::queue_Log, &msg);
+        micro::queueSend(micro::getQueueHandle(QUEUE::LOG), &msg);
     }
 }
 
@@ -122,7 +119,7 @@ void printlog(LogLevel, const char*, ...) {}
 // Empty implementation for non-debug configuration.
 void printerr(Status, const char*, ...) {}
 
-#endif // LOGGING_ENABLED
+#endif // LOG_ENABLED
 
 } // namespace debug
-} // namesapce uns
+} // namespace micro

@@ -9,7 +9,7 @@ namespace micro {
  **/
 template <typename T> struct point3;
 
-template <typename T> using Vec3 = point3<T>;
+template <typename T> using vec3 = point3<T>;
 
 template <typename T> struct bbox3;
 
@@ -183,8 +183,8 @@ template <typename T> struct point3 {
     static void bbox(const point3<T> points[], uint32_t numPoints, bbox3<T> *pResult);
 };
 
-typedef point3<float32_t>   point3f, Vec3f;          // 32-bit floating point types.
-typedef point3<uint8_t>     point3ui8, Vec3ui8;      // 8-bit microigned integer point types.
+typedef point3<float32_t>   point3f, vec3f;          // 32-bit floating point types.
+typedef point3<uint8_t>     point3ui8, vec3ui8;      // 8-bit microigned integer point types.
 
 /* @brief 3-dimensional bounding box.
  * @tparam T Numeric type of the coordinates.

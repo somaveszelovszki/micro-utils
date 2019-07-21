@@ -1,8 +1,8 @@
 #pragma once
 
-#include <uns/util/units.hpp>
+#include <micro/utils/units.hpp>
 
-namespace uns {
+namespace micro {
 
 typedef void spi_handle_t;    // SPI handle - type is bsp library-dependent.
 
@@ -76,4 +76,4 @@ Status SPI_GetState(spi_handle_t *hspi);
  **/
 void SPI_SetReady(spi_handle_t *hspi);
 
-} // namespace uns
+} // namespace micro

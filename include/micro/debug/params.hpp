@@ -1,12 +1,12 @@
 #pragma once
 
-#include <uns/container/map.hpp>
-#include <uns/util/atomic.hpp>
-#include <uns/util/typeinfo.hpp>
+#include <micro/container/directory.hpp>
+#include <micro/utils/atomic.hpp>
+#include <micro/utils/typeinfo.hpp>
 
 #include <cstring>
 
-namespace uns {
+namespace micro {
 
 enum class DebugCode : uint8_t {
     Log   = 1,
@@ -61,17 +61,17 @@ private:
 
     template <typename T>
     Param fillParamStruct(const char *name, T *value) {
-        return Param(name, uns::typeinfo<T>::name(), nullptr, reinterpret_cast<uint8_t*>(value), sizeof(T));
+        return Param(name, micro::typeinfo<T>::name(), nullptr, reinterpret_cast<uint8_t*>(value), sizeof(T));
     }
 
     template <typename T>
     Param fillParamStruct(const char *name, atomic<T> *value) {
         T *value_ptr = const_cast<T*>(value->wait_ptr());
         value->release_ptr();
-        return Param(name, uns::typeinfo<T>::name(), value->getMutex(), reinterpret_cast<uint8_t*>(value_ptr), sizeof(T));
+        return Param(name, micro::typeinfo<T>::name(), value->getMutex(), reinterpret_cast<uint8_t*>(value_ptr), sizeof(T));
     }
 
-    map<uint8_t, Param, MAX_NUM_GLOBAL_PARAMS> values;
+    directory<uint8_t, Param, MAX_NUM_GLOBAL_PARAMS> values;
 };
 
-} // namespace uns
+} // namespace micro
