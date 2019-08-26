@@ -15,7 +15,7 @@ public:
      * @param _chnlFwd The timer channel used for forward PWM generation.
      * @param _chnlBwd The timer channel used for backward PWM generation.
      **/
-    DC_Motor(tim_handle_t *_htim, tim_channel_t _chnlFwd, tim_channel_t _chnlBwd);
+    DC_Motor(tim_handle_t _htim, tim_channel_t _chnlFwd, tim_channel_t _chnlBwd);
 
     /* @brief Writes PWM value to the DC motor - writes PWM pin.
      * @param _pwm The PWM value to write.
@@ -26,7 +26,7 @@ public:
     void forceStop();
 
 private:
-    tim_handle_t *htim;             // The handle for the timer used for PWM generation.
+    tim_handle_t htim;              // The handle for the timer used for PWM generation.
     const tim_channel_t chnlFwd;    // The timer channel used for forward PWM generation.
     const tim_channel_t chnlBwd;    // The timer channel used for backward PWM generation.
 

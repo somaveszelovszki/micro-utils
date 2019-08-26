@@ -49,7 +49,7 @@ deg_per_sec_t gyroToAngVel(const uint8_t * const gyroValBuffer)
     return deg_per_sec_t(gyroVal * ratio);
 }
 
-LSM6DS3_Gyroscope::LSM6DS3_Gyroscope(i2c_handle_t * const _hi2c)
+LSM6DS3_Gyroscope::LSM6DS3_Gyroscope(i2c_handle_t _hi2c)
     : hi2c(_hi2c) {}
 
 Status LSM6DS3_Gyroscope::initialize(void) {

@@ -3,7 +3,7 @@
 
 namespace micro {
 
-LineDetectPanel::LineDetectPanel(uart_handle_t* _huart)
+LineDetectPanel::LineDetectPanel(uart_handle_t _huart)
     : huart(_huart) {}
 
 Status LineDetectPanel::start() {

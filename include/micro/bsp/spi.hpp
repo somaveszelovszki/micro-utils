@@ -4,13 +4,7 @@
 
 namespace micro {
 
-typedef void spi_handle_t;    // SPI handle - type is bsp library-dependent.
-
-/* @brief Gets SPI handle by SPI id.
- * @param id The SPI id.
- * @returns Pointer to the correspondent SPI handle.
- **/
-spi_handle_t* getSPIHandle(res_id_t id);
+struct spi_handle_t { void *ptr; }; // SPI handle - underlying instance type is bsp library dependent.
 
 /* @brief Receives data through SPI. Transfers in blocking mode.
  * @param hspi Pointer to the SPI handle.
@@ -19,7 +13,7 @@ spi_handle_t* getSPIHandle(res_id_t id);
  * @param timeout The maximum timeout to wait for SPI to be free to use.
  * @return Status indicating operation success.
  **/
-Status SPI_Receive(spi_handle_t *hspi, uint8_t *rxBuffer, uint32_t size, millisecond_t timeout);
+Status SPI_Receive(spi_handle_t hspi, uint8_t *rxBuffer, uint32_t size, millisecond_t timeout);
 
 /* @brief Transmits data through SPI. Transfers in blocking mode.
  * @param hspi Pointer to the SPI handle.
@@ -28,7 +22,7 @@ Status SPI_Receive(spi_handle_t *hspi, uint8_t *rxBuffer, uint32_t size, millise
  * @param timeout The maximum timeout to wait for SPI to be free to use.
  * @return Status indicating operation success.
  **/
-Status SPI_Transmit(spi_handle_t *hspi, const uint8_t *txBuffer, uint32_t size, millisecond_t timeout);
+Status SPI_Transmit(spi_handle_t hspi, const uint8_t *txBuffer, uint32_t size, millisecond_t timeout);
 
 /* @brief Transmits and receives data through SPI. Transfers in blocking mode.
  * @param hspi Pointer to the SPI handle.
@@ -38,7 +32,7 @@ Status SPI_Transmit(spi_handle_t *hspi, const uint8_t *txBuffer, uint32_t size, 
  * @param timeout The maximum timeout to wait for SPI to be free to use.
  * @return Status indicating operation success.
  **/
-Status SPI_TransmitReceive(spi_handle_t *hspi, const uint8_t *txBuffer, uint8_t *rxBuffer, uint32_t size, millisecond_t timeout);
+Status SPI_TransmitReceive(spi_handle_t hspi, const uint8_t *txBuffer, uint8_t *rxBuffer, uint32_t size, millisecond_t timeout);
 
 /* @brief Receives data through SPI. Transfers in non-blocking mode.
  * @param hspi Pointer to the SPI handle.
@@ -46,7 +40,7 @@ Status SPI_TransmitReceive(spi_handle_t *hspi, const uint8_t *txBuffer, uint8_t 
  * @param size Number of bytes to exchange.
  * @return Status indicating operation success.
  **/
-Status SPI_Receive_IT(spi_handle_t *hspi, uint8_t *rxBuffer, uint32_t size);
+Status SPI_Receive_IT(spi_handle_t hspi, uint8_t *rxBuffer, uint32_t size);
 
 /* @brief Transmits data through SPI. Transfers in non-blocking mode.
  * @param hspi Pointer to the SPI handle.
@@ -54,7 +48,7 @@ Status SPI_Receive_IT(spi_handle_t *hspi, uint8_t *rxBuffer, uint32_t size);
  * @param size Number of bytes to exchange.
  * @return Status indicating operation success.
  **/
-Status SPI_Transmit_IT(spi_handle_t *hspi, const uint8_t *txBuffer, uint32_t size);
+Status SPI_Transmit_IT(spi_handle_t hspi, const uint8_t *txBuffer, uint32_t size);
 
 /* @brief Transmits and receives data through SPI. Transfers in non-blocking mode.
  * @param hspi Pointer to the SPI handle.
@@ -63,17 +57,17 @@ Status SPI_Transmit_IT(spi_handle_t *hspi, const uint8_t *txBuffer, uint32_t siz
  * @param size Number of bytes to exchange.
  * @return Status indicating operation success.
  **/
-Status SPI_TransmitReceive_IT(spi_handle_t *hspi, const uint8_t *txBuffer, uint8_t *rxBuffer, uint32_t size);
+Status SPI_TransmitReceive_IT(spi_handle_t hspi, const uint8_t *txBuffer, uint8_t *rxBuffer, uint32_t size);
 
 /* @brief Gets SPI state.
  * @param hspi Pointer to the SPI handle.
  * @return Status indicating SPI state.
  **/
-Status SPI_GetState(spi_handle_t *hspi);
+Status SPI_GetState(spi_handle_t hspi);
 
 /* @brief Sets SPI state to READY - this way it forces SPI to continue working when stuck in BUSY state.
  * @param hspi Pointer to the SPI handle.
  **/
-void SPI_SetReady(spi_handle_t *hspi);
+void SPI_SetReady(spi_handle_t hspi);
 
 } // namespace micro

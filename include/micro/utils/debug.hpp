@@ -3,8 +3,15 @@
 #include <micro/container/vec.hpp>
 #include <micro/utils/types.hpp>
 #include <micro/bsp/uart.hpp>
+#include <micro/bsp/queue.hpp>
 
 #include <cstdarg>
+
+#ifdef DEBUG
+#define LOG_ENABLED 1
+#else
+#define LOG_ENABLED 0
+#endif
 
 namespace micro {
 namespace debug {
@@ -55,12 +62,16 @@ void printerr(Status status, const char *format, ...);
 
 #if LOG_ENABLED
 
+void log_init(micro::queue_handle_t *_logQueue);
+
 #define LOG_DEBUG(format, ...)      micro::debug::printlog(micro::LogLevel::Debug, format, ##__VA_ARGS__)
 #define LOG_INFO(format, ...)       micro::debug::printlog(micro::LogLevel::Info, format, ##__VA_ARGS__)
 #define LOG_WARNING(format, ...)    micro::debug::printlog(micro::LogLevel::Warning, format, ##__VA_ARGS__)
 #define LOG_ERROR_WITH_STATUS(status, format, ...)  micro::debug::printerr(status, format, ##__VA_ARGS__)
 
 #else
+
+#define log_init(...)
 
 #define LOG_DEBUG(...)
 #define LOG_INFO(...)

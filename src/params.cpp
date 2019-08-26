@@ -9,7 +9,7 @@ void Params::updateParam(uint8_t id, const uint8_t *buf, uint8_t size) {
     if (param) {
         if (param->size == size) {
 
-            if (param->hmutex != nullptr) {
+            if (param->hmutex.ptr != nullptr) {
                 while (!isOk(micro::mutexTake(param->hmutex, millisecond_t(1)))) {}
                 memcpy(param->buf, buf, size);
                 micro::mutexRelease(param->hmutex);

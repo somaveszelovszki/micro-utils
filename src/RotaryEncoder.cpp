@@ -3,7 +3,7 @@
 
 namespace micro {
 
-hw::RotaryEncoder::RotaryEncoder(tim_handle_t *_htim)
+hw::RotaryEncoder::RotaryEncoder(const tim_handle_t _htim)
     : htim(_htim)
     , prevPos(0)
     , offset(0) {}

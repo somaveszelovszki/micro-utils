@@ -13,13 +13,13 @@ typedef point3<rad_per_sec_t> GyroData;
 
 class LSM6DS3_Gyroscope {
 private:
-    i2c_handle_t * const hi2c;  // The handle for the I2C instance.
+    i2c_handle_t hi2c;  // The handle for the I2C instance.
 
 public :
     /* @brief Constructor - sets I2C handle.
      * @param _hi2c The handle for the I2C instance.
      **/
-    LSM6DS3_Gyroscope(i2c_handle_t * const _hi2c);
+    LSM6DS3_Gyroscope(i2c_handle_t _hi2c);
 
     /* @brief Initializes gyroscope.
      **/

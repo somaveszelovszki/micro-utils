@@ -16,7 +16,7 @@ enum class DebugCode : uint8_t {
 
 struct Param {
 
-    Param(const char *name, const char *type, mutex_handle_t *hmutex, uint8_t *buf, uint8_t size)
+    Param(const char *name, const char *type, mutex_handle_t hmutex, uint8_t *buf, uint8_t size)
         : name("")
         , type("")
         , hmutex(hmutex)
@@ -38,7 +38,7 @@ struct Param {
 
     const char name[STR_MAX_LEN_GLOBAL_NAME];
     const char type[STR_MAX_LEN_GLOBAL_TYPE];
-    mutex_handle_t *hmutex;
+    mutex_handle_t hmutex;
     uint8_t * const buf;
     const uint8_t size;
 };
@@ -61,7 +61,7 @@ private:
 
     template <typename T>
     Param fillParamStruct(const char *name, T *value) {
-        return Param(name, micro::typeinfo<T>::name(), nullptr, reinterpret_cast<uint8_t*>(value), sizeof(T));
+        return Param(name, micro::typeinfo<T>::name(), { nullptr }, reinterpret_cast<uint8_t*>(value), sizeof(T));
     }
 
     template <typename T>

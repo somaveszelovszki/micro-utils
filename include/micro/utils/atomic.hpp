@@ -12,7 +12,7 @@ template <typename T>
 class atomic {
 public:
     template<typename ...Args>
-    atomic(mutex_handle_t *_hmutex, Args&&... args)
+    atomic(mutex_handle_t _hmutex, Args&&... args)
         : hmutex(_hmutex) {
         this->data.emplace(std::forward<Args>(args)...);
     }
@@ -26,9 +26,9 @@ public:
     }
 
     void wait_copy(T& result) const volatile {
-        while (!isOk(micro::mutexTake(this->hmutex, millisecond_t(1)))) {}
+        while (!isOk(micro::mutexTake(this->getMutex(), millisecond_t(1)))) {}
         result = *const_cast<T*>(this->data.value_ptr());
-        micro::mutexRelease(this->hmutex);
+        micro::mutexRelease(this->getMutex());
     }
 
     void wait_set(const T& value) volatile {
@@ -38,24 +38,24 @@ public:
     }
 
     volatile T* wait_ptr() volatile {
-        while (!isOk(micro::mutexTake(this->hmutex, millisecond_t(1)))) {}
+        while (!isOk(micro::mutexTake(this->getMutex(), millisecond_t(1)))) {}
         return this->data.value_ptr();
     }
 
     volatile T* accept_ptr() volatile {
-        return isOk(micro::mutexTake_ISR(this->hmutex)) ? this->data.value_ptr() : nullptr;
+        return isOk(micro::mutexTake_ISR(this->getMutex())) ? this->data.value_ptr() : nullptr;
     }
 
     void release_ptr() volatile {
-        micro::mutexRelease(this->hmutex);
+        micro::mutexRelease(this->getMutex());
     }
 
-    mutex_handle_t* getMutex() {
-        return this->hmutex;
+    mutex_handle_t getMutex() const volatile {
+        return { this->hmutex.ptr };
     }
 
 private:
-    mutex_handle_t * const hmutex;
+    mutex_handle_t hmutex;
     volatile_storage_t<T> data;
 };
 

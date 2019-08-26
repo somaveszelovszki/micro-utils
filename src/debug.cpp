@@ -28,6 +28,14 @@ constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + 
 //}
 
 #if LOG_ENABLED
+
+static micro::queue_handle_t *logQueue = NULL;
+
+void log_init(micro::queue_handle_t *_logQueue)
+{
+    logQueue = _logQueue;
+}
+
 void printlog(LogLevel level, const char *format, va_list args, Status status) {
     LogMessage msg;
 
@@ -91,7 +99,7 @@ void printlog(LogLevel level, const char *format, va_list args, Status status) {
     }
 
     if (msg.append('\0')) {
-        micro::queueSend(micro::getQueueHandle(QUEUE::LOG), &msg);
+        micro::queueSend(*logQueue, &msg);
     }
 }
 

@@ -4,7 +4,7 @@
 
 namespace micro {
 
-MotorPanel::MotorPanel(uart_handle_t* _huart)
+MotorPanel::MotorPanel(uart_handle_t _huart)
     : huart(_huart) {}
 
 Status MotorPanel::start(bool useSafetyEnableSignal) {

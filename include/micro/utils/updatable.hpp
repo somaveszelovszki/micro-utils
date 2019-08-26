@@ -8,7 +8,7 @@ template <typename T>
 class atomic_updatable {
 public:
     template<typename ...Args>
-    atomic_updatable(mutex_handle_t *_hmutex, Args&&... args)
+    atomic_updatable(mutex_handle_t _hmutex, Args&&... args)
         : value_(_hmutex, std::forward<Args>(args)...)
         , updated_(false) {
     }

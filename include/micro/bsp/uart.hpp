@@ -4,13 +4,7 @@
 
 namespace micro {
 
-typedef void uart_handle_t;   // UART handle - type is bsp library-dependent.
-
-/* @brief Gets UART handle by UART id.
- * @param id The UART id.
- * @returns Pointer to the correspondent UART handle.
- **/
-uart_handle_t* getUARTHandle(res_id_t id);
+struct uart_handle_t { void *ptr; }; // UART handle - underlying instance type is bsp library dependent.
 
 /* @brief Receives data through UART. Receives in blocking mode.
  * @param huart Pointer to the UART handle.
@@ -19,7 +13,7 @@ uart_handle_t* getUARTHandle(res_id_t id);
  * @param timeout The maximum timeout to wait for UART to be free to use.
  * @return Status indicating operation success.
  **/
-Status UART_Receive(uart_handle_t *huart, uint8_t *rxBuffer, uint32_t size, millisecond_t timeout);
+Status UART_Receive(uart_handle_t huart, uint8_t *rxBuffer, uint32_t size, millisecond_t timeout);
 
 /* @brief Receives data through UART. Receives in non-blocking mode.
  * @param huart Pointer to the UART handle.
@@ -27,7 +21,7 @@ Status UART_Receive(uart_handle_t *huart, uint8_t *rxBuffer, uint32_t size, mill
  * @param size Number of bytes to receive.
  * @return Status indicating operation success.
  **/
-Status UART_Receive_IT(uart_handle_t *huart, uint8_t *rxBuffer, uint32_t size);
+Status UART_Receive_IT(uart_handle_t huart, uint8_t *rxBuffer, uint32_t size);
 
 /* @brief Receives data through UART. Receives in non-blocking mode.
  * @param huart Pointer to the UART handle.
@@ -35,7 +29,7 @@ Status UART_Receive_IT(uart_handle_t *huart, uint8_t *rxBuffer, uint32_t size);
  * @param size Number of bytes to receive.
  * @return Status indicating operation success.
  **/
-Status UART_Receive_DMA(uart_handle_t *huart, uint8_t *rxBuffer, uint32_t size);
+Status UART_Receive_DMA(uart_handle_t huart, uint8_t *rxBuffer, uint32_t size);
 
 /* @brief Transmits data through UART. Transfers in blocking mode.
  * @param huart Pointer to the UART handle.
@@ -44,7 +38,7 @@ Status UART_Receive_DMA(uart_handle_t *huart, uint8_t *rxBuffer, uint32_t size);
  * @param timeout The maximum timeout to wait for UART to be free to use.
  * @return Status indicating operation success.
  **/
-Status UART_Transmit(uart_handle_t *huart, const uint8_t *txBuffer, uint32_t size, millisecond_t timeout);
+Status UART_Transmit(uart_handle_t huart, const uint8_t *txBuffer, uint32_t size, millisecond_t timeout);
 
 /* @brief Transmits data through UART. Transfers in non-blocking mode.
  * @param huart Pointer to the UART handle.
@@ -52,7 +46,7 @@ Status UART_Transmit(uart_handle_t *huart, const uint8_t *txBuffer, uint32_t siz
  * @param size Number of bytes to send.
  * @return Status indicating operation success.
  **/
-Status UART_Transmit_IT(uart_handle_t *huart, const uint8_t *txBuffer, uint32_t size);
+Status UART_Transmit_IT(uart_handle_t huart, const uint8_t *txBuffer, uint32_t size);
 
 /* @brief Transmits data through UART. Transfers in non-blocking mode.
  * @param huart Pointer to the UART handle.
@@ -60,11 +54,11 @@ Status UART_Transmit_IT(uart_handle_t *huart, const uint8_t *txBuffer, uint32_t 
  * @param size Number of bytes to send.
  * @return Status indicating operation success.
  **/
-Status UART_Transmit_DMA(uart_handle_t *huart, const uint8_t *txBuffer, uint32_t size);
+Status UART_Transmit_DMA(uart_handle_t huart, const uint8_t *txBuffer, uint32_t size);
 
 /* @brief Stops UART data transfer
  * @param huart Pointer to the UART handle.
  * @return Status indicating operation success.
  **/
-Status UART_Stop_DMA(uart_handle_t *huart);
+Status UART_Stop_DMA(uart_handle_t huart);
 } // namespace micro

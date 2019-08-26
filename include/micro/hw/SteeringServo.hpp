@@ -19,7 +19,7 @@ public:
      * @param _angle_mid The middle servo angle.
      * @param _wheelAngle_d_max The maximum delta wheel angle.
      **/
-    SteeringServo(tim_handle_t *_htim, tim_channel_t _chnl, radian_t _angle_mid, radian_t _wheelAngle_d_max, float32_t servoWheelTransition)
+    SteeringServo(tim_handle_t _htim, tim_channel_t _chnl, radian_t _angle_mid, radian_t _wheelAngle_d_max, float32_t servoWheelTransition)
         : Servo(_htim, _chnl, _angle_mid - _wheelAngle_d_max / servoWheelTransition, _angle_mid + _wheelAngle_d_max / servoWheelTransition)
         , angle_mid(_angle_mid)
         , servoWheelTransition_(servoWheelTransition) {}

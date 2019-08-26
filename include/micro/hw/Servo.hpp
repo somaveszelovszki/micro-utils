@@ -8,8 +8,8 @@ namespace hw {
  **/
 class Servo {
 private:
-    tim_handle_t * const htim;  // The handle for the timer used for PWM generation.
-    const uint32_t chnl;        // The timer channel used for PWM generation.
+    tim_handle_t htim;        // The handle for the timer used for PWM generation.
+    const tim_channel_t chnl; // The timer channel used for PWM generation.
 
     const radian_t angle_min; // The minimum angle.
     const radian_t angle_max; // The maximum angle.
@@ -22,7 +22,7 @@ public:
      * @param _angle_min The minimum angle.
      * @param _angle_max The maximum angle.
      **/
-    Servo(tim_handle_t *_htim, tim_channel_t _chnl, radian_t _angle_min, radian_t _angle_max)
+    Servo(tim_handle_t _htim, tim_channel_t _chnl, radian_t _angle_min, radian_t _angle_max)
         : htim(_htim)
         , chnl(_chnl)
         , angle_min(_angle_min)
