@@ -12,7 +12,6 @@
 #include <cstring>
 
 namespace micro {
-namespace debug {
 
 constexpr uint32_t STR_MAX_LEN_INT        = 1 + 10;         // sign + decimal
 constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
@@ -85,7 +84,6 @@ void printlog(logLevel_t level, const char *format, ...) {
     va_end(args);
 }
 
-} // namespace debug
 } // namespace micro
 
 #endif // LOG_ENABLED

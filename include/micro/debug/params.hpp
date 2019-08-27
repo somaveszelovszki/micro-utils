@@ -6,6 +6,10 @@
 
 #include <cstring>
 
+#define STR_MAX_LEN_PARAM_NAME 32u     // Maximum length of global parameter name.
+#define STR_MAX_LEN_PARAM_TYPE 32u     // Maximum length of global parameter name.
+#define MAX_NUM_GLOBAL_PARAMS  128u    // Maximum number of global parameters, that can be set from monitoring app.
+
 namespace micro {
 
 enum class DebugCode : uint8_t {
@@ -22,8 +26,8 @@ struct Param {
         , hmutex(hmutex)
         , buf(buf)
         , size(size) {
-        strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_GLOBAL_NAME);
-        strncpy(const_cast<char*>(this->type), type, STR_MAX_LEN_GLOBAL_TYPE);
+        strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_PARAM_NAME);
+        strncpy(const_cast<char*>(this->type), type, STR_MAX_LEN_PARAM_TYPE);
     }
 
     Param(const Param& other)
@@ -32,12 +36,12 @@ struct Param {
         , hmutex(other.hmutex)
         , buf(other.buf)
         , size(other.size) {
-        strncpy(const_cast<char*>(this->name), other.name, STR_MAX_LEN_GLOBAL_NAME);
-        strncpy(const_cast<char*>(this->type), other.type, STR_MAX_LEN_GLOBAL_TYPE);
+        strncpy(const_cast<char*>(this->name), other.name, STR_MAX_LEN_PARAM_NAME);
+        strncpy(const_cast<char*>(this->type), other.type, STR_MAX_LEN_PARAM_TYPE);
     }
 
-    const char name[STR_MAX_LEN_GLOBAL_NAME];
-    const char type[STR_MAX_LEN_GLOBAL_TYPE];
+    const char name[STR_MAX_LEN_PARAM_NAME];
+    const char type[STR_MAX_LEN_PARAM_TYPE];
     mutex_handle_t hmutex;
     uint8_t * const buf;
     const uint8_t size;
