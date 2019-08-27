@@ -68,13 +68,11 @@ const char* getStatusString(Status status);
  */
 void demangle(const char *in, char *out, uint32_t size);
 
-enum class LogLevel : uint8_t {
-    Debug   = 0x01,
-    Info    = 0x02,
-    Warning = 0x03,
-    Error   = 0x04
-};
-DEFINE_TYPEINFO(LogLevel);
+typedef uint8_t logLevel_t;
+#define LogLevel_Debug   0x01
+#define LogLevel_Info    0x02
+#define LogLevel_Warning 0x03
+#define LogLevel_Error   0x04
 
 /**
  * @brief Defines rotation direction.

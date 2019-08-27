@@ -1,5 +1,5 @@
 #include <micro/utils/types.hpp>
-#include <micro/utils/debug.hpp>
+#include <micro/utils/log.hpp>
 
 namespace micro {
 
@@ -33,5 +33,5 @@ const char* getStatusString(Status status) {
 } // namespace micro
 
 extern "C" void onHardFault() {
-    LOG_ERROR_WITH_STATUS(micro::Status::ERROR, "Hard fault!");
+    LOG_ERROR("Hard fault!");
 }

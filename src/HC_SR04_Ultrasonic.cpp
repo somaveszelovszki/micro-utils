@@ -3,7 +3,7 @@
 #include <micro/bsp/gpio.hpp>
 #include <micro/utils/numeric.hpp>
 #include <cfg_board.hpp>
-#include <micro/utils/debug.hpp>
+#include <micro/utils/log.hpp>
 
 namespace micro {
 

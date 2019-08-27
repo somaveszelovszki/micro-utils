@@ -1,5 +1,5 @@
 #include <micro/control/LineController.hpp>
-#include <micro/utils/debug.hpp>
+#include <micro/utils/log.hpp>
 #include <micro/utils/unit_utils.hpp>
 
 namespace micro {

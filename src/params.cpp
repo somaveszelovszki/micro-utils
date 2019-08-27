@@ -1,6 +1,6 @@
 #include <micro/debug/params.hpp>
 #include <micro/bsp/task.hpp>
-#include <micro/utils/debug.hpp>
+#include <micro/utils/log.hpp>
 
 namespace micro {
 
@@ -20,10 +20,10 @@ void Params::updateParam(uint8_t id, const uint8_t *buf, uint8_t size) {
             }
 
         } else {
-            LOG_ERROR_WITH_STATUS(Status::INVALID_DATA, "Invalid Param buffer size: %d (for id: %d)", static_cast<int32_t>(size), static_cast<int32_t>(id));
+            LOG_ERROR("Invalid Param buffer size [%d] for id [%d]", static_cast<int32_t>(size), static_cast<int32_t>(id));
         }
     } else {
-        LOG_ERROR_WITH_STATUS(Status::INVALID_ID, "Invalid Param id: %d", static_cast<int32_t>(id));
+        LOG_ERROR("Invalid Param id [%d]", static_cast<int32_t>(id));
     }
 }
 
