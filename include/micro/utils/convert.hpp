@@ -46,19 +46,4 @@ int32_t toInt32(const uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_LITTLE)
  **/
 float32_t toFloat32(const uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_LITTLE);
 
-uint32_t atoi(const char * const s, int32_t *pResult, uint32_t len = 0);
-
-uint32_t atof(const char * const s, float32_t *pResult, uint32_t len = 0);
-
-/* @brief Converts integer to string.
- * @param n The source integer.
- * @param s The result string.
- * @param numSize The maximum number of characters for the number. @note Does not include the string end character ('\0').
- * @param padding The minimum number of printed digits - 0 by default.
- * @returns Number of characters written.
- **/
-uint32_t itoa(int32_t n, char *const s, uint32_t numSize, uint32_t padding = 0);
-
-uint32_t ftoa(float32_t n, char * const s, uint32_t decSize, uint32_t fragSize);
-
 } // namespace micro

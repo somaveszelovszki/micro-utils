@@ -8,7 +8,7 @@ struct Pose {
 
     /* @brief Position of the car relative to its start position.
     **/
-    point2<meter_t> pos;
+    point2m pos;
 
     /* @brief Car's orientation.
     @note Orientation is relative to the X axis!

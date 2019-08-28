@@ -3,7 +3,6 @@
 #include <micro/container/vec.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/utils/numeric.hpp>
-#include <micro/utils/convert.hpp>
 #include <cfg_os.hpp>
 
 #include <cstdarg>
@@ -16,7 +15,131 @@ constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
 constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
 constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
 
-void vsprint(char * const str, const uint32_t size, const char *format, va_list args) {
+uint32_t atoi(const char * const s, int32_t *pResult) {
+    uint32_t idx = 0;
+
+    const uint32_t len = strlen(s);
+
+    if (len > 0) {
+        bool neg = s[0] == '-';
+        if (neg) {
+            idx = 1;
+        }
+        *pResult = 0;
+        for (; idx < len; ++idx) {
+            char c = s[idx];
+            if (c < '0' || c > '9') {
+                break;
+            }
+            *pResult *= 10;
+            *pResult += static_cast<int32_t>(c - '0');
+        }
+
+        if (neg) {
+            *pResult *= -1;
+        }
+    }
+
+    return idx;
+}
+
+uint32_t atof(const char * const s, float32_t *pResult) {
+    int32_t dec, frac;
+
+    const uint32_t len = strlen(s);
+
+    uint32_t idx = 0;
+    bool neg = s[0] == '-';
+    if (neg) {
+        idx = 1;
+    }
+
+    idx += atoi(&s[idx], &dec);
+
+    if (++idx < len) {  // idx is incremented because of the dot character before the fraction
+
+        uint32_t fracCount = atoi(&s[idx], &frac);
+        if (fracCount > 0) {
+            idx += fracCount;
+            *pResult = dec + frac / powerOf(10.0f, fracCount);
+        } else {
+            idx = 0;    // if no fraction has been parsed, string is invalid
+        }
+    } else {
+        idx = 0;    // invalid floating point string
+    }
+
+    if (neg) {
+        *pResult *= -1;
+    }
+
+    return idx;
+}
+
+uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding) {
+    bool sign;
+
+    if ((sign = n < 0))
+        n = -n;
+
+    uint32_t idx = 0;
+    do {
+        s[idx++] = '0' + (n % 10);
+        if (padding) {
+            --padding;
+        }
+    } while ((n /= 10) > 0 && idx < size) ;
+
+    while(padding--) {
+        s[idx++] = '0';
+    }
+
+    if (idx < size) {
+        if (sign) {
+            s[idx++] = '-';
+        }
+    } else if (sign || n != 0) {
+        idx = 0;    // buffer full
+    }
+
+    s[idx] = '\0';
+
+    reverse(s, idx);
+    return idx;
+}
+
+uint32_t ftoa(float32_t n, char * const s, uint32_t size) {
+    static constexpr uint32_t PADDING = 4;
+
+    (void)size; // TODO
+
+    uint32_t idx = 0;
+    uint32_t decLen, fracLen;
+    uint32_t sign;       // offset for sign
+
+    if ((sign = (n < 0.0f) ? 1 : 0)) {
+        n = -n;
+        s[idx++] = '-';
+    }
+
+    int32_t dec = static_cast<int32_t>(n);
+    int32_t frac = static_cast<int32_t>((n - static_cast<float32_t>(dec)) * powerOf(10, PADDING));
+    if ((decLen = itoa(dec, &s[idx], STR_MAX_LEN_FLOAT_DEC)) > 0) {
+        idx += decLen;
+        s[idx++] = '.';
+        if ((fracLen = itoa(frac, &s[idx], STR_MAX_LEN_FLOAT_FRAC, PADDING)) > 0) {
+            idx += fracLen;
+        } else {
+            idx = 0;
+        }
+    } else {
+        idx = 0;
+    }
+
+    return idx;
+}
+
+uint32_t vsprint(char * const str, const uint32_t size, const char *format, va_list args) {
 
     uint32_t r = 0; // will store the index of the current read character
     uint32_t w = 0; // will store the index of the current written character
@@ -37,11 +160,11 @@ void vsprint(char * const str, const uint32_t size, const char *format, va_list 
                 break;
 
             case 'd':
-                w += micro::itoa(va_arg(args, int), str + w, STR_MAX_LEN_INT);
+                w += micro::itoa(va_arg(args, int), str + w, size - w);
                 break;
 
             case 'f':
-                w += micro::ftoa(static_cast<float32_t>(va_arg(args, double)), str + w, STR_MAX_LEN_FLOAT_DEC, STR_MAX_LEN_FLOAT_FRAC);
+                w += micro::ftoa(static_cast<float32_t>(va_arg(args, double)), str + w, size - w);
                 break;
 
             default:
@@ -53,14 +176,16 @@ void vsprint(char * const str, const uint32_t size, const char *format, va_list 
         ++r;
     }
 
-    str[w++] = '0';
+    str[w++] = '\0';
+    return w;
 }
 
-void sprint(char * const str, const uint32_t size, const char *format, ...) {
+uint32_t sprint(char * const str, const uint32_t size, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    vsprint(str, size, format, args);
+    const uint32_t result = vsprint(str, size, format, args);
     va_end(args);
+    return result;
 }
 
 } // namespace micro

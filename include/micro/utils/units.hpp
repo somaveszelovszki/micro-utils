@@ -167,6 +167,7 @@ inline constexpr typename std::enable_if<from_unit_inst_t::dim == to_unit_inst_t
 template <Dimension _dim, typename unit_inst_t_ = unit_instance<_dim, Unit::one>, bool explicit_unit = false>
 class dim_class {
 public:
+    typedef float32_t value_type;
     enum { is_dim_class = true };
     static constexpr Dimension dim = _dim;   // The dimension.
     typedef unit_inst_t_ unit_inst_t;

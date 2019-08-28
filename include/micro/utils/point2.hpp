@@ -251,12 +251,12 @@ bool point2<T>::isInside(const point2<T>& a, const point2<T>& b, const point2<T>
     return abs(static_cast<int8_t>(sA) + static_cast<int8_t>(sB) + static_cast<int8_t>(sC)) == 3;
 }
 
-typedef point2<int32_t>     point2i, vec2i;         // 32-bit integer types.
-typedef point2<float32_t>   point2f, vec2f;         // 32-bit floating point types.
+typedef point2<int32_t>      point2i, vec2i;     // 32-bit integer types.
+typedef point2<float32_t>    point2f, vec2f;     // 32-bit floating point types.
 
-typedef point2<meter_t>   point2m, vec2m;           // meter types.
-typedef point2<centimeter_t>   point2cm, vec2cm;    // centimeter types.
-typedef point2<m_per_sec_t>   point2mps, vec2mps;   // meter/sec types.
+typedef point2<meter_t>      point2m,   vec2m;   // meter types.
+typedef point2<centimeter_t> point2cm,  vec2cm;  // centimeter types.
+typedef point2<m_per_sec_t>  point2mps, vec2mps; // meter/sec types.
 
 } // namespace micro
 
