@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/container/directory.hpp>
+#include <micro/container/vec.hpp>
 #include <micro/utils/atomic.hpp>
 #include <micro/utils/typeinfo.hpp>
 
@@ -11,12 +11,6 @@
 #define MAX_NUM_GLOBAL_PARAMS  128u    // Maximum number of global parameters, that can be set from monitoring app.
 
 namespace micro {
-
-enum class DebugCode : uint8_t {
-    Log   = 1,
-    // add debug codes (DebugCode must be < 128, from 128 it means Param)
-    Param = 128
-};
 
 struct Param {
 
@@ -54,12 +48,10 @@ public:
     template <typename T>
     void registerParam(const char *name, T *value) {
         static_assert(std::is_trivially_copyable<T>::value, "Type must be trivially copyable.");
-        static uint8_t id = static_cast<uint8_t>(DebugCode::Param);
-
-        this->values.put(id++, this->fillParamStruct(name, value));
+        this->values.append(this->fillParamStruct(name, value));
     }
 
-    void updateParam(uint8_t id, const uint8_t *buf, uint8_t size);
+    void updateParam(const char *name, const uint8_t *buf, uint8_t size);
 
 private:
 
@@ -75,7 +67,7 @@ private:
         return Param(name, micro::typeinfo<T>::name(), value->getMutex(), reinterpret_cast<uint8_t*>(value_ptr), sizeof(T));
     }
 
-    directory<uint8_t, Param, MAX_NUM_GLOBAL_PARAMS> values;
+    vec<Param, MAX_NUM_GLOBAL_PARAMS> values;
 };
 
 } // namespace micro

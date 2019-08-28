@@ -4,8 +4,16 @@
 
 namespace micro {
 
-void Params::updateParam(uint8_t id, const uint8_t *buf, uint8_t size) {
-    Param *param = this->values.get(id);
+void Params::updateParam(const char *name, const uint8_t *buf, uint8_t size) {
+
+    Param *param = nullptr;
+    for (Param& p : this->values) {
+        if (strcmp(p.name, name) == 0) {
+            param = &p;
+            break;
+        }
+    }
+
     if (param) {
         if (param->size == size) {
 
@@ -20,10 +28,10 @@ void Params::updateParam(uint8_t id, const uint8_t *buf, uint8_t size) {
             }
 
         } else {
-            LOG_ERROR("Invalid Param buffer size [%d] for id [%d]", static_cast<int32_t>(size), static_cast<int32_t>(id));
+            LOG_ERROR("Invalid Param buffer size [%d] for [%s]", static_cast<int32_t>(size), name);
         }
     } else {
-        LOG_ERROR("Invalid Param id [%d]", static_cast<int32_t>(id));
+        LOG_ERROR("Invalid Param name [%s]", name);
     }
 }
 

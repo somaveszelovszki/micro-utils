@@ -11,6 +11,8 @@ namespace micro {
 template <typename T>
 class atomic {
 public:
+    typedef T underlying_type;
+
     template<typename ...Args>
     atomic(mutex_handle_t _hmutex, Args&&... args)
         : hmutex(_hmutex) {
@@ -62,5 +64,12 @@ private:
 template <typename T> struct is_atomic {
     enum { value = micro::is_base_of_template<atomic, T>::value };
 };
+
+template <typename T>
+typename std::enable_if<is_base_of_template<atomic, T>::value, typename T::underlying_type>::type getValue(const T& value) {
+    storage_t<typename T::underlying_type> result;
+    value.wait_copy(*result.value_ptr());
+    return result.value();
+}
 
 } // namespace micro

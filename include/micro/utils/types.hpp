@@ -114,4 +114,9 @@ struct is_base_of_template_impl
 template < template <typename...> class base,typename derived>
 using is_base_of_template = typename is_base_of_template_impl<base,derived>::type;
 
+template <typename T>
+T getValue(const T& value) {
+    return value;
+}
+
 } // namespace micro
