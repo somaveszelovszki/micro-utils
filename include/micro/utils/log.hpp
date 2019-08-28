@@ -1,9 +1,6 @@
 #pragma once
 
-#include <micro/container/vec.hpp>
 #include <micro/utils/types.hpp>
-#include <micro/bsp/uart.hpp>
-#include <micro/bsp/queue.hpp>
 
 #include <cstdarg>
 
@@ -19,8 +16,8 @@ namespace micro {
 /* @brief Structure for storing debug messages.
  */
 struct LogMessage {
-    logLevel_t level;                     // The log message content.
-    vec<char, LOG_MSG_MAX_SIZE> text;   // The log message text.
+    logLevel_t level;            // The log message content.
+    char text[LOG_MSG_MAX_SIZE]; // The log message text.
 };
 
 /* @brief Prints a debug code and a string to the console through USART.
@@ -47,8 +44,6 @@ void printlog(logLevel_t level, const char *format, ...);
 #endif // LOG_ENABLED
 
 } // namespace micro
-
-void log_init(micro::queue_handle_t *_logQueue);
 
 #if MIN_LOG_LEVEL <= LogLevel_Debug
 #define LOG_DEBUG(format, ...) micro::printlog(LogLevel_Debug, format, ##__VA_ARGS__)
