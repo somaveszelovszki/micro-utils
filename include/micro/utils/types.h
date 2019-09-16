@@ -16,8 +16,6 @@ extern "C" {
 typedef float float32_t;    // 32-bit floating point number
 typedef double float64_t;   // 64-bit floating point number
 
-typedef uint8_t uint1_t, uint2_t, uint3_t, uint4_t, uint5_t, uint6_t, uint7_t;   // types for storing 1, 2, 3, 4, 5, 6 and 7-bit values
-
 void onHardFault();
 
 #ifdef __cplusplus
