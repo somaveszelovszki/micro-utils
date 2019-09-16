@@ -1,5 +1,5 @@
-#ifndef MICRO_UTILS_PANEL_LINES_H
-#define MICRO_UTILS_PANEL_LINES_H
+#ifndef MICRO_PANEL_LINES_H
+#define MICRO_PANEL_LINES_H
 
 #include <micro/utils/types.h>
 
@@ -14,4 +14,4 @@ typedef struct {
     Line values[MAX_NUM_LINES];
 } Lines;
 
-#endif // MICRO_UTILS_PANEL_LINES_H
+#endif // MICRO_PANEL_LINES_H
