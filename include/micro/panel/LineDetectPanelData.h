@@ -14,7 +14,7 @@ typedef struct {
 } lineDetectPanelDataIn_t;
     
 typedef struct {
-    Lines lines;
+    linePositions_t lines;
 } lineDetectPanelDataOut_t;
 
 #ifdef __cplusplus

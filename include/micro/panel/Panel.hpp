@@ -10,7 +10,7 @@ public:
     explicit Panel(uart_handle_t huart) : huart(huart) {}
 
     void start(const T_toPanel& out) {
-        UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(this->inData), sizeof(T_fromPanel));
+        UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inData), sizeof(T_fromPanel));
         this->send(out);
     }
 
