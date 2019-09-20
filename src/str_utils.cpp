@@ -43,7 +43,7 @@ uint32_t atoi(const char * const s, int32_t *pResult) {
     return idx;
 }
 
-uint32_t atof(const char * const s, float32_t *pResult) {
+uint32_t atof(const char * const s, float *pResult) {
     int32_t dec, frac;
 
     const uint32_t len = strlen(s);
@@ -108,7 +108,7 @@ uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding) {
     return idx;
 }
 
-uint32_t ftoa(float32_t n, char * const s, uint32_t size) {
+uint32_t ftoa(float n, char * const s, uint32_t size) {
     static constexpr uint32_t PADDING = 4;
 
     (void)size; // TODO
@@ -123,7 +123,7 @@ uint32_t ftoa(float32_t n, char * const s, uint32_t size) {
     }
 
     int32_t dec = static_cast<int32_t>(n);
-    int32_t frac = static_cast<int32_t>((n - static_cast<float32_t>(dec)) * powerOf(10, PADDING));
+    int32_t frac = static_cast<int32_t>((n - static_cast<float>(dec)) * powerOf(10, PADDING));
     if ((decLen = itoa(dec, &s[idx], STR_MAX_LEN_FLOAT_DEC)) > 0) {
         idx += decLen;
         s[idx++] = '.';
@@ -164,7 +164,7 @@ uint32_t vsprint(char * const str, const uint32_t size, const char *format, va_l
                 break;
 
             case 'f':
-                w += micro::ftoa(static_cast<float32_t>(va_arg(args, double)), str + w, size - w);
+                w += micro::ftoa(static_cast<float>(va_arg(args, double)), str + w, size - w);
                 break;
 
             default:

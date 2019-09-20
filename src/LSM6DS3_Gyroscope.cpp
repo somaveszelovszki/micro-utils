@@ -44,7 +44,7 @@ constexpr millisecond_t TIMEOUT(2.0f);
 deg_per_sec_t gyroToAngVel(const uint8_t * const gyroValBuffer)
 {
     // 1.18 -> heuristic constant
-    constexpr float32_t ratio = (4.375f * GYRO_FS_SEL / 125) / 1000 * 1.22f;    // ratio of angular velocity [deg/sec] and gyroscope value
+    constexpr float ratio = (4.375f * GYRO_FS_SEL / 125) / 1000 * 1.22f;    // ratio of angular velocity [deg/sec] and gyroscope value
     int16_t gyroVal = static_cast<int16_t>(gyroValBuffer[0]) | (static_cast<int16_t>(gyroValBuffer[1]) << 8);
     return deg_per_sec_t(gyroVal * ratio);
 }

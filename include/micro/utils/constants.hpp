@@ -4,8 +4,8 @@
 
 namespace micro {
 
-static constexpr float32_t SQRT_2 = std::sqrt(2.0f);        // sqrt(2)
-static constexpr float32_t SQRT_3 = std::sqrt(3.0f);        // sqrt(3)
+static constexpr float SQRT_2 = std::sqrt(2.0f);        // sqrt(2)
+static constexpr float SQRT_3 = std::sqrt(3.0f);        // sqrt(3)
 
 constexpr radian_t PI = radian_t(3.14159265358979323846);   // Pi
 constexpr radian_t PI_2 = PI / 2;                           // Pi / 2

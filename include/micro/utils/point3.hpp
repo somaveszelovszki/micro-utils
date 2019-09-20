@@ -174,8 +174,8 @@ template <typename T> struct point3 {
      * @param otherWeight The weight of the other point relative to this point - 1 by default.
      * @returns The average of the two points.
      **/
-    point3<T> average(const point3<T>& other, float32_t otherWeight = 1.0f) const {
-        float32_t weightSum = 1.0f + otherWeight;
+    point3<T> average(const point3<T>& other, float otherWeight = 1.0f) const {
+        float weightSum = 1.0f + otherWeight;
         return point3<T>((this->X + other.X * otherWeight) / weightSum, (this->Y + other.Y + otherWeight) / weightSum, (this->Z + other.Z + otherWeight) / weightSum);
     }
 
@@ -183,7 +183,7 @@ template <typename T> struct point3 {
     static void bbox(const point3<T> points[], uint32_t numPoints, bbox3<T> *pResult);
 };
 
-typedef point3<float32_t>   point3f, vec3f;          // 32-bit floating point types.
+typedef point3<float>   point3f, vec3f;          // 32-bit floating point types.
 typedef point3<uint8_t>     point3ui8, vec3ui8;      // 8-bit microigned integer point types.
 
 /* @brief 3-dimensional bounding box.

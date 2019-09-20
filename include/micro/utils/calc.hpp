@@ -182,14 +182,14 @@ micro_calc_struct(rational, rational,
 
 /* @brief Calculation type for rational and 32-bit floating point number.
  **/
-micro_calc_struct(rational, float32_t,
+micro_calc_struct(rational, float,
     t1.num * t2 / t1.den,
     t1.num / (t2 * t1.den),
     value * t1.num / (t1.den * t2));
 
 /* @brief Calculation type for 32-bit floating point number and rational.
  **/
-micro_calc_struct(float32_t, rational,
+micro_calc_struct(float, rational,
     t1 * t2.num / t2.den,
     t1 * t2.den / t2.den,
     value * t1 * t2.den / t2.num);

@@ -7,10 +7,10 @@
 namespace micro {
 
 constexpr uint32_t INCREMENT_PER_WHEEL_ROT = 46344; // Increments per wheel rotation - measured value.
-constexpr float32_t SPEED_COMPLIANCE_RATE = 1.1f;
+constexpr float SPEED_COMPLIANCE_RATE = 1.1f;
 constexpr m_per_sec_t SPEED_DEAD_BAND = m_per_sec_t(1.0f);
 
-constexpr float32_t SPEED_WEIGHT_NEW = 2.0f;
+constexpr float SPEED_WEIGHT_NEW = 2.0f;
 
 class SpeedFilter : FilterBase<speed_t> {
 public:

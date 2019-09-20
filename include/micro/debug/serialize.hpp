@@ -50,13 +50,13 @@ uint32_t serialize_uint32_t(char * const stream, const uint32_t size, const void
 uint32_t deserialize_uint32_t(const char * const stream, void * const value);
 SERIALIZATION_STRUCT(uint32_t)
 
-uint32_t serialize_float32_t(char * const stream, const uint32_t size, const void * const value);
-uint32_t deserialize_float32_t(const char * const stream, void * const value);
-SERIALIZATION_STRUCT(float32_t)
+uint32_t serialize_float(char * const stream, const uint32_t size, const void * const value);
+uint32_t deserialize_float(const char * const stream, void * const value);
+SERIALIZATION_STRUCT(float)
 
-uint32_t serialize_float64_t(char * const stream, const uint32_t size, const void * const value);
-uint32_t deserialize_float64_t(const char * const stream, void * const value);
-SERIALIZATION_STRUCT(float64_t)
+uint32_t serialize_double(char * const stream, const uint32_t size, const void * const value);
+uint32_t deserialize_double(const char * const stream, void * const value);
+SERIALIZATION_STRUCT(double)
 
 uint32_t serialize_m_per_sec_t(char * const stream, const uint32_t size, const void * const value);
 uint32_t deserialize_m_per_sec_t(const char * const stream, void * const value);

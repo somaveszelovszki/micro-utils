@@ -11,7 +11,7 @@ class PID_Controller : public runnable_t {
 public:
     /* @brief Constructor - sets period time and term weights.
      **/
-    PID_Controller(millisecond_t Ts, millisecond_t Ti, millisecond_t Td, float32_t Kc, const T_out& outMin, const T_out& outMax)
+    PID_Controller(millisecond_t Ts, millisecond_t Ti, millisecond_t Td, float Kc, const T_out& outMin, const T_out& outMax)
         : runnable_t(period)
         , desired(0.0f)
         , b0(Kc * (1 + period / Ti + Td / period))
@@ -45,7 +45,7 @@ public:
     Status run(const T_meas& measured) {
         this->updateTimeDiff();
 
-        float32_t ek = micro::valueOf(this->desired - measured);
+        float ek = micro::valueOf(this->desired - measured);
 
         this->output = this->output + this->b0 * ek + this->b1 * this->ek1 + this->b2 * this->ek2;
         this->output = micro::clamp(this->output, this->outMin, this->outMax);
@@ -58,10 +58,10 @@ public:
     T_meas desired;     // The desired value.
 
 private:
-    float32_t b0, b1, b2;
-    float32_t ek1, ek2;
-    float32_t outMin;
-    float32_t outMax;
+    float b0, b1, b2;
+    float ek1, ek2;
+    float outMin;
+    float outMax;
     T_out output;       // The output - updated in every cycle, holds the output value until the next update.
 };
 } // namespace micro

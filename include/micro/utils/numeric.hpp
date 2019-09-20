@@ -6,7 +6,7 @@
 
 namespace micro {
 namespace detail {
-static constexpr float32_t COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for equality check.
+static constexpr float COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for equality check.
 }
 
 // ---------------------------------------- Type-independent functions (same implementation for unit classes) ----------------------------------------
@@ -78,7 +78,7 @@ inline T clamp(const T& value, const T& b1, const T& b2) {
  * @param relErr The permitted relative error.
  */
 template <typename T1, typename T2>
-inline bool isInRange(const T1& value, const T2& ref, float32_t relErr) {
+inline bool isInRange(const T1& value, const T2& ref, float relErr) {
     return isBtw(value, ref * (1.0f - relErr), ref * (1.0f + relErr));
 }
 
@@ -233,7 +233,7 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(con
 
 // ---------------------------------------- Specific type functions ----------------------------------------
 
-inline int32_t round(const float32_t value) {
+inline int32_t round(const float value) {
     return static_cast<int32_t>(value + 0.5f);
 }
 

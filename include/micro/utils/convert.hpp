@@ -23,7 +23,7 @@ void toBytes(int32_t value, uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_L
  * @param bytes The destination byte array.
  * @param order Defines byte order (ENDIAN_LITTLE or BIG_ENDIAN_).
  **/
-void toBytes(float32_t value, uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_LITTLE);
+void toBytes(float value, uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_LITTLE);
 
 /* @brief Converts byte array to a 32-bit signed integer value.
  * @param bytes The source byte array.
@@ -44,6 +44,6 @@ int32_t toInt32(const uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_LITTLE)
  * @returns The byte array array as a 32-bit float value.
  * @param order Defines byte order (ENDIAN_LITTLE or BIG_ENDIAN_).
  **/
-float32_t toFloat32(const uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_LITTLE);
+float toFloat32(const uint8_t bytes[], BitOrder order = BitOrder::ENDIAN_LITTLE);
 
 } // namespace micro

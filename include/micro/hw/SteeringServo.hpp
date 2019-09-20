@@ -10,7 +10,7 @@ namespace hw {
 class SteeringServo : private Servo {
 private:
     const radian_t angle_mid;     // The middle position angle.
-    const float32_t servoWheelTransition_;
+    const float servoWheelTransition_;
 
 public:
     /* @brief Constructor - initializes timer handle, channel, middle servo angle and delta maximum wheel angle.
@@ -19,7 +19,7 @@ public:
      * @param _angle_mid The middle servo angle.
      * @param _wheelAngle_d_max The maximum delta wheel angle.
      **/
-    SteeringServo(tim_handle_t _htim, tim_channel_t _chnl, radian_t _angle_mid, radian_t _wheelAngle_d_max, float32_t servoWheelTransition)
+    SteeringServo(tim_handle_t _htim, tim_channel_t _chnl, radian_t _angle_mid, radian_t _wheelAngle_d_max, float servoWheelTransition)
         : Servo(_htim, _chnl, _angle_mid - _wheelAngle_d_max / servoWheelTransition, _angle_mid + _wheelAngle_d_max / servoWheelTransition)
         , angle_mid(_angle_mid)
         , servoWheelTransition_(servoWheelTransition) {}

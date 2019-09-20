@@ -11,7 +11,7 @@ namespace micro {
 
 uint32_t atoi(const char * const s, int32_t *pResult);
 
-uint32_t atof(const char * const s, float32_t *pResult);
+uint32_t atof(const char * const s, float *pResult);
 
 /* @brief Converts integer to string.
  * @param n The source integer.
@@ -22,7 +22,7 @@ uint32_t atof(const char * const s, float32_t *pResult);
  **/
 uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding = 0);
 
-uint32_t ftoa(float32_t n, char * const s, uint32_t size);
+uint32_t ftoa(float n, char * const s, uint32_t size);
 
 /* @brief Prints a string to the result string.
  * Supported modifiers : %s, %c, %d, %f

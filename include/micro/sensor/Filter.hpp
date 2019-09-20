@@ -43,7 +43,7 @@ public:
      * @param _complianceRate The compliance rate. A new measurement within the compliance interval of the current measurement is automatically accepted.
      * @param _deadBand The dead-band. A new measurement within the dead-band of the current measurement is automatically accepted.
      **/
-    BounceFilter(float32_t _complianceRate, const T& _deadBand)
+    BounceFilter(float _complianceRate, const T& _deadBand)
         : complianceRate(_complianceRate)
         , deadBand(_deadBand)
         , idx(0) {}
@@ -59,7 +59,7 @@ private:
      **/
     bool isInRangeOfRaw(const T& measuredValue) const;
 
-    const float32_t complianceRate; // The compliance rate. A new measurement within the compliance interval of the current measurement is automatically accepted.
+    const float complianceRate; // The compliance rate. A new measurement within the compliance interval of the current measurement is automatically accepted.
     const T deadBand;               // The dead-band. A new measurement within the dead-band of the current measurement is automatically accepted.
     T raw[N];                       // The stored raw measurements.
     uint8_t idx;                    // The current measurement index. TODO stored measurements in a ringbuffer
@@ -105,7 +105,7 @@ public:
      * @param _complianceRate The compliance rate. A new measurement within the compliance interval of the current measurement is automatically accepted.
      * @param _deadBand The dead-band. A new measurement within the dead-band of the current measurement is automatically accepted.
      **/
-    NoJumpFilter(float32_t _complianceRate, const T& _deadBand)
+    NoJumpFilter(float _complianceRate, const T& _deadBand)
         : complianceRate(_complianceRate)
         , deadBand(_deadBand){}
 
@@ -115,7 +115,7 @@ public:
     const T& update(const T& measuredValue);
 
 private:
-    const float32_t complianceRate; // The compliance rate. A new measurement within the compliance interval of the current measurement is automatically accepted.
+    const float complianceRate; // The compliance rate. A new measurement within the compliance interval of the current measurement is automatically accepted.
     const T deadBand;               // The dead-band. A new measurement within the dead-band of the current measurement is automatically accepted.
 };
 

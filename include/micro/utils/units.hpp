@@ -50,8 +50,8 @@ enum class Unit : uint8_t {
 
 namespace detail {
 
-constexpr float32_t RAD_TO_DEG = 57.2957795f;       // Converts form radians to degrees.
-constexpr float32_t DEG_TO_RAD = 0.0174532925f;     // Converts from degrees to radians.
+constexpr float RAD_TO_DEG = 57.2957795f;       // Converts form radians to degrees.
+constexpr float DEG_TO_RAD = 0.0174532925f;     // Converts from degrees to radians.
 
 /* @brief Multiplication dimension mapper. Maps result dimension of the two given dimension's multiplication (e.g. capacity for current and time).
  * @tparam _first_dim The first dimension.
@@ -89,22 +89,22 @@ template <> struct div_dim<sq_dim, dim> { static constexpr Dimension value = dim
  **/
 template <Unit unit> struct unit_multiplier;
 
-template <> struct unit_multiplier<Unit::giga>         { static constexpr float32_t value = 1000000000.0f;          };  // Unit multiplier for giga.
-template <> struct unit_multiplier<Unit::mega>         { static constexpr float32_t value = 1000000.0f;             };  // Unit multiplier for mega.
-template <> struct unit_multiplier<Unit::kilo>         { static constexpr float32_t value = 1000.0f;                };  // Unit multiplier for kilo.
-template <> struct unit_multiplier<Unit::hecto>        { static constexpr float32_t value = 100.0f;                 };  // Unit multiplier for hecto.
-template <> struct unit_multiplier<Unit::deca>         { static constexpr float32_t value = 10.0f;                  };  // Unit multiplier for deca.
-template <> struct unit_multiplier<Unit::one>          { static constexpr float32_t value = 1.0f;                   };  // Unit multiplier for one.
-template <> struct unit_multiplier<Unit::deci>         { static constexpr float32_t value = 1 / 10.0f;              };  // Unit multiplier for deci.
-template <> struct unit_multiplier<Unit::centi>        { static constexpr float32_t value = 1 / 100.0f;             };  // Unit multiplier for centi.
-template <> struct unit_multiplier<Unit::milli>        { static constexpr float32_t value = 1 / 1000.0f;            };  // Unit multiplier for milli.
-template <> struct unit_multiplier<Unit::micro>        { static constexpr float32_t value = 1 / 1000000.0f;         };  // Unit multiplier for micro.
-template <> struct unit_multiplier<Unit::nano>         { static constexpr float32_t value = 1 / 1000000000.0f;      };  // Unit multiplier for nano.
+template <> struct unit_multiplier<Unit::giga>         { static constexpr float value = 1000000000.0f;          };  // Unit multiplier for giga.
+template <> struct unit_multiplier<Unit::mega>         { static constexpr float value = 1000000.0f;             };  // Unit multiplier for mega.
+template <> struct unit_multiplier<Unit::kilo>         { static constexpr float value = 1000.0f;                };  // Unit multiplier for kilo.
+template <> struct unit_multiplier<Unit::hecto>        { static constexpr float value = 100.0f;                 };  // Unit multiplier for hecto.
+template <> struct unit_multiplier<Unit::deca>         { static constexpr float value = 10.0f;                  };  // Unit multiplier for deca.
+template <> struct unit_multiplier<Unit::one>          { static constexpr float value = 1.0f;                   };  // Unit multiplier for one.
+template <> struct unit_multiplier<Unit::deci>         { static constexpr float value = 1 / 10.0f;              };  // Unit multiplier for deci.
+template <> struct unit_multiplier<Unit::centi>        { static constexpr float value = 1 / 100.0f;             };  // Unit multiplier for centi.
+template <> struct unit_multiplier<Unit::milli>        { static constexpr float value = 1 / 1000.0f;            };  // Unit multiplier for milli.
+template <> struct unit_multiplier<Unit::micro>        { static constexpr float value = 1 / 1000000.0f;         };  // Unit multiplier for micro.
+template <> struct unit_multiplier<Unit::nano>         { static constexpr float value = 1 / 1000000000.0f;      };  // Unit multiplier for nano.
 
 // custom unit multipliers
-template <> struct unit_multiplier<Unit::_60>          { static constexpr float32_t value = 60.0f;                  };  // Unit multiplier for _60.
-template <> struct unit_multiplier<Unit::_3600>        { static constexpr float32_t value = 3600.0f;                };  // Unit multiplier for _3600.
-template <> struct unit_multiplier<Unit::deg_to_rad>   { static constexpr float32_t value = DEG_TO_RAD;             };  // Unit multiplier for rad_to_deg.
+template <> struct unit_multiplier<Unit::_60>          { static constexpr float value = 60.0f;                  };  // Unit multiplier for _60.
+template <> struct unit_multiplier<Unit::_3600>        { static constexpr float value = 3600.0f;                };  // Unit multiplier for _3600.
+template <> struct unit_multiplier<Unit::deg_to_rad>   { static constexpr float value = DEG_TO_RAD;             };  // Unit multiplier for rad_to_deg.
 
 template <Dimension _dim>
 struct base_unit_instance {
@@ -122,7 +122,7 @@ struct is_unit_instance {
  **/
 template <Dimension _dim, Unit _unit>
 struct unit_instance : public base_unit_instance<_dim> {
-    static constexpr float32_t mul = unit_multiplier<_unit>::value; // The unit multiplier.
+    static constexpr float mul = unit_multiplier<_unit>::value; // The unit multiplier.
 };
 
 /* @brief Multiplication unit instance class template. Used for multiplication units like Ah.
@@ -132,7 +132,7 @@ struct unit_instance : public base_unit_instance<_dim> {
  **/
 template <typename T1, typename T2, class = typename std::enable_if<is_unit_instance<T1>::value && is_unit_instance<T2>::value>::type>
 struct mul_unit_instance : public base_unit_instance<mul_dim<T1::dim, T2::dim>::value> {
-    static constexpr float32_t mul = T1::mul * T2::mul;   // The unit multiplier.
+    static constexpr float mul = T1::mul * T2::mul;   // The unit multiplier.
 };
 
 /* @brief Division unit instance class template. Used for division units like km/h.
@@ -142,7 +142,7 @@ struct mul_unit_instance : public base_unit_instance<mul_dim<T1::dim, T2::dim>::
  **/
 template <typename T1, typename T2, class = typename std::enable_if<is_unit_instance<T1>::value && is_unit_instance<T2>::value>::type>
 struct div_unit_instance : public base_unit_instance<div_dim<T1::dim, T2::dim>::value> {
-    static constexpr float32_t mul = T1::mul / T2::mul;   // The unit multiplier.
+    static constexpr float mul = T1::mul / T2::mul;   // The unit multiplier.
 };
 
 template <typename _unit_inst_t>
@@ -167,7 +167,7 @@ inline constexpr typename std::enable_if<from_unit_inst_t::dim == to_unit_inst_t
 template <Dimension _dim, typename unit_inst_t_ = unit_instance<_dim, Unit::one>, bool explicit_unit = false>
 class dim_class {
 public:
-    typedef float32_t value_type;
+    typedef float value_type;
     enum { is_dim_class = true };
     static constexpr Dimension dim = _dim;   // The dimension.
     typedef unit_inst_t_ unit_inst_t;
@@ -178,14 +178,14 @@ private:
     template <typename unit_inst_t2, bool explicit_unit2> using same_dim_class = dim_class<dim, unit_inst_t2, explicit_unit2>;
     template <Dimension dim2, typename unit_inst_t2, bool explicit_unit2> using other_dim_class = dim_class<dim2, unit_inst_t2, explicit_unit2>;
 
-    float32_t value;   // The stored value.
+    float value;   // The stored value.
 
 public:
     /* @brief Constructor - sets value.
      * @tparam T Numeric type of the parameter value.
      * param _value The value given in the unit instance.
      **/
-    constexpr explicit dim_class(float32_t _value, void*) : value(_value) {}
+    constexpr explicit dim_class(float _value, void*) : value(_value) {}
 
     /* @brief Default constructor - sets value to 0.
      **/
@@ -196,7 +196,7 @@ public:
      * param _value The value given in the unit instance.
      **/
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    constexpr explicit dim_class(float32_t _value) : value(_value) {}
+    constexpr explicit dim_class(float _value) : value(_value) {}
 
     static constexpr dim_class ZERO() { return dim_class(0.0f, nullptr); }
 
@@ -216,12 +216,12 @@ public:
      * @returns The value in given unit.
      **/
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    constexpr float32_t get() const {
+    constexpr float get() const {
         return this->value;
     }
 
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    void set(float32_t _value) {
+    void set(float _value) {
         this->value = _value;
     }
 };
@@ -321,7 +321,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns The ratio of the dimension class instances.
  **/
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, float32_t>::type operator/(const T1& d1, const T2& d2) {
+inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, float>::type operator/(const T1& d1, const T2& d2) {
     return d1.template get<true>() / static_cast<T1>(d2).template get<true>();
 }
 

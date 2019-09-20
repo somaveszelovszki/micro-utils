@@ -19,8 +19,8 @@ DEFINE_TYPEINFO(int16_t);
 DEFINE_TYPEINFO(int32_t);
 DEFINE_TYPEINFO(int64_t);
 
-DEFINE_TYPEINFO(float32_t);
-DEFINE_TYPEINFO(float64_t);
+DEFINE_TYPEINFO(float);
+DEFINE_TYPEINFO(double);
 
 /**
  * @brief Defines pin states.

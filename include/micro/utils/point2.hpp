@@ -90,8 +90,8 @@ template <typename T> struct point2 {
      * @returns The average of the two points.
      **/
     template <typename T2>
-    point2<T> average(const point2<T2>& other, float32_t otherWeight = 1.0f) const {
-        float32_t weightSum = 1.0f + otherWeight;
+    point2<T> average(const point2<T2>& other, float otherWeight = 1.0f) const {
+        float weightSum = 1.0f + otherWeight;
         return point2<T>((this->X + other.X * otherWeight) / weightSum, (this->Y + other.Y * otherWeight) / weightSum);
     }
 
@@ -222,13 +222,13 @@ void point2<T>::bbox(const point2<T> points[], uint32_t numpoints, bbox2<T> *pRe
 
 template<typename T>
 micro::Sign point2<T>::getAngleSign(const vec2<T>& other, micro::Direction dir) const {
-    float32_t m;
+    float m;
     if(micro::isZero(this->X)) {
-        m = static_cast<float32_t>(this->Y > 0 ? -other.X : other.X);
+        m = static_cast<float>(this->Y > 0 ? -other.X : other.X);
     } else if(micro::isZero(other.X)) {
-        m = static_cast<float32_t>(other.Y > 0 ? this->X : -this->X);
+        m = static_cast<float>(other.Y > 0 ? this->X : -this->X);
     } else {
-        m = this->Y / static_cast<float32_t>(this->X) - other.Y / static_cast<float32_t>(other.X);
+        m = this->Y / static_cast<float>(this->X) - other.Y / static_cast<float>(other.X);
     }
 
     return micro::sgn(m * static_cast<int8_t>(dir));
@@ -252,7 +252,7 @@ bool point2<T>::isInside(const point2<T>& a, const point2<T>& b, const point2<T>
 }
 
 typedef point2<int32_t>      point2i, vec2i;     // 32-bit integer types.
-typedef point2<float32_t>    point2f, vec2f;     // 32-bit floating point types.
+typedef point2<float>    point2f, vec2f;     // 32-bit floating point types.
 
 typedef point2<meter_t>      point2m,   vec2m;   // meter types.
 typedef point2<centimeter_t> point2cm,  vec2cm;  // centimeter types.

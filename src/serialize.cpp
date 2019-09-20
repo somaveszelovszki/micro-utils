@@ -119,23 +119,23 @@ uint32_t deserialize_uint64_t(const char * const stream, void * const value) {
     return result;
 }
 
-uint32_t serialize_float32_t(char * const stream, const uint32_t size, const void * const value) {
-    return micro::ftoa(*static_cast<const float32_t*>(value), stream, size);
+uint32_t serialize_float(char * const stream, const uint32_t size, const void * const value) {
+    return micro::ftoa(*static_cast<const float*>(value), stream, size);
 }
 
-uint32_t deserialize_float32_t(const char * const stream, void * const value) {
-    return micro::atof(stream, static_cast<float32_t*>(value));
+uint32_t deserialize_float(const char * const stream, void * const value) {
+    return micro::atof(stream, static_cast<float*>(value));
 }
 
-uint32_t serialize_float64_t(char * const stream, const uint32_t size, const void * const value) {
-    return micro::ftoa(static_cast<float32_t>(*static_cast<const float64_t*>(value)), stream, size);
+uint32_t serialize_double(char * const stream, const uint32_t size, const void * const value) {
+    return micro::ftoa(static_cast<float>(*static_cast<const double*>(value)), stream, size);
 }
 
-uint32_t deserialize_float64_t(const char * const stream, void * const value) {
-    float32_t n;
+uint32_t deserialize_double(const char * const stream, void * const value) {
+    float n;
     const uint32_t result = micro::atof(stream, &n);
     if (result > 0) {
-        *static_cast<float64_t*>(value) = static_cast<float64_t>(n);
+        *static_cast<double*>(value) = static_cast<double>(n);
     }
     return result;
 }
@@ -155,7 +155,7 @@ uint32_t serialize_CarProps(char * const stream, const uint32_t size, const void
 
 uint32_t deserialize_CarProps(const char * const stream, void * const value) {
     CarProps * const car = static_cast<CarProps*>(value);
-    float32_t n;
+    float n;
 
     uint32_t idx = strlen("{pose:{pos:{X:");
     idx += micro::atof(&stream[idx], &n);

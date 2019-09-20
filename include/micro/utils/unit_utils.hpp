@@ -11,7 +11,7 @@ namespace micro {
  * @returns The value.
  */
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, float32_t>::type valueOf(const T& value) {
+inline typename std::enable_if<T::is_dim_class, float>::type valueOf(const T& value) {
     return value.template get<true>();
 }
 
@@ -82,8 +82,8 @@ inline typename std::enable_if<T::is_dim_class, bool>::type isZero(const T& valu
  */
 template <typename T1, typename T2>
 inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, T1>::type pythag(const T1& a, const T2& b) {
-    const float32_t _a = a.template get<true>();
-    const float32_t _b = static_cast<T1>(b).template get<true>();
+    const float _a = a.template get<true>();
+    const float _b = static_cast<T1>(b).template get<true>();
     return T1(std::sqrt(_a * _a + _b * _b), nullptr);
 }
 
@@ -98,9 +98,9 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  */
 template <typename T1, typename T2, typename T3>
 inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T3::is_dim_class && T1::dim == T2::dim && T1::dim == T3::dim, T1>::type pythag(const T1& a, const T2& b, const T3& c) {
-    const float32_t _a = a.template get<true>();
-    const float32_t _b = static_cast<T1>(b).template get<true>();
-    const float32_t _c = static_cast<T1>(c).template get<true>();
+    const float _a = a.template get<true>();
+    const float _b = static_cast<T1>(b).template get<true>();
+    const float _c = static_cast<T1>(c).template get<true>();
     return T1(std::sqrt(_a * _a + _b * _b + _c * _c), nullptr);
 }
 
@@ -108,7 +108,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T3::is_di
  * @param value The angle.
  * @returns The sine of the angle.
  **/
-inline float32_t sin(const radian_t& value) {
+inline float sin(const radian_t& value) {
     return std::sin(value.template get<true>());
 }
 
@@ -116,7 +116,7 @@ inline float32_t sin(const radian_t& value) {
  * @param value The value.+
  * @returns The arc-sine of the value.
  **/
-inline radian_t asin(float32_t value) {
+inline radian_t asin(float value) {
     return radian_t(std::asin(value)) ;
 }
 
@@ -124,7 +124,7 @@ inline radian_t asin(float32_t value) {
  * @param value The angle.
  * @returns The cosine of the angle.
  **/
-inline float32_t cos(const radian_t& value) {
+inline float cos(const radian_t& value) {
     return std::cos(value.template get<true>()) ;
 }
 
@@ -132,7 +132,7 @@ inline float32_t cos(const radian_t& value) {
  * @param value The value.
  * @returns The arc-cosine of the value.
  **/
-inline radian_t acos(float32_t value) {
+inline radian_t acos(float value) {
     return radian_t(std::acos(value)) ;
 }
 
@@ -140,7 +140,7 @@ inline radian_t acos(float32_t value) {
  * @param value The angle.
  * @returns The tangent of the angle.
  **/
-inline float32_t tan(const radian_t& value) {
+inline float tan(const radian_t& value) {
     return std::tan(value.template get<true>());
 }
 
@@ -148,13 +148,13 @@ inline float32_t tan(const radian_t& value) {
  * @param value The value.
  * @returns The arc-tangent of the value.
  **/
-inline radian_t atan(float32_t value) {
+inline radian_t atan(float value) {
     return radian_t(std::atan(value));
 }
 
 template <typename T>
 inline typename std::enable_if<std::is_arithmetic<T>::value, radian_t>::type atan2(const T& y, const T& x) {
-    return radian_t(std::atan2(static_cast<float32_t>(y), static_cast<float32_t>(x)));
+    return radian_t(std::atan2(static_cast<float>(y), static_cast<float>(x)));
 }
 
 template <typename T1, typename T2>

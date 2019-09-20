@@ -21,7 +21,7 @@ public:
      * @param _pwm The PWM value to write.
      * @returns Status indicating operation success (operation fails when 'forceStopActive' flag is set).
      **/
-    Status write(float32_t duty);
+    Status write(float duty);
 
     void forceStop();
 

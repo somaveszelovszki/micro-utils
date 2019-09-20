@@ -6,7 +6,7 @@
 
 namespace micro {
 
-constexpr float32_t COMPLIANCE_RATE = 0.3f;         // Compliance for new measurement - relative to previous measurement.
+constexpr float COMPLIANCE_RATE = 0.3f;         // Compliance for new measurement - relative to previous measurement.
 constexpr meter_t DEADBAND = centimeter_t(10.0f);   // Deadband for new measurement.
 
 class DistanceSensor : public Sensor<distance_t> {

@@ -31,7 +31,7 @@ void toBytes(int32_t value, uint8_t bytes[], BitOrder order) {
     }
 }
 
-void toBytes(float32_t value, uint8_t bytes[], BitOrder order) {
+void toBytes(float value, uint8_t bytes[], BitOrder order) {
     int32_t intVal;
     memcpy(&intVal, &value, 4);
     toBytes(intVal, bytes, order);
@@ -65,9 +65,9 @@ int32_t toInt32(const uint8_t bytes[], BitOrder order) {
     return result;
 }
 
-float32_t toFloat32(const uint8_t bytes[], BitOrder order) {
+float toFloat32(const uint8_t bytes[], BitOrder order) {
     int32_t intVal = toInt32(bytes, order);
-    float32_t resultFloatVal;
+    float resultFloatVal;
     memcpy(&resultFloatVal, &intVal, 4);
     return resultFloatVal;
 }
