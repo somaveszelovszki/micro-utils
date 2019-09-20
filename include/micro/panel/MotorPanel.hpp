@@ -1,20 +1,13 @@
 #pragma once
 
-#include <micro/bsp/uart.hpp>
+#include "Panel.hpp"
+#include "MotorPanelData.h"
 
 namespace micro {
 
-class MotorPanel {
+class MotorPanel : public Panel<motorPanelDataIn_t, motorPanelDataOut_t> {
 public:
-    MotorPanel(uart_handle_t _huart);
-
-    Status start(bool useSafetyEnableSignal);
-
-    m_per_sec_t getSpeed() const;
-
-private:
-    uart_handle_t huart;
-    uint8_t speedBuffer[4];
+    using Panel<motorPanelDataIn_t, motorPanelDataOut_t>::Panel;
 };
 
 }  // namespace micro

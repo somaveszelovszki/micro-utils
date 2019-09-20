@@ -1,21 +1,14 @@
 #pragma once
 
-#include <micro/bsp/uart.hpp>
-#include <micro/utils/Line.hpp>
+#include "Panel.hpp"
+#include "LineDetectPanelData.h"
 
 namespace micro {
 
-class LineDetectPanel {
+class LineDetectPanel : public Panel<lineDetectPanelDataIn_t, lineDetectPanelDataOut_t> {
 public:
-    LineDetectPanel(uart_handle_t _huart);
-
-    Status start();
-
-    void getLinePositions(LinePositions& result) const;
-
-private:
-    uart_handle_t huart;
-    uint8_t linesBuffer[1 + cfg::MAX_NUM_LINES];
+    using Panel<lineDetectPanelDataIn_t, lineDetectPanelDataOut_t>::Panel;
 };
+
 
 }  // namespace micro

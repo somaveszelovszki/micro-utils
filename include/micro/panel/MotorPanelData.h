@@ -7,7 +7,7 @@
 extern "C" {
 #endif // __cplusplus
     
-#define FLAG_USE_SAFETY_SIGNAL 0x01
+#define MOTOR_PANEL_FLAG_USE_SAFETY_SIGNAL 0x01
 
 typedef struct {
     int16_t targetSpeed_mmps;

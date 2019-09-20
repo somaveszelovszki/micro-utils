@@ -7,10 +7,10 @@
 extern "C" {
 #endif // __cplusplus
 
-#define LINE_DETECT_PANEL_COMMAND_START 'S'
+#define LINE_DETECT_PANEL_FLAG_INDICATOR_LEDS_ENABLED 0x01
     
 typedef struct {
-    char command;
+    uint8_t flags;
 } lineDetectPanelDataIn_t;
     
 typedef struct {

@@ -7,11 +7,11 @@
 
 typedef struct {
     int8_t pos_mm;
-} Line;
+} linePosition_t;
 
 typedef struct {
     uint8_t numLines;
-    Line values[MAX_NUM_LINES];
-} Lines;
+    linePosition_t values[MAX_NUM_LINES];
+} linePositions_t;
 
 #endif // MICRO_PANEL_LINES_H
