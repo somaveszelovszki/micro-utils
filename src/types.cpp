@@ -30,6 +30,25 @@ const char* getStatusString(Status status) {
     return result;
 }
 
+const char* getLogLevelString(const logLevel_t level) {
+
+    static const char * const STR_Debug   = "[D]";
+    static const char * const STR_Info    = "[I]";
+    static const char * const STR_Warning = "[W]";
+    static const char * const STR_Error   = "[E]";
+    static const char * const STR_unknown = "[!]";
+
+    const char *result = STR_unknown;
+    switch (level) {
+        case LogLevel_Debug:   result = STR_Debug;   break;
+        case LogLevel_Info:    result = STR_Info;    break;
+        case LogLevel_Warning: result = STR_Warning; break;
+        case LogLevel_Error:   result = STR_Error;   break;
+        default:               result = STR_unknown; break;
+    }
+    return result;
+}
+
 } // namespace micro
 
 extern "C" void onHardFault() {

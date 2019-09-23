@@ -24,9 +24,10 @@ constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + 
 void vprintlog(logLevel_t level, const char *format, va_list args) {
     if (level >= MIN_LOG_LEVEL)
     {
-        LogMessage msg;
-        msg.level = level;
-        vsprint(msg.text, LOG_MSG_MAX_SIZE, format, args);
+        char msg[LOG_MSG_MAX_SIZE];
+        const char *levelStr = getLogLevelString(level);
+        strncpy(msg, levelStr, strlen(levelStr));
+        vsprint(msg + strlen(msg), LOG_MSG_MAX_SIZE, format, args);
         micro::queueSend(cfg::queue_Log, &msg);
     }
 }

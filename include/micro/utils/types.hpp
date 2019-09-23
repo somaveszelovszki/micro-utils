@@ -74,6 +74,8 @@ typedef uint8_t logLevel_t;
 #define LogLevel_Warning 0x03
 #define LogLevel_Error   0x04
 
+const char* getLogLevelString(const logLevel_t level);
+
 /**
  * @brief Defines rotation direction.
  */

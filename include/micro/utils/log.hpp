@@ -13,13 +13,6 @@ namespace micro {
 
 #if LOG_ENABLED
 
-/* @brief Structure for storing debug messages.
- */
-struct LogMessage {
-    logLevel_t level;            // The log message content.
-    char text[LOG_MSG_MAX_SIZE]; // The log message text.
-};
-
 /* @brief Prints a debug code and a string to the console through USART.
  * Supported modifiers : %s, %c, %d, %f
  * @param level The log level.
