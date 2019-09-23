@@ -10,11 +10,11 @@ void Params::serialize(const char *name, char * const str, uint32_t size) {
     if (param) {
         if (param->hmutex.ptr != nullptr) {
             while (!isOk(micro::mutexTake(param->hmutex, millisecond_t(1)))) {}
-            param->serializer.serialize(str, size, param->buf);
+            param->serialize(str, size, param->buf);
             micro::mutexRelease(param->hmutex);
         } else {
             taskSuspendAll();
-            param->serializer.serialize(str, size, param->buf);
+            param->serialize(str, size, param->buf);
             taskResumeAll();
         }
     } else {
@@ -27,11 +27,11 @@ void Params::deserialize(const char *name, const char * const str) {
     if (param) {
         if (param->hmutex.ptr != nullptr) {
             while (!isOk(micro::mutexTake(param->hmutex, millisecond_t(1)))) {}
-            param->serializer.deserialize(str, param->buf);
+            param->deserialize(str, param->buf);
             micro::mutexRelease(param->hmutex);
         } else {
             taskSuspendAll();
-            param->serializer.deserialize(str, param->buf);
+            param->deserialize(str, param->buf);
             taskResumeAll();
         }
     } else {

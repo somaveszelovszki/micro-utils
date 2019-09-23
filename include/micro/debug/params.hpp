@@ -16,13 +16,14 @@ namespace micro {
 
 struct Param {
 
-    Param(const char *name, const char *type, mutex_handle_t hmutex, uint8_t *buf, uint8_t size, const serializer_t& serializer)
+    Param(const char *name, const char *type, mutex_handle_t hmutex, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
         : name("")
         , type("")
         , hmutex(hmutex)
         , buf(buf)
         , size(size)
-        , serializer(serializer) {
+        , serialize(serialize)
+        , deserialize(deserialize) {
         strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_PARAM_NAME);
         strncpy(const_cast<char*>(this->type), type, STR_MAX_LEN_PARAM_TYPE);
     }
@@ -33,7 +34,8 @@ struct Param {
         , hmutex(other.hmutex)
         , buf(other.buf)
         , size(other.size)
-        , serializer(other.serializer) {
+        , serialize(other.serialize)
+        , deserialize(other.deserialize) {
         strncpy(const_cast<char*>(this->name), other.name, STR_MAX_LEN_PARAM_NAME);
         strncpy(const_cast<char*>(this->type), other.type, STR_MAX_LEN_PARAM_TYPE);
     }
@@ -43,7 +45,8 @@ struct Param {
     mutex_handle_t hmutex;
     uint8_t * const buf;
     const uint8_t size;
-    serializer_t serializer;
+    serialize_func serialize;
+    deserialize_func deserialize;
 };
 
 class Params {
@@ -71,7 +74,8 @@ private:
             { nullptr },
             reinterpret_cast<uint8_t*>(value),
             sizeof(T),
-            micro::serialization<T>::serializer
+            micro::serialize<T>,
+            micro::deserialize<T>
         );
     }
 
@@ -85,7 +89,8 @@ private:
             value->getMutex(),
             reinterpret_cast<uint8_t*>(value_ptr),
             sizeof(T),
-            micro::serialization<T>::serializer
+            micro::serialize<T>,
+            micro::deserialize<T>
         );
     }
 

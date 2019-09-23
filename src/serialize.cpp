@@ -22,11 +22,11 @@ uint32_t deserialize_bool(const char * const stream, void * const value) {
     return result;
 }
 
-uint32_t serialize_int8_t (char * const stream, const uint32_t size, const void * const value) {
+uint32_t serialize_int8_t(char * const stream, const uint32_t size, const void * const value) {
     return micro::itoa(static_cast<int32_t>(*static_cast<const int8_t*>(value)), stream, size);
 }
 
-uint32_t deserialize_int8_t (const char * const stream, void * const value) {
+uint32_t deserialize_int8_t(const char * const stream, void * const value) {
     int32_t n;
     const uint32_t result = micro::atoi(stream, &n);
     if (result > 0) {
@@ -69,11 +69,11 @@ uint32_t deserialize_int64_t(const char * const stream, void * const value) {
     return result;
 }
 
-uint32_t serialize_uint8_t (char * const stream, const uint32_t size, const void * const value) {
+uint32_t serialize_uint8_t(char * const stream, const uint32_t size, const void * const value) {
     return micro::itoa(static_cast<int32_t>(*static_cast<const uint8_t*>(value)), stream, size);
 }
 
-uint32_t deserialize_uint8_t (const char * const stream, void * const value) {
+uint32_t deserialize_uint8_t(const char * const stream, void * const value) {
     int32_t n;
     const uint32_t result = micro::atoi(stream, &n);
     *static_cast<uint8_t*>(value) = static_cast<uint8_t>(n);
@@ -140,36 +140,34 @@ uint32_t deserialize_double(const char * const stream, void * const value) {
     return result;
 }
 
-uint32_t serialize_m_per_sec_t(char * const stream, const uint32_t size, const void * const value) {
-    return serialization<typename m_per_sec_t::value_type>::serializer.serialize(stream, size, value);
-}
-
-uint32_t deserialize_m_per_sec_t(const char * const stream, void * const value) {
-    return serialization<typename m_per_sec_t::value_type>::serializer.deserialize(stream, value);
-}
-
 uint32_t serialize_CarProps(char * const stream, const uint32_t size, const void * const value) {
     const CarProps * const car = static_cast<const CarProps*>(value);
-    return sprint(stream, size, "{pose:{pos:{X:%f,Y:%f},angle:%f},speed:%f}", car->pose.pos.X.get(), car->pose.pos.Y.get(), car->pose.angle.get(), car->speed.get());
+    return sprint(stream, size,
+        "{\"pose\":{\"pos\":{\"X\":%f,\"Y\":%f},\"angle\":%f},\"speed\":%f}",
+        car->pose.pos.X.get(),
+        car->pose.pos.Y.get(),
+        car->pose.angle.get(),
+        car->speed.get()
+    );
 }
 
 uint32_t deserialize_CarProps(const char * const stream, void * const value) {
     CarProps * const car = static_cast<CarProps*>(value);
     float n;
 
-    uint32_t idx = strlen("{pose:{pos:{X:");
+    uint32_t idx = strlen("{\"pose\":{\"pos\":{\"X\":");
     idx += micro::atof(&stream[idx], &n);
     car->pose.pos.X = meter_t(n);
 
-    idx += strlen(",Y:");
+    idx += strlen(",\"Y\":");
     idx += micro::atof(&stream[idx], &n);
     car->pose.pos.Y = meter_t(n);
 
-    idx += strlen("},angle:");
+    idx += strlen("},\"angle\":");
     idx += micro::atof(&stream[idx], &n);
     car->pose.angle = radian_t(n);
 
-    idx += strlen("},speed:");
+    idx += strlen("},\"speed\":");
     idx += micro::atof(&stream[idx], &n);
     car->speed = m_per_sec_t(n);
 
