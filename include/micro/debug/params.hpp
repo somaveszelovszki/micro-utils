@@ -59,8 +59,8 @@ public:
         this->values.append(this->fillParamStruct(name, value));
     }
 
-    void serialize(const char *name, char * const str, uint32_t size);
-    void deserialize(const char *name, const char * const str);
+    uint32_t serializeAll(char * const str, uint32_t size);
+    uint32_t deserializeAll(const char * const str);
 
 private:
 

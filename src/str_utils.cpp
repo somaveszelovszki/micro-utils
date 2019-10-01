@@ -139,6 +139,18 @@ uint32_t ftoa(float n, char * const s, uint32_t size) {
     return idx;
 }
 
+uint32_t strcpy_until(char * const dest, const char * const src, const uint32_t size, const char delimiter) {
+    uint32_t i;
+    for (i = 0; i < size; ++i) {
+        if (delimiter == src[i]) {
+            ++i;
+            break;
+        }
+        dest[i] = src[i];
+    }
+    return i;
+}
+
 uint32_t vsprint(char * const str, const uint32_t size, const char *format, va_list args) {
 
     uint32_t r = 0; // will store the index of the current read character
