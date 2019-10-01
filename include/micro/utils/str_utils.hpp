@@ -24,6 +24,8 @@ uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding = 0);
 
 uint32_t ftoa(float n, char * const s, uint32_t size);
 
+uint32_t strcpy_until(char * const dest, const char * const src, const uint32_t size, const char delimiter);
+
 /* @brief Prints a string to the result string.
  * Supported modifiers : %s, %c, %d, %f
  * @param str The result string.
