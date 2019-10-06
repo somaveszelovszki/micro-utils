@@ -469,6 +469,7 @@ create_unit_instance_without_unit_prefix(angle, deg_to_rad, degree);
 
 create_unit_instances(temperature, celsius);
 create_unit_instances(magnetic_flux, maxwell);
+create_unit_instances(magnetic_flux_density, gauss);
 
 typedef detail::dim_class<Dimension::speed> speed_t;
 create_div_unit_instance(kilometer, hour, km_per_hour);
