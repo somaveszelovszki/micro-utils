@@ -16,7 +16,7 @@ namespace micro {
 
 struct Param {
 
-    Param(const char *name, const char *type, mutex_handle_t hmutex, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
+    Param(const char *name, const char *type, osMutexId hmutex, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
         : name("")
         , type("")
         , hmutex(hmutex)
@@ -42,7 +42,7 @@ struct Param {
 
     const char name[STR_MAX_LEN_PARAM_NAME];
     const char type[STR_MAX_LEN_PARAM_TYPE];
-    mutex_handle_t hmutex;
+    osMutexId hmutex;
     uint8_t * const buf;
     const uint8_t size;
     serialize_func serialize;

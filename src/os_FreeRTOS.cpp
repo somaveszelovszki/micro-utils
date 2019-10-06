@@ -7,11 +7,12 @@
 #include <micro/bsp/task.hpp>
 
 #include <cmsis_os.h>
+extern "C" osMessageQId LogQueueHandle;
 
 namespace micro {
 
 void nonBlockingDelay(millisecond_t delay) {
-    osDelay(delay.get());
+    vTaskDelay(delay.get());
 }
 
 Status queueSend(const queue_handle_t hQueue, const void * const txBuffer){

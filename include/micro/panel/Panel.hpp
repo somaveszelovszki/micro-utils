@@ -1,21 +1,24 @@
 #pragma once
 
-#include <micro/bsp/uart.hpp>
+#include <micro/bsp/tim.hpp>
+
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_uart.h"
 
 namespace micro {
 
 template <typename T_toPanel, typename T_fromPanel>
 class Panel {
 public:
-    explicit Panel(uart_handle_t huart) : huart(huart) {}
+    explicit Panel(UART_HandleTypeDef *huart) : huart(huart) {}
 
     void start(const T_toPanel& out) {
-        UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inData), sizeof(T_fromPanel));
+        HAL_UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inData), sizeof(T_fromPanel));
         this->send(out);
     }
 
     void send(const T_toPanel& out) {
-        UART_Transmit_DMA(this->huart, reinterpret_cast<const uint8_t*>(&out), sizeof(T_toPanel));
+        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(const_cast<T_toPanel*>(&out)), sizeof(T_toPanel));
     }
 
     void onDataReceived(void) {
@@ -30,8 +33,12 @@ public:
         return this->inData;
     }
 
+    millisecond_t getLastRecvTime(void) const {
+        return this->lastRecvTime;
+    }
+
 private:
-    uart_handle_t huart;
+    UART_HandleTypeDef *huart;
     millisecond_t lastRecvTime;
     T_fromPanel inData;
 };

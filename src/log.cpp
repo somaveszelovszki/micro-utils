@@ -7,12 +7,14 @@
 #include <micro/container/ring_buffer.hpp>
 #include <micro/utils/numeric.hpp>
 #include <micro/utils/convert.hpp>
-#include <micro/bsp/uart.hpp>
-#include <micro/bsp/queue.hpp>
-#include <cfg_os.hpp>
+
+#include <FreeRTOS.h>
+#include <queue.h>
 
 #include <cstdarg>
 #include <cstring>
+
+extern QueueHandle_t logQueue;
 
 namespace micro {
 
@@ -26,9 +28,15 @@ void vprintlog(logLevel_t level, const char *format, va_list args) {
     {
         char msg[LOG_MSG_MAX_SIZE];
         const char *levelStr = getLogLevelString(level);
-        strncpy(msg, levelStr, strlen(levelStr));
-        vsprint(msg + strlen(msg), LOG_MSG_MAX_SIZE, format, args);
-        micro::queueSend(cfg::queue_Log, &msg);
+        uint32_t len = strlen(levelStr);
+        strncpy(msg, levelStr, len);
+        len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len, format, args);
+        if (len < LOG_MSG_MAX_SIZE - 2) {
+            msg[len++] = '\r';
+            msg[len++] = '\n';
+            msg[len++] = '\0';
+        }
+        xQueueSend(logQueue, msg, 0);
     }
 }
 

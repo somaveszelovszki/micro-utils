@@ -3,7 +3,6 @@
 #include <micro/container/vec.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/utils/numeric.hpp>
-#include <cfg_os.hpp>
 
 #include <cstdarg>
 #include <cstring>
@@ -188,7 +187,7 @@ uint32_t vsprint(char * const str, const uint32_t size, const char *format, va_l
         ++r;
     }
 
-    str[w++] = '\0';
+    str[w] = '\0';
     return w;
 }
 

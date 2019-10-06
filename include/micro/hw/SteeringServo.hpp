@@ -10,25 +10,25 @@ namespace hw {
 class SteeringServo : private Servo {
 private:
     const radian_t angle_mid;     // The middle position angle.
-    const float servoWheelTransition_;
+    const float servoWheelTransition;
 
 public:
     /* @brief Constructor - initializes timer handle, channel, middle servo angle and delta maximum wheel angle.
-     * @param _htim The handle for the timer used for PWM generation.
-     * @param _chnl The timer channel used for PWM generation.
-     * @param _angle_mid The middle servo angle.
-     * @param _wheelAngle_d_max The maximum delta wheel angle.
+     * @param htim The handle for the timer used for PWM generation.
+     * @param chnl The timer channel used for PWM generation.
+     * @param angle_mid The middle servo angle.
+     * @param wheelAngle_d_max The maximum delta wheel angle.
      **/
-    SteeringServo(tim_handle_t _htim, tim_channel_t _chnl, radian_t _angle_mid, radian_t _wheelAngle_d_max, float servoWheelTransition)
-        : Servo(_htim, _chnl, _angle_mid - _wheelAngle_d_max / servoWheelTransition, _angle_mid + _wheelAngle_d_max / servoWheelTransition)
-        , angle_mid(_angle_mid)
-        , servoWheelTransition_(servoWheelTransition) {}
+    SteeringServo(TIM_HandleTypeDef *htim, uint32_t chnl, radian_t angle_mid, radian_t wheelAngle_d_max, float servoWheelTransition)
+        : Servo(htim, chnl, angle_mid - wheelAngle_d_max / servoWheelTransition, angle_mid + wheelAngle_d_max / servoWheelTransition)
+        , angle_mid(angle_mid)
+        , servoWheelTransition(servoWheelTransition) {}
 
     /* @brief Writes wheel angle - converts value to servo angle and writes it to the PWM pin.
      * @param wheelAngle The wheel angle to write.
      **/
     void writeWheelAngle(radian_t wheelAngle) {
-        this->write(this->angle_mid + wheelAngle / this->servoWheelTransition_);
+        this->write(this->angle_mid + wheelAngle / this->servoWheelTransition);
     }
 
     /* @brief Writes the middle angle to the servo, thus positioning the wheels middle.
@@ -41,7 +41,7 @@ public:
      * @returns The wheel angle.
      **/
     radian_t getWheelAngle() const {
-        return (this->getAngle() - this->angle_mid) * this->servoWheelTransition_;
+        return (this->getAngle() - this->angle_mid) * this->servoWheelTransition;
     }
 };
 } // namespace hw

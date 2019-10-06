@@ -36,7 +36,7 @@ const char* getLogLevelString(const logLevel_t level) {
     static const char * const STR_Info    = "[I]";
     static const char * const STR_Warning = "[W]";
     static const char * const STR_Error   = "[E]";
-    static const char * const STR_unknown = "[!]";
+    static const char * const STR_unknown = "[unknown]";
 
     const char *result = STR_unknown;
     switch (level) {

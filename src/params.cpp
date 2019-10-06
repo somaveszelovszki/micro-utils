@@ -1,8 +1,11 @@
 #include <micro/debug/params.hpp>
-#include <micro/bsp/task.hpp>
 #include <micro/utils/log.hpp>
 #include <micro/utils/numeric.hpp>
 #include <micro/utils/str_utils.hpp>
+
+#include <FreeRTOS.h>
+#include <cmsis_os.h>
+#include <semphr.h>
 
 namespace micro {
 
@@ -27,14 +30,14 @@ uint32_t Params::serializeAll(char * const str, uint32_t size) {
             str[idx++] = ':';
             if (idx >= size) break;
 
-            if (p.hmutex.ptr != nullptr) {
-                while (!isOk(micro::mutexTake(p.hmutex, millisecond_t(1)))) {}
+            if (p.hmutex != nullptr) {
+                while (!xSemaphoreTake(p.hmutex, 1)) {}
                 idx += p.serialize(&str[idx], size - idx, p.buf);
-                micro::mutexRelease(p.hmutex);
+                xSemaphoreGive(p.hmutex);
             } else {
-                taskSuspendAll();
+                vTaskSuspendAll();
                 idx += p.serialize(&str[idx], size - idx, p.buf);
-                taskResumeAll();
+                xTaskResumeAll();
             }
             if (idx >= size) break;
 
@@ -70,14 +73,14 @@ uint32_t Params::deserializeAll(const char * const str) {
             idx++; // ':'
             if (idx >= size) break;
 
-            if (p.hmutex.ptr != nullptr) {
-                while (!isOk(micro::mutexTake(p.hmutex, millisecond_t(1)))) {}
+            if (p.hmutex != nullptr) {
+                while (!xSemaphoreTake(p.hmutex, 1)) {}
                 idx += p.deserialize(&str[idx], p.buf);
-                micro::mutexRelease(p.hmutex);
+                xSemaphoreGive(p.hmutex);
             } else {
-                taskSuspendAll();
+                vTaskSuspendAll();
                 idx += p.deserialize(&str[idx], p.buf);
-                taskResumeAll();
+                xTaskResumeAll();
             }
             if (idx >= size) break;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/utils/atomic.hpp>
+#include "atomic.hpp"
 
 namespace micro {
 
@@ -8,8 +8,8 @@ template <typename T>
 class atomic_updatable {
 public:
     template<typename ...Args>
-    atomic_updatable(mutex_handle_t _hmutex, Args&&... args)
-        : value_(_hmutex, std::forward<Args>(args)...)
+    atomic_updatable(osMutexId hmutex, Args&&... args)
+        : value_(hmutex, std::forward<Args>(args)...)
         , updated_(false) {
     }
 
