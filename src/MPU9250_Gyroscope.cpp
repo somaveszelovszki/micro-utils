@@ -280,10 +280,11 @@ point3<gauss_t> MPU9250::readMagData(void) {
     uint8_t rawData[7];
     if(this->readByte(AK8963_ADDRESS, AK8963_ST1) & 0x01) { // wait for magnetometer data ready bit to be set
         this->readBytes(AK8963_ADDRESS, AK8963_XOUT_L, 7, &rawData[0]);  // Read the six raw data and ST2 registers sequentially into data array
-        if(!(rawData[6] & 0x08)) { // Check if magnetic sensor overflow bit is set
-            result.X = gauss_t((((int16_t)rawData[1] << 8) | rawData[0]) * this->mRes * this->magCalibration[0] - this->magBias[0]);
-            result.Y = gauss_t((((int16_t)rawData[3] << 8) | rawData[2]) * this->mRes * this->magCalibration[1] - this->magBias[1]);
-            result.Z = gauss_t((((int16_t)rawData[5] << 8) | rawData[4]) * this->mRes * this->magCalibration[2] - this->magBias[2]);
+        uint8_t c = rawData[6];
+        if(!(c & 0x08)) { // Check if magnetic sensor overflow bit is set
+            result.X = gauss_t((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]) * this->mRes * this->magCalibration[0] - this->magBias[0]);
+            result.Y = gauss_t((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]) * this->mRes * this->magCalibration[1] - this->magBias[1]);
+            result.Z = gauss_t((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]) * this->mRes * this->magCalibration[2] - this->magBias[2]);
         }
     }
     return result;
@@ -312,9 +313,9 @@ void MPU9250::initAK8963(void)
     HAL_Delay(10);
 
     this->readBytes(AK8963_ADDRESS, AK8963_ASAX, 3, &rawData[0]);  // Read the x-, y-, and z-axis calibration values
-    this->magCalibration[0] =  (float)(rawData[0] - 128)/256.0f + 1.0f;   // Return x-axis sensitivity adjustment values, etc.
-    this->magCalibration[1] =  (float)(rawData[1] - 128)/256.0f + 1.0f;
-    this->magCalibration[2] =  (float)(rawData[2] - 128)/256.0f + 1.0f;
+    this->magCalibration[0] = (float)(rawData[0] - 128)/256.0f + 1.0f;   // Return x-axis sensitivity adjustment values, etc.
+    this->magCalibration[1] = (float)(rawData[1] - 128)/256.0f + 1.0f;
+    this->magCalibration[2] = (float)(rawData[2] - 128)/256.0f + 1.0f;
 
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
     HAL_Delay(10);
