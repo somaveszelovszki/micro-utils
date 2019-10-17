@@ -34,7 +34,7 @@ void removeUnmatchedPositions(LinePositions& positions, const Lines& lines, uint
             }
         }
 
-        positions.remove(maxIter);
+        positions.erase(maxIter);
     }
 }
 

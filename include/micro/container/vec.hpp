@@ -133,24 +133,6 @@ public:
         return this->size_ - prev_size;
     }
 
-    void remove(uint32_t pos) {
-        for (uint32_t i = pos; i < this->size - 1; ++i) {
-           this->data_[i] = this->data_[i + 1];
-        }
-        this->size--;
-    }
-
-    bool remove(iterator iter) {
-        bool found = iter >= this->begin() && iter < this->end();
-        if (found) {
-            for(iterator it = iter; it < this->end() - 1; ++it) {
-                *reinterpret_cast<storage_type*>(it) = *reinterpret_cast<storage_type*>(it + 1);
-            }
-            this->size_--;
-        }
-        return found;
-    }
-
     const_iterator find(const T& item) const {
         const_iterator it = this->begin();
         for (; it < this->end(); ++it) {
@@ -160,9 +142,24 @@ public:
         }
         return it;
     }
-    
+
     iterator find(const T& item) {
         return const_cast<iterator>(const_cast<const vec*>(this)->find(item));
+    }
+
+    void erase(const T& item) {
+        this->erase(this->find(item));
+    }
+
+    bool erase(iterator iter) {
+        bool found = iter >= this->begin() && iter < this->end();
+        if (found) {
+            for(iterator it = iter; it < this->end() - 1; ++it) {
+                *reinterpret_cast<storage_type*>(it) = *reinterpret_cast<storage_type*>(it + 1);
+            }
+            this->size_--;
+        }
+        return found;
     }
 
     /* @brief Clears vector.
@@ -188,6 +185,14 @@ public:
 
     const_iterator end() const {
         return reinterpret_cast<const_iterator>(this->data_ + this->size_);
+    }
+
+    iterator back() {
+        return this->begin() + this->size_ - 1;
+    }
+
+    const_iterator back() const {
+        return this->begin() + this->size_ - 1;
     }
 
 private:
