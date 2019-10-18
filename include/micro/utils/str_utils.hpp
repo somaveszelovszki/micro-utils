@@ -1,9 +1,6 @@
 #pragma once
 
-#include <micro/container/vec.hpp>
 #include <micro/utils/types.hpp>
-#include <micro/bsp/uart.hpp>
-#include <micro/bsp/queue.hpp>
 
 #include <cstdarg>
 

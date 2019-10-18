@@ -1,8 +1,8 @@
 #pragma once
 
-#include <micro/bsp/tim.hpp>
 #include <micro/utils/arrays.hpp>
-#include <micro/utils/units.hpp>
+#include <micro/utils/time.hpp>
+
 #include <type_traits>
 
 namespace micro {
@@ -10,17 +10,17 @@ namespace micro {
 class runnable_t {
 
 public:
-    runnable_t() : period(time_t::ZERO()) {}
+    runnable_t() : period(millisecond_t::ZERO()) {}
 
-    explicit runnable_t(micro::time_t _period) : period(_period) {}
+    explicit runnable_t(millisecond_t period) : period(period) {}
 
     /* @brief Updates time and calculates time difference between previous and current run.
      * @note This is an internal method, do not call it explicitly!
      * @returns Time difference between the previous and the current run.
      **/
-    micro::time_t updateTimeDiff(){
-        micro::time_t prev = this->lastRunTime;
-        return (this->lastRunTime = micro::getExactTime()) - prev;
+    millisecond_t updateTimeDiff(){
+        millisecond_t prev = this->lastRunTime;
+        return (this->lastRunTime = getTime()) - prev;
     }
 
     bool shouldRun() const {
@@ -28,8 +28,8 @@ public:
     }
 
 protected:
-    micro::time_t period;
-    micro::time_t lastRunTime;   // The time of the last run.
+    micro::millisecond_t period;
+    micro::millisecond_t lastRunTime;   // The time of the last run.
 };
 
 } // namespace micro

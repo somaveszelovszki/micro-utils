@@ -1,7 +1,9 @@
 #pragma once
 
-#include <micro/bsp/gpio.hpp>
 #include <micro/utils/units.hpp>
+
+#include <stm32f4xx_hal.h>
+#include <stm32f4xx_hal_gpio.h>
 
 namespace micro {
 namespace hw {
@@ -9,7 +11,7 @@ namespace hw {
 class HC_SR04_Ultrasonic {
 
 public:
-    HC_SR04_Ultrasonic(const gpio_pin_struct& _trigger, const gpio_pin_struct& _echo);
+    HC_SR04_Ultrasonic(GPIO_TypeDef *gpio_trigger, uint16_t gpioPin_trigger, GPIO_TypeDef *gpio_echo, uint16_t gpioPin_echo);
 
     void initialize();
 
@@ -22,8 +24,10 @@ public:
     }
 
 private:
-    const gpio_pin_struct& trigger;
-    const gpio_pin_struct& echo;
+    GPIO_TypeDef *gpio_trigger;
+    uint16_t gpioPin_trigger;
+    GPIO_TypeDef *gpio_echo;
+    uint16_t gpioPin_echo;
 
     microsecond_t lastStartTime;
     bool busy;

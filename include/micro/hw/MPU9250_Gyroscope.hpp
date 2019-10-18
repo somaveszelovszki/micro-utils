@@ -1,12 +1,10 @@
 #pragma once
 
-#include <micro/bsp/i2c.hpp>
-#include <micro/bsp/tim.hpp>
+#include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
 
-
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_i2c.h"
+#include <stm32f4xx_hal.h>
+#include <stm32f4xx_hal_i2c.h>
 
 namespace micro {
 namespace hw {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/bsp/tim.hpp>
+#include "time.hpp"
 #include <micro/container/vec.hpp>
 
 namespace micro {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/bsp/tim.hpp>
+#include <micro/utils/time.hpp>
 
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_uart.h"

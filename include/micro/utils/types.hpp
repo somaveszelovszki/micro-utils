@@ -23,15 +23,6 @@ DEFINE_TYPEINFO(float);
 DEFINE_TYPEINFO(double);
 
 /**
- * @brief Defines pin states.
- */
-enum class PinState : uint8_t {
-    RESET = 0,      // Reset state.
-    SET             // Set state.
-};
-DEFINE_TYPEINFO(PinState);
-
-/**
  * @brief Status for operations
  */
 enum class Status : uint32_t {
