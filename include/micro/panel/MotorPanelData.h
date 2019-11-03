@@ -17,6 +17,7 @@ typedef struct {
 } motorPanelDataIn_t;
     
 typedef struct {
+    int32_t distance_mm;
     int16_t actualSpeed_mmps;
 } motorPanelDataOut_t;
 
