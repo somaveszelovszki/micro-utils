@@ -15,11 +15,11 @@ void removeUnmatchedPositions(LinePositions& positions, const Lines& lines, uint
         // finds the position with the largest minimum distance from the previous line positions.
 
         LinePositions::iterator maxIter = positions.end();
-        millimeter_t maxDist;
+        millimeter_t maxDist(0);
         for (LinePositions::iterator linePosIter = positions.begin(); linePosIter != positions.end(); ++linePosIter) {
 
             // finds minimum distance from the previous line positions
-            millimeter_t currentMinDist;
+            millimeter_t currentMinDist(std::numeric_limits<double>::infinity());
             for (Lines::const_iterator lineIter = lines.begin(); lineIter != lines.end(); ++lineIter) {
                 const millimeter_t dist = micro::abs((isFront ? lineIter->pos_front : lineIter->pos_rear) - *linePosIter);
                 if (dist < currentMinDist) {
@@ -28,7 +28,7 @@ void removeUnmatchedPositions(LinePositions& positions, const Lines& lines, uint
             }
 
             // stores largest minimum distance
-            if (maxIter == positions.end() || currentMinDist > maxDist) {
+            if (currentMinDist > maxDist) {
                 maxDist = currentMinDist;
                 maxIter = linePosIter;
             }
@@ -84,8 +84,10 @@ void calculateLines(LinePositions front, LinePositions rear, Lines& lines, Line&
             break;
         }
         case 3:
+        {
             mainLine = lines[1];
             break;
+        }
         default:
             // should not get here
             break;
