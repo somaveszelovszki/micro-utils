@@ -33,7 +33,8 @@ enum class Status : uint32_t {
     INVALID_ID,     // Invalid identifier detected.
     INVALID_DATA,   // Invalid data detected.
     NO_NEW_DATA,    // No new data is available.
-    BUFFER_FULL     // Buffer is full.
+    BUFFER_FULL,    // Buffer is full.
+    BUFFER_EMPTY    // Buffer is empty.
 };
 DEFINE_TYPEINFO(Status);
 

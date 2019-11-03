@@ -1,7 +1,9 @@
 #pragma once
 
 #include <micro/utils/types.hpp>
-#include <micro/bsp/it.hpp>
+
+#include <FreeRTOS.h>
+#include <task.h>
 
 #include <algorithm>
 
@@ -11,13 +13,10 @@ template <typename T>
 class swap_xchg {
 public:
     /* @brief Constructor - initializes getter and setter pointers.
-     * @param value1 Pointer to the first underlying data set
-     * @param value2 Pointer to the second underlying data set.
-     * @note The life cycles of the underlying data sets should be the same as the SwapExchange object in order to prevent segmentation fault!
      */
-    swap_xchg(T *value1, T *value2)
-        : value_GET(value1)
-        , value_SET(value2) {}
+    swap_xchg(void)
+        : value_GET(&this->value1)
+        , value_SET(&this->value2) {}
 
     /* @brief Gets getter pointer.
      * @returns The getter pointer.
@@ -33,12 +32,13 @@ public:
      * @note This function solves concurrency problems by swapping pointers in a critical section.
      */
     void swap() {
-        micro::enterCritical();
+        taskENTER_CRITICAL();
         std::swap(this->value_GET, this->value_SET);
-        micro::exitCritical();
+        taskEXIT_CRITICAL();
     }
 
 private:
+    T value1, value2;
     T *value_GET, *value_SET;    // Getter and setter pointers to the underlying data sets.
 };
 
