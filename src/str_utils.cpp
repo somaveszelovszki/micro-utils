@@ -169,6 +169,7 @@ uint32_t vsprint(char * const str, const uint32_t size, const char *format, va_l
                 break;
 
             case 'd':
+            case 'u':
                 w += micro::itoa(va_arg(args, int), str + w, size - w);
                 break;
 
