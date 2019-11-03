@@ -133,8 +133,10 @@ const T& NoJumpFilter<T>::update(const T& measuredValue) {
 /* @brief Digital low-pass filter implementation. Decreases intensity of sudden changes by calculating the average of the current and past measurements.
  * @tparam T Type of the data to filter.
  * @tparam N Number of samples to calculate average from.
+ * @tparam cleanUpdatePeriod To gain performance, the average is not calculated in every iteration, only the diff.
+ *      This can cause a minor accumulative error. To prevent this, periodically the average is re-calculated.
  **/
-template <typename T, uint8_t N>
+template <typename T, uint8_t N, uint8_t cleanUpdatePeriod = 100>
 class LowPassFilter : public FilterBase<T> {
 public:
     /* @brief Constructor.
@@ -149,27 +151,27 @@ public:
 
 private:
     T raw[N];       // The stored raw measurements.
-    uint8_t idx;    // The current measurement index. TODO stored measurements in a ringbuffer
+    uint8_t idx;    // The current measurement index.
 };
 
-template <typename T, uint8_t N>
-const T& LowPassFilter<T, N>::update(const T& measuredValue) {
-    const uint32_t _numCalled = this->updateNumCalled();
-    if (_numCalled > N) {
-        this->filteredValue += (measuredValue - this->raw[this->idx]) / N;
-    } else if (_numCalled == 1) {
-        this->filteredValue = measuredValue;
-    } else {    // _numCalled <= N
+template <typename T, uint8_t N, uint8_t cleanUpdatePeriod>
+const T& LowPassFilter<T, N, cleanUpdatePeriod>::update(const T& measuredValue) {
+
+    if (this->updateNumCalled() % cleanUpdatePeriod == 0) {
+        this->raw[this->idx] = measuredValue;
+
         this->filteredValue = this->raw[0];
-        for (uint8_t i = 1; i < _numCalled; ++i) {
+        for (uint8_t i = 1; i < N; ++i) {
             this->filteredValue += this->raw[i];
         }
-        this->filteredValue /= _numCalled;
+        this->filteredValue /= N;
+
+    } else {
+        this->filteredValue += (measuredValue - this->raw[this->idx]) / N;
+        this->raw[this->idx] = measuredValue;
     }
 
-    this->raw[this->idx] = measuredValue;
     this->idx = (this->idx + 1) % N;
-
     return this->filteredValue;
 }
 
