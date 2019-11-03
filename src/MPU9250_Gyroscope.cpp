@@ -507,19 +507,20 @@ void MPU9250::initialize(void) {
     if (whoAmI == 0x73)
     {
         LOG_DEBUG("MPU9250 is online...");
-        vTaskDelay(100);
+        vTaskDelay(10);
 
         this->reset();
-        vTaskDelay(100);
+        vTaskDelay(50);
 
         this->calibrate();
         LOG_DEBUG("gyro bias:  %f, %f, %f", this->gyroBias[0], this->gyroBias[1], this->gyroBias[2]);
         LOG_DEBUG("accel bias: %f, %f, %f", this->accelBias[0], this->accelBias[1], this->accelBias[2]);
-        vTaskDelay(100);
+        vTaskDelay(20);
 
         this->initMPU9250();
         this->initAK8963();
-        vTaskDelay(100);
+        LOG_DEBUG("Gyro initialized");
+        vTaskDelay(20);
 
     } else {
        LOG_ERROR("Could not connect to MPU9250: %u", (uint32_t)whoAmI);

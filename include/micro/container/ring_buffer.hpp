@@ -17,11 +17,6 @@ private:
     volatile uint32_t head_;     // The head - writing starts from this point.
     volatile uint32_t tail_;     // The tail - reading starts from this point.
 
-    static Status toStatus(bool result) {
-        Status status = result ? Status::OK : Status::BUFFER_FULL;
-        return status;
-    }
-
 public:
     /* @brief Default constructor - initializes head and tail indexes.
      **/
@@ -78,12 +73,12 @@ public:
      **/
     Status get(T *pDest);
 
-    Status check(T *pDest) {
+    Status peek(T *pDest) {
         bool _get = this->head_ != this->tail_;
         if (_get) {
             *pDest = this->data_[this->tail_];
         }
-        return toStatus(_get);
+        return _get ? Status::OK : Status::BUFFER_EMPTY;
     }
 
     /* @brief Gets oldest elements from the buffer.
