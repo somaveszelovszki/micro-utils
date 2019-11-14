@@ -93,8 +93,9 @@ public:
      * @returns The current number of elements stored in the buffer.
      **/
     uint32_t size() const {
-        uint32_t _size = this->head_ >= this->tail_ ? this->head_ - this->tail_ : capacity_ + this->head_ - this->tail_;
-        return _size;
+        const uint32_t head = this->head_;
+        const uint32_t tail = this->tail_;
+        return head >= tail ? head - tail : capacity_ + head - tail;
     }
 
     /* @brief Gets capacity of the buffer.
@@ -108,6 +109,8 @@ public:
      * @returns The buffer's safe size.
      **/
     uint32_t safeReadSize() const {
+        const uint32_t head = this->head_;
+        const uint32_t tail = this->tail_;
         uint32_t safe_size = min(this->size(), capacity_ - this->tail_);
         return safe_size;
     }
