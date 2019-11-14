@@ -13,40 +13,38 @@ uint32_t Params::serializeAll(char * const str, uint32_t size) {
     uint32_t idx = 0;
     str[idx++] = '{';
 
-    if (idx < size) {
-        for (uint32_t i = 0; i < this->values.size(); ++i) {
-            Param& p = this->values[i];
+    for (uint32_t i = 0; i < this->values.size(); ++i) {
+        Param& p = this->values[i];
 
-            str[idx++] = '"';
-            if (idx >= size) break;
+        str[idx++] = '"';
 
-            strncpy(&str[idx], p.name, size - idx);
-            idx += strlen(p.name);
-            if (idx >= size) break;
+        strncpy(&str[idx], p.name, size - idx);
+        idx += strlen(p.name);
 
-            str[idx++] = '"';
-            if (idx >= size) break;
+        str[idx++] = '"';
+        str[idx++] = ':';
 
-            str[idx++] = ':';
-            if (idx >= size) break;
-
-            if (p.hmutex != nullptr) {
-                while (!xSemaphoreTake(p.hmutex, 1)) {}
-                idx += p.serialize(&str[idx], size - idx, p.buf);
-                xSemaphoreGive(p.hmutex);
-            } else {
-                vTaskSuspendAll();
-                idx += p.serialize(&str[idx], size - idx, p.buf);
-                xTaskResumeAll();
-            }
-            if (idx >= size) break;
-
-            if (i < this->values.size() - 1) {
-                str[idx++] = ',';
-                if (idx >= size) break;
-            }
+        if (p.hmutex != nullptr) {
+            while (!xSemaphoreTake(p.hmutex, 1)) {}
+            idx += p.serialize(&str[idx], size - idx, p.buf);
+            xSemaphoreGive(p.hmutex);
+        } else {
+            vTaskSuspendAll();
+            idx += p.serialize(&str[idx], size - idx, p.buf);
+            xTaskResumeAll();
         }
+        if (idx >= size) break;
+
+        if (i < this->values.size() - 1) {
+            str[idx++] = ',';
+            if (idx >= size) break;
+        }
+
+        str[idx++] = '\r';
+        str[idx++] = '\n';
     }
+
+    str[idx++] = '}';
 
     return idx;
 }
@@ -57,40 +55,39 @@ uint32_t Params::deserializeAll(const char * const str) {
     uint32_t idx = 0;
     idx++; // '{'
 
-    if (idx < size) {
-        char name[STR_MAX_LEN_PARAM_NAME];
+    char name[STR_MAX_LEN_PARAM_NAME];
 
-        for (uint32_t i = 0; i < this->values.size(); ++i) {
-            Param& p = this->values[i];
+    while (idx < size) {
+        idx++; // '"'
+        idx += strcpy_until(name, &str[idx], min(static_cast<uint32_t>(STR_MAX_LEN_PARAM_NAME), size - idx), '"');
+        idx++; // '"'
+        idx++; // ':'
 
-            idx++; // '"'
-            if (idx >= size) break;
-
-            idx += strcpy_until(name, &str[idx], min(static_cast<uint32_t>(STR_MAX_LEN_PARAM_NAME), size - idx), '"');
-            idx++; // '"'
-            if (idx >= size) break;
-
-            idx++; // ':'
-            if (idx >= size) break;
-
-            if (p.hmutex != nullptr) {
-                while (!xSemaphoreTake(p.hmutex, 1)) {}
-                idx += p.deserialize(&str[idx], p.buf);
-                xSemaphoreGive(p.hmutex);
-            } else {
-                vTaskSuspendAll();
-                idx += p.deserialize(&str[idx], p.buf);
-                xTaskResumeAll();
-            }
-            if (idx >= size) break;
-
-            if ('}' == str[idx]) {
-                break;
-            } else {
-                idx++; // ','
-                if (idx >= size) break;
-            }
+        Param * const p = this->get(name);
+        if (!p) {
+            LOG_ERROR("Unknown parameter name: '%s'.", name);
+            break;
         }
+
+        if (p->hmutex != nullptr) {
+            while (!xSemaphoreTake(p->hmutex, 1)) {}
+            idx += p->deserialize(&str[idx], p->buf);
+            xSemaphoreGive(p->hmutex);
+        } else {
+            vTaskSuspendAll();
+            idx += p->deserialize(&str[idx], p->buf);
+            xTaskResumeAll();
+        }
+
+        if ('}' == str[idx]) {
+            break;
+        } else {
+            idx++; // ','
+        }
+    }
+
+    for (uint32_t i = 0; i < this->values.size(); ++i) {
+
     }
 
     return idx;

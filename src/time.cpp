@@ -1,5 +1,3 @@
-#pragma once
-
 #include <micro/utils/time_init.h>
 #include <micro/utils/time.hpp>
 

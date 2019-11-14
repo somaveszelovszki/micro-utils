@@ -36,7 +36,7 @@ void vprintlog(logLevel_t level, const char *format, va_list args) {
             msg[len++] = '\n';
             msg[len++] = '\0';
         }
-        xQueueSend(logQueue, msg, 0);
+        xQueueSend(logQueue, msg, 1);
     }
 }
 

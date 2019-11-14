@@ -140,11 +140,11 @@ uint32_t strcpy_until(char * const dest, const char * const src, const uint32_t 
     uint32_t i;
     for (i = 0; i < size; ++i) {
         if (delimiter == src[i]) {
-            ++i;
             break;
         }
         dest[i] = src[i];
     }
+    if (i < size) dest[i] = '\0';
     return i;
 }
 

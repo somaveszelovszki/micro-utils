@@ -7,7 +7,7 @@
 #define LOG_ENABLED 1
 #define MIN_LOG_LEVEL LogLevel_Debug
 
-#define LOG_MSG_MAX_SIZE 128
+#define LOG_MSG_MAX_SIZE 512
 
 namespace micro {
 

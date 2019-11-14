@@ -24,7 +24,6 @@ public:
     }
 
     void waitStart(void) {
-        millisecond_t lastRecvTime = millisecond_t(0);
         do {
             vTaskDelay(1);
         } while(!this->newValueReceived);
@@ -53,7 +52,7 @@ public:
 
 private:
     UART_HandleTypeDef *huart;
-    bool newValueReceived;
+    volatile bool newValueReceived;
     T_fromPanel inBuffer, inData;
 };
 

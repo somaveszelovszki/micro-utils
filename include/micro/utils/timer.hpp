@@ -15,7 +15,11 @@ public:
         Timer::instances.append(this);
     }
 
-    void start(const millisecond_t& period) {
+    void setPeriod(const millisecond_t period) {
+        this->period_ = period;
+    }
+
+    void start(const millisecond_t period) {
         this->startTime_= micro::getTime();
         this->period_ = period;
         this->timedOut_ = false;
