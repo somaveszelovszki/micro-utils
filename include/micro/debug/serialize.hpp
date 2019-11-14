@@ -15,18 +15,26 @@ typedef uint32_t (*deserialize_func)(const char * const, void * const);
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, bool>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    const uint32_t result = size > 0 ? 1 : 0;
-    if (result > 0) {
-        stream[0] = *static_cast<const bool*>(value) ? 't' : 'f';
+    uint32_t result = 0;
+    if (value) {
+        strncpy(stream, "true", size);
+        result = 4;
+    } else {
+        strncpy(stream, "false", size);
+        result = 5;
     }
     return result;
 }
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, bool>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    const uint32_t result = strlen(stream) > 0 ? 1 : 0;
-    if (result > 0) {
-        *static_cast<bool*>(value) = stream[0] == 't' ? true : false;
+    uint32_t result = 0;
+    if (!strncmp(stream, "true", 4)) {
+        *static_cast<bool*>(value) = true;
+        result = 4;
+    } else if (!strncmp(stream, "false", 5)) {
+        *static_cast<bool*>(value) = false;
+        result = 5;
     }
     return result;
 }
@@ -173,10 +181,10 @@ template <typename T>
 inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
     const CarProps * const car = static_cast<const CarProps*>(value);
     return sprint(stream, size,
-        "{\"pose\":{\"pos\":{\"X\":%f,\"Y\":%f},\"angle\":%f},\"speed\":%f}",
+        "{\"pose\":{\"pos_m\":{\"X\":%f,\"Y\":%f},\"angle_deg\":%f},\"speed_mps\":%f}",
         car->pose.pos.X.get(),
         car->pose.pos.Y.get(),
-        car->pose.angle.get(),
+        static_cast<degree_t>(car->pose.angle).get(),
         car->speed.get()
     );
 }
@@ -186,7 +194,7 @@ inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type
     CarProps * const car = static_cast<CarProps*>(value);
     float n;
 
-    uint32_t idx = strlen("{\"pose\":{\"pos\":{\"X\":");
+    uint32_t idx = strlen("{\"pose\":{\"pos_m\":{\"X\":");
     idx += micro::atof(&stream[idx], &n);
     car->pose.pos.X = meter_t(n);
 
@@ -194,13 +202,15 @@ inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type
     idx += micro::atof(&stream[idx], &n);
     car->pose.pos.Y = meter_t(n);
 
-    idx += strlen("},\"angle\":");
+    idx += strlen("},\"angle_deg\":");
     idx += micro::atof(&stream[idx], &n);
-    car->pose.angle = radian_t(n);
+    car->pose.angle = degree_t(n);
 
-    idx += strlen("},\"speed\":");
+    idx += strlen("},\"speed_mps\":");
     idx += micro::atof(&stream[idx], &n);
     car->speed = m_per_sec_t(n);
+
+    idx += strlen("}");
 
     return idx;
 }
