@@ -15,11 +15,15 @@ typedef struct {
     float controller_Kc;
     uint8_t flags;
 } motorPanelDataIn_t;
+
+#define dataSize_motorPanelDataIn 9
     
 typedef struct {
     int32_t distance_mm;
     int16_t actualSpeed_mmps;
 } motorPanelDataOut_t;
+
+#define dataSize_motorPanelDataOut 6
 
 #ifdef __cplusplus
 }

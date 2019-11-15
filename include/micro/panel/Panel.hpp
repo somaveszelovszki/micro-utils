@@ -11,7 +11,7 @@
 
 namespace micro {
 
-template <typename T_toPanel, typename T_fromPanel>
+template <typename T_toPanel, uint32_t size_toPanel, typename T_fromPanel, uint32_t size_fromPanel>
 class Panel {
 public:
     explicit Panel(UART_HandleTypeDef *huart)
@@ -19,7 +19,7 @@ public:
         , newValueReceived(false) {}
 
     void start(const T_toPanel& out) {
-        HAL_UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inBuffer), sizeof(T_fromPanel));
+        HAL_UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inBuffer), size_fromPanel);
         this->send(out);
     }
 
@@ -30,7 +30,7 @@ public:
     }
 
     void send(const T_toPanel& out) {
-        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(const_cast<T_toPanel*>(&out)), sizeof(T_toPanel));
+        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(const_cast<T_toPanel*>(&out)), size_toPanel);
     }
 
     void onDataReceived(void) {

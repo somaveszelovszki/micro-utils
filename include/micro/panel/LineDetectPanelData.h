@@ -12,10 +12,14 @@ extern "C" {
 typedef struct {
     uint8_t flags;
 } lineDetectPanelDataIn_t;
+
+#define dataSize_lineDetectPanelDataIn 1
     
 typedef struct {
     linePositions_t lines;
 } lineDetectPanelDataOut_t;
+
+#define dataSize_lineDetectPanelDataOut 4
 
 #ifdef __cplusplus
 }

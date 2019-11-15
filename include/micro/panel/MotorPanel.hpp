@@ -5,9 +5,9 @@
 
 namespace micro {
 
-class MotorPanel : public Panel<motorPanelDataIn_t, motorPanelDataOut_t> {
+class MotorPanel : public Panel<motorPanelDataIn_t, dataSize_motorPanelDataIn, motorPanelDataOut_t, dataSize_motorPanelDataOut> {
 public:
-    using Panel<motorPanelDataIn_t, motorPanelDataOut_t>::Panel;
+    using Panel::Panel;
 };
 
 }  // namespace micro
