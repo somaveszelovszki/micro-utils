@@ -1,5 +1,6 @@
 #pragma once
 
+#include <micro/panel/panelData.h>
 #include <micro/utils/time.hpp>
 #include <micro/utils/unit_utils.hpp>
 
@@ -18,12 +19,11 @@ public:
         : huart(huart)
         , newValueReceived(false) {}
 
-    void start(const T_toPanel& out) {
+    void start(void) {
         HAL_UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inBuffer), size_fromPanel);
-        this->send(out);
-    }
-
-    void waitStart(void) {
+        panelStartData_t startData;
+        startData.cmd = PANEL_START;
+        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(&startData), dataSize_panelStartData);
         do {
             vTaskDelay(1);
         } while(!this->newValueReceived);
