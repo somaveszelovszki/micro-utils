@@ -1,7 +1,7 @@
 #pragma once
 
 #include <micro/utils/arrays.hpp>
-#include <micro/utils/numeric.hpp>
+#include <micro/math/numeric.hpp>
 
 namespace micro {
 

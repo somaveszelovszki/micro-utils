@@ -1,9 +1,6 @@
 #pragma once
 
-#include <micro/utils/numeric.hpp>
-
 namespace micro {
-namespace base {
 
 template <typename A, typename B>
 class pair {
@@ -17,5 +14,6 @@ public:
     B right;
 };
 
-} // namespace base
+typedef uint8_t asdasd;
+
 } // namespace micro

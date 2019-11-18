@@ -10,7 +10,7 @@ namespace micro {
 class runnable_t {
 
 public:
-    runnable_t() : period(millisecond_t::ZERO()) {}
+    runnable_t() : period(millisecond_t::zero()) {}
 
     explicit runnable_t(millisecond_t period) : period(period) {}
 

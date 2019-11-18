@@ -1,5 +1,5 @@
 #include <micro/utils/Line.hpp>
-#include <micro/utils/unit_utils.hpp>
+#include <micro/math/unit_utils.hpp>
 #include <cfg_car.hpp>
 
 namespace micro {
@@ -57,10 +57,10 @@ void calculateLines(LinePositions front, LinePositions rear, Lines& lines, Line&
             line.pos_rear = rear[i];
 
             if (micro::eq(line.pos_front, line.pos_rear, millimeter_t(1.0f))) {
-                line.angle = radian_t::ZERO();
+                line.angle = radian_t::zero();
             } else {
                 line.angle = micro::atan(cfg::DIST_BTW_OPTO_ROWS / (line.pos_front - line.pos_rear));
-                if (line.angle < radian_t::ZERO()) {
+                if (line.angle < radian_t::zero()) {
                     line.angle += micro::PI_2;
                 } else {
                     line.angle -= micro::PI_2;

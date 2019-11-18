@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/utils/unit_utils.hpp>
+#include <micro/math/unit_utils.hpp>
 
 namespace micro {
 

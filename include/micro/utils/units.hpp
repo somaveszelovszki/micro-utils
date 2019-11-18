@@ -3,6 +3,7 @@
 #include <micro/utils/types.hpp>
 
 #include <type_traits>
+#include <limits>
 
 namespace micro {
 
@@ -198,7 +199,9 @@ public:
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
     constexpr explicit dim_class(float _value) : value(_value) {}
 
-    static constexpr dim_class ZERO() { return dim_class(0.0f, nullptr); }
+    static constexpr dim_class zero() { return dim_class(0.0f, nullptr); }
+
+    static constexpr dim_class nan() { return dim_class(std::numeric_limits<value_type>::quiet_NaN(), nullptr); }
 
     /* @brief Constructor - sets value.
      * @tparam unit_inst_t Unit instance type.

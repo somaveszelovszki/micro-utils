@@ -1,6 +1,6 @@
 #include <micro/control/LineController.hpp>
 #include <micro/utils/log.hpp>
-#include <micro/utils/unit_utils.hpp>
+#include <micro/math/unit_utils.hpp>
 
 namespace micro {
 
@@ -14,7 +14,7 @@ Status LineController::run(m_per_sec_t speed, meter_t baseline, const Line& line
     static constexpr m_per_sec_t MIN_SPEED = mm_per_sec_t(5);
 
     if (micro::abs(speed) < MIN_SPEED) {
-        this->output = radian_t::ZERO();
+        this->output = radian_t::zero();
     } else {
 
         // The car should correct itself in this distance.

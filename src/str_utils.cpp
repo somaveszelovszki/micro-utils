@@ -1,5 +1,5 @@
 #include <micro/utils/str_utils.hpp>
-#include <micro/utils/numeric.hpp>
+#include <micro/math/numeric.hpp>
 #include <micro/utils/arrays.hpp>
 
 #include <cstdarg>
@@ -53,17 +53,19 @@ uint32_t atof(const char * const s, float *pResult) {
 
     idx += atoi(&s[idx], &dec);
 
-    if (++idx < len) {  // idx is incremented because of the dot character before the fraction
+    if ('.' == s[idx]) {
+        if (++idx < len) {  // idx is incremented because of the dot character before the fraction
 
-        uint32_t fracCount = atoi(&s[idx], &frac);
-        if (fracCount > 0) {
-            idx += fracCount;
-            *pResult = dec + frac / powerOf(10.0f, fracCount);
+            uint32_t fracCount = atoi(&s[idx], &frac);
+            if (fracCount > 0) {
+                idx += fracCount;
+                *pResult = dec + frac / powerOf(10.0f, fracCount);
+            } else {
+                idx = 0;    // if no fraction has been parsed, string is invalid
+            }
         } else {
-            idx = 0;    // if no fraction has been parsed, string is invalid
+            idx = 0;    // invalid floating point string
         }
-    } else {
-        idx = 0;    // invalid floating point string
     }
 
     if (neg) {

@@ -1,5 +1,5 @@
 #include <micro/hw/Servo.hpp>
-#include <micro/utils/unit_utils.hpp>
+#include <micro/math/unit_utils.hpp>
 
 namespace micro {
 namespace hw {
@@ -12,7 +12,7 @@ void Servo::write(radian_t angle) {
 
     if (this->angle_ != clamped) {
         this->angle_ = clamped;
-        uint32_t pwm = micro::scale(this->angle_, radian_t::ZERO(), PI, PWM_DUTY_0, PWM_DUTY_PI);
+        uint32_t pwm = map(this->angle_, radian_t::zero(), PI, PWM_DUTY_0, PWM_DUTY_PI);
         __HAL_TIM_SET_COMPARE(this->htim, this->chnl, pwm);
     }
 }

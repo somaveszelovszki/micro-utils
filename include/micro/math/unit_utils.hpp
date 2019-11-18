@@ -1,7 +1,7 @@
 #pragma once
 
-#include <micro/utils/numeric.hpp>
-#include <micro/utils/constants.hpp>
+#include <micro/math/numeric.hpp>
+#include <micro/math/constants.hpp>
 
 namespace micro {
 
@@ -22,7 +22,7 @@ inline typename std::enable_if<T::is_dim_class, float>::type valueOf(const T& va
  */
 template <typename T>
 inline typename std::enable_if<T::is_dim_class, T>::type abs(const T& value) {
-    return value >= T::ZERO() ? value : -value;
+    return value >= T::zero() ? value : -value;
 }
 
 /**
@@ -31,9 +31,19 @@ inline typename std::enable_if<T::is_dim_class, T>::type abs(const T& value) {
  * @param value The value.
  * @returns The sign of the value.
  */
-template <typename T, class = typename std::enable_if<T::is_dim_class>::type>
+template <typename T>
 inline typename std::enable_if<T::is_dim_class, Sign>::type sgn(const T& value) {
-    return value >= T::ZERO() ? Sign::POSITIVE : Sign::NEGATIVE;
+    return value >= T::zero() ? Sign::POSITIVE : Sign::NEGATIVE;
+}
+
+template <typename T>
+inline typename std::enable_if<T::is_dim_class, bool>::type isinf(const T& value) {
+    return std::isinf(value.template get<true>());
+}
+
+template <typename T>
+inline typename std::enable_if<T::is_dim_class, bool>::type isnan(const T& value) {
+    return std::isnan(value.template get<true>());
 }
 
 /**
@@ -57,7 +67,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  */
 template <typename T1, typename T2>
 inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type isZero(const T1& value, const T2 eps) {
-    return micro::eq(value, T1::ZERO(), eps);
+    return micro::eq(value, T1::zero(), eps);
 }
 
 /**
@@ -69,7 +79,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  */
 template <typename T>
 inline typename std::enable_if<T::is_dim_class, bool>::type isZero(const T& value) {
-    return micro::eq(value, T::ZERO());
+    return micro::eq(value, T::zero());
 }
 
 /**
@@ -167,7 +177,7 @@ inline radian_t normalize360(radian_t value) {
     while(value >= DEG_360) {
         value -= DEG_360;
     }
-    while(value < radian_t::ZERO()) {
+    while(value < radian_t::zero()) {
         value += DEG_360;
     }
     return value;
@@ -177,7 +187,7 @@ inline radian_t normalize180(radian_t value) {
     while(value >= PI) {
         value -= PI;
     }
-    while(value < radian_t::ZERO()) {
+    while(value < radian_t::zero()) {
         value += PI;
     }
     return value;
@@ -211,7 +221,7 @@ inline radian_t round45(radian_t value) {
     } else if (micro::eqWithOverflow360(value, 7 * PI_4, EPS)) {
         result = 7 * PI_4;
     } else {
-        result = radian_t::ZERO();
+        result = radian_t::zero();
     }
 
     return result;
@@ -228,7 +238,7 @@ inline radian_t round90(radian_t value) {
     } else if (micro::eqWithOverflow360(value, 3 * PI_2, EPS)) {
         result = 3 * PI_2;
     } else {
-        result = radian_t::ZERO();
+        result = radian_t::zero();
     }
 
     return result;
@@ -236,7 +246,7 @@ inline radian_t round90(radian_t value) {
 
 inline bool isMultipleOf90(radian_t value, radian_t eps) {
 
-    return eqWithOverflow360(value, radian_t::ZERO(), eps)
+    return eqWithOverflow360(value, radian_t::zero(), eps)
         || eqWithOverflow360(value, PI_2, eps)
         || eqWithOverflow360(value, PI, eps)
         || eqWithOverflow360(value, 3 * PI_2, eps);
@@ -288,7 +298,7 @@ inline radian_t straighten(radian_t angle, radian_t eps) {
     } else if (micro::eq(angle, 3 * PI_2, eps)) {
         angle = 3 * PI_2;
     } else if (micro::isZero(angle, eps) || micro::eq(angle, 2 * PI, eps)) {
-        angle = radian_t::ZERO();
+        angle = radian_t::zero();
     }
 
     return angle;

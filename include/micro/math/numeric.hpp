@@ -4,6 +4,8 @@
 #include <type_traits>
 #include <cmath>
 
+#include <micro/utils/pair.hpp>
+
 namespace micro {
 namespace detail {
 static constexpr float COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for equality check.
@@ -83,7 +85,7 @@ inline bool isInRange(const T1& value, const T2& ref, float relErr) {
 }
 
 /**
- * @brief Scales value from from a given range to another.
+ * @brief Maps value from from a given range to another.
  * @tparam S Numeric type of the source value and the source range boundaries.
  * @tparam R Numeric type of the result value and the result range boundaries.
  * @param value The value to map.
@@ -94,7 +96,7 @@ inline bool isInRange(const T1& value, const T2& ref, float relErr) {
  * @returns The mapped value.
  */
 template <typename S, typename R>
-inline R scale(const S& value, const S& fromLow, const S& fromHigh, const R& toLow, const R& toHigh) {
+inline R map(const S& value, const S& fromLow, const S& fromHigh, const R& toLow, const R& toHigh) {
     return toLow + ((clamp(value, fromLow, fromHigh) - fromLow) * (toHigh - toLow) / (fromHigh - fromLow));
 }
 
@@ -166,6 +168,16 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type abs(const 
 template <typename T>
 inline typename std::enable_if<std::is_arithmetic<T>::value, Sign>::type sgn(const T& value) {
     return value >= 0 ? Sign::POSITIVE : Sign::NEGATIVE;
+}
+
+template <typename T>
+inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isinf(const T& value) {
+    return std::isinf(value);
+}
+
+template <typename T>
+inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isnan(const T& value) {
+    return std::isnan(value);
 }
 
 /**

@@ -5,7 +5,7 @@
 #include <micro/utils/str_utils.hpp>
 #include <micro/container/vec.hpp>
 #include <micro/container/ring_buffer.hpp>
-#include <micro/utils/numeric.hpp>
+#include <micro/math/numeric.hpp>
 #include <micro/utils/convert.hpp>
 
 #include <FreeRTOS.h>
