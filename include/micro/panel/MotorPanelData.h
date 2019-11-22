@@ -29,12 +29,13 @@ typedef struct {
             int32_t distance_mm;
             int16_t targetSpeed_mmps;
             int16_t actualSpeed_mmps;
+            uint8_t isMotorEnabled;
         };
         uint32_t data32[2];
     };
 } motorPanelDataOut_t;
 
-#define dataSize_motorPanelDataOut 8
+#define dataSize_motorPanelDataOut 9
 
 #ifdef __cplusplus
 }
