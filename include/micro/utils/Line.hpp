@@ -17,6 +17,8 @@ struct Line {
 typedef vec<Line, cfg::MAX_NUM_LINES> Lines;
 typedef vec<millimeter_t, cfg::MAX_NUM_LINES> LinePositions;
 
+void calculateLines(LinePositions front, Lines& lines, Line& mainLine);
+
 void calculateLines(LinePositions front, LinePositions rear, Lines& lines, Line& mainLine);
 
 } // namespace micro

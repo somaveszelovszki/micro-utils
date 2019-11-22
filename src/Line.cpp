@@ -4,7 +4,7 @@
 
 namespace micro {
 
-void removeUnmatchedPositions(LinePositions& positions, const Lines& lines, uint32_t targetSize, bool isFront) {
+static void removeUnmatchedPositions(LinePositions& positions, const Lines& lines, uint32_t targetSize, bool isFront) {
     while (positions.size() > targetSize) {
 
         // Iterates through all the current line positions, and for each of them,
@@ -38,11 +38,55 @@ void removeUnmatchedPositions(LinePositions& positions, const Lines& lines, uint
     }
 }
 
+static void updateMainLine(const Lines& lines, Line& mainLine) {
+    switch(lines.size()) {
+    case 1:
+        mainLine = lines[0];
+        break;
+    case 2:
+    {
+        const Line& line0 = lines[0];
+        const Line& line1 = lines[1];
+        const millimeter_t diff0 = micro::abs(lines[0].pos_front - mainLine.pos_front) + micro::abs(lines[0].pos_rear - mainLine.pos_rear);
+        const millimeter_t diff1 = micro::abs(lines[1].pos_front - mainLine.pos_front) + micro::abs(lines[1].pos_rear - mainLine.pos_rear);
+
+        mainLine = diff0 < diff1 ? line0 : line1;
+        break;
+    }
+    case 3:
+    {
+        mainLine = lines[1];
+        break;
+    }
+    default:
+        // should not get here
+        break;
+    }
+}
+
+void calculateLines(LinePositions front, Lines& lines, Line& mainLine) {
+
+    if (!front.size()) {
+        lines.clear();
+        // main line is not changed
+    } else {
+        lines.clear();
+
+        for (uint32_t i = 0; i < front.size(); ++i) {
+            Line line;
+            line.pos_front = front[i];
+            lines.append(line);
+        }
+
+        updateMainLine(lines, mainLine);
+    }
+}
+
 void calculateLines(LinePositions front, LinePositions rear, Lines& lines, Line& mainLine) {
 
     if (!front.size() || !rear.size()) {
         lines.clear();
-        // center line is not changed
+        // main line is not changed
     } else {
         removeUnmatchedPositions(front, lines, rear.size(), true);
         removeUnmatchedPositions(rear, lines, front.size(), false);
@@ -69,29 +113,7 @@ void calculateLines(LinePositions front, LinePositions rear, Lines& lines, Line&
             lines.append(line);
         }
 
-        switch(lines.size()) {
-        case 1:
-            mainLine = lines[0];
-            break;
-        case 2:
-        {
-            const Line& line0 = lines[0];
-            const Line& line1 = lines[1];
-            const millimeter_t diff0 = micro::abs(lines[0].pos_front - mainLine.pos_front) + micro::abs(lines[0].pos_rear - mainLine.pos_rear);
-            const millimeter_t diff1 = micro::abs(lines[1].pos_front - mainLine.pos_front) + micro::abs(lines[1].pos_rear - mainLine.pos_rear);
-
-            mainLine = diff0 < diff1 ? line0 : line1;
-            break;
-        }
-        case 3:
-        {
-            mainLine = lines[1];
-            break;
-        }
-        default:
-            // should not get here
-            break;
-        }
+        updateMainLine(lines, mainLine);
     }
 }
 
