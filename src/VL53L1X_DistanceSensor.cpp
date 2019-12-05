@@ -1,5 +1,6 @@
 #include <micro/hw/VL53L1X_DistanceSensor.hpp>
 #include <micro/utils/log.hpp>
+#include <micro/utils/time.hpp>
 
 #include "../Driver/VL53L1X/core/VL53L1X_api.h"
 
@@ -27,14 +28,26 @@ void VL53L1X_DistanceSensor::initialize() {
     }
 
     VL53L1X_SensorInit(this->deviceId);
-    VL53L1X_SetDistanceMode(this->deviceId, 1);
-    VL53L1X_SetTimingBudgetInMs(this->deviceId, 15);
-    VL53L1X_SetInterMeasurementInMs(this->deviceId, 15);
+    VL53L1X_SetDistanceMode(this->deviceId, 2);
+    VL53L1X_SetTimingBudgetInMs(this->deviceId, 20);
+    VL53L1X_SetInterMeasurementInMs(this->deviceId, 20);
     VL53L1X_StartRanging(this->deviceId);
 }
 
+int cntr = 0;
+
 Status VL53L1X_DistanceSensor::readDistance(meter_t& distance) {
     Status status = Status::NO_NEW_DATA;
+
+    if (this->lastUpdateTime != millisecond_t(0) && getTime() - this->lastUpdateTime > millisecond_t(50)) {
+        // TODO reset I2C
+//        SET_BIT(I2C2->CR1, I2C_CR1_SWRST);
+//        vTaskDelay(1);
+//        CLEAR_BIT(I2C2->CR1, I2C_CR1_SWRST);
+        ++cntr;
+        this->lastUpdateTime = getTime();
+    }
+
     uint8_t dataReady = 0;
     VL53L1X_CheckForDataReady(this->deviceId, &dataReady);
 
@@ -43,6 +56,7 @@ Status VL53L1X_DistanceSensor::readDistance(meter_t& distance) {
         VL53L1X_GetDistance(this->deviceId, &dist_mm);
         VL53L1X_ClearInterrupt(this->deviceId);
         distance = millimeter_t(dist_mm);
+        lastUpdateTime = getTime();
         status = Status::OK;
     }
     return status;

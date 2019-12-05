@@ -27,6 +27,7 @@ public:
 private:
     I2C_HandleTypeDef *hi2c;
     const uint16_t deviceId;
+    millisecond_t lastUpdateTime;
 };
 } // namespace hw
 } // namespace micro
