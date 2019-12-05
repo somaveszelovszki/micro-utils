@@ -15,14 +15,18 @@ public:
     /* @brief Constructor - sets timer handle, timer channel, minimum and maximum angles.
      * @param htim The handle for the timer used for PWM generation.
      * @param chnl The timer channel used for PWM generation.
-     * @param angle_min The minimum angle.
-     * @param angle_max The maximum angle.
+     * @param offset_ The offset.
+     * @param max_delta The maximum delta angle.
      **/
-    Servo(TIM_HandleTypeDef *htim, uint32_t chnl, radian_t angle_min, radian_t angle_max)
+    Servo(TIM_HandleTypeDef *htim, uint32_t chnl, radian_t offset_, radian_t max_delta_)
         : htim(htim)
         , chnl(chnl)
-        , angle_min(angle_min)
-        , angle_max(angle_max) {}
+        , offset_(offset_)
+        , max_delta_(max_delta_) {}
+
+    radian_t offset() const {
+        return offset_;
+    }
 
     /* @brief Writes angle to the servo motor - converts value to PWM duty, and writes PWM pin.
      * @param _ang The angle to write.
@@ -32,17 +36,17 @@ public:
     /* @brief Gets servo angle.
      * @returns The servo angle.
      **/
-    radian_t getAngle() const {
+    radian_t angle() const {
         return this->angle_;
     }
 
 private:
-    TIM_HandleTypeDef *htim;        // The handle for the timer used for PWM generation.
-    const uint32_t chnl; // The timer channel used for PWM generation.
+    TIM_HandleTypeDef *htim;  // The handle for the timer used for PWM generation.
+    const uint32_t chnl;      // The timer channel used for PWM generation.
 
-    const radian_t angle_min; // The minimum angle.
-    const radian_t angle_max; // The maximum angle.
-    radian_t angle_;           // The current angle.
+    const radian_t offset_;   // The offset.
+    radian_t max_delta_;      // The maximum delta angle.
+    radian_t angle_;          // The current angle.
 };
 } // namespace hw
 } // namespace micro
