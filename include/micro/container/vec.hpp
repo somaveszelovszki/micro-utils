@@ -3,6 +3,8 @@
 #include <micro/utils/storage.hpp>
 #include <micro/math/numeric.hpp>
 
+#include <initializer_list>
+
 namespace micro {
 
 template <typename T, uint32_t capacity_>
@@ -32,6 +34,11 @@ public:
         this->append(other.begin(), other.end());
     }
 
+    vec(const std::initializer_list<T>& values)
+        : size_(0) {
+        this->append(values.begin(), values.end());
+    }
+
     /* @brief Copies data from the other vector.
      * @param other The other vector.
      * @returns This Vec.
@@ -39,6 +46,12 @@ public:
     vec<T, capacity_>& operator=(const vec<T, capacity_>& other) {
         this->clear();
         this->append(other.begin(), other.end());
+        return *this;
+    }
+
+    vec<T, capacity_>& operator=(const std::initializer_list<T>& values) {
+        this->clear();
+        this->append(values.begin(), values.end());
         return *this;
     }
 
@@ -135,7 +148,7 @@ public:
 
     const_iterator find(const T& item) const {
         const_iterator it = this->begin();
-        for (; it < this->end(); ++it) {
+        for (; it != this->end(); ++it) {
             if (*it == item) {
                 break;
             }
@@ -147,19 +160,25 @@ public:
         return const_cast<iterator>(const_cast<const vec*>(this)->find(item));
     }
 
-    void erase(const T& item) {
-        this->erase(this->find(item));
+    iterator erase(const T& item) {
+        iterator iter = this->find(item);
+        this->erase(iter);
+        return iter;
     }
 
-    bool erase(iterator iter) {
-        bool found = iter >= this->begin() && iter < this->end();
-        if (found) {
-            for(iterator it = iter; it < this->end() - 1; ++it) {
+    iterator erase(iterator iter) {
+        if (iter >= this->begin() && iter < this->end()) {
+            iter->~T();
+            for(iterator it = iter; it != this->end() - 1; ++it) {
                 *reinterpret_cast<storage_type*>(it) = *reinterpret_cast<storage_type*>(it + 1);
             }
             this->size_--;
         }
-        return found;
+        return iter;
+    }
+
+    const_iterator erase(const_iterator iter) {
+        return this->erase(const_cast<iterator>(iter));
     }
 
     /* @brief Clears vector.
@@ -193,6 +212,20 @@ public:
 
     const_iterator back() const {
         return this->begin() + this->size_ - 1;
+    }
+
+    void removeDuplicates() {
+        if (this->size_ > 1) {
+            for (const_iterator it1 = this->begin(); it1 != this->back() && it1 != this->end(); ++it1) {
+                for (const_iterator it2 = it1 + 1; it2 != this->end();) {
+                    if (*it1 == *it2) {
+                        it2 = this->erase(it2);
+                    } else {
+                        ++it2;
+                    }
+                }
+            }
+        }
     }
 
 private:

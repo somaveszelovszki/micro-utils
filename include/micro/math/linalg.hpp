@@ -19,7 +19,7 @@ T distanceNorm(const line2<T>& lineNorm, const point2<T>& point) {
 }
 
 template <typename T>
-micro::pair<point2<T>, point2<T>> lineCircle_intersection(const line2<T>& line, const point2<T>& circleCenter, const T& circleRadius) {
+std::pair<point2<T>, point2<T>> lineCircle_intersection(const line2<T>& line, const point2<T>& circleCenter, const T& circleRadius) {
     T x_2 = T(0), x_1 = T(0), x_0 = T(0);
 
     if (isZero(line.b)) { // vertical line
@@ -36,9 +36,9 @@ micro::pair<point2<T>, point2<T>> lineCircle_intersection(const line2<T>& line, 
         x_0 = circleCenter.X * circleCenter.X + (B - circleCenter.Y) * (B - circleCenter.Y) - circleRadius * circleRadius;
     }
 
-    const micro::pair<T, T> x1_2 = solve_quadratic(x_2, x_1, x_0);
+    const std::pair<T, T> x1_2 = solve_quadratic(x_2, x_1, x_0);
 
-    micro::pair<point2<T>, point2<T>> result = {
+    std::pair<point2<T>, point2<T>> result = {
         { std::numeric_limits<T>::quiet_NaN(), std::numeric_limits<T>::quiet_NaN() },
         { std::numeric_limits<T>::quiet_NaN(), std::numeric_limits<T>::quiet_NaN() }
     };

@@ -52,5 +52,5 @@ const char* getLogLevelString(const logLevel_t level) {
 } // namespace micro
 
 extern "C" void onHardFault() {
-    LOG_ERROR("Hard fault!");
+    while(1) {}
 }

@@ -7,7 +7,8 @@ namespace micro {
 /** @brief Template implementation for 2-dimensional lines.
  * @tparam T Numeric type of the coordinates.
  */
-template <typename T> struct line2 {
+template <typename T>
+struct line2 {
     /** @brief a*x + b*y + c = 0
     */
     T a, b, c;

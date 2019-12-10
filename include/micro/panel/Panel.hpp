@@ -24,6 +24,9 @@ public:
         panelStartData_t startData;
         startData.cmd = PANEL_START;
         HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(&startData), dataSize_panelStartData);
+    }
+
+    void waitResponse() {
         do {
             vTaskDelay(1);
         } while(!this->newValueReceived);

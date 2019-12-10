@@ -1,8 +1,7 @@
 #pragma once
 
 #include <micro/utils/types.hpp>
-
-#include <type_traits>
+#include <cmath>
 #include <limits>
 
 namespace micro {
@@ -186,7 +185,7 @@ public:
      * @tparam T Numeric type of the parameter value.
      * param _value The value given in the unit instance.
      **/
-    constexpr explicit dim_class(float _value, void*) : value(_value) {}
+    constexpr explicit dim_class(value_type _value, void*) : value(_value) {}
 
     /* @brief Default constructor - sets value to 0.
      **/
@@ -197,11 +196,13 @@ public:
      * param _value The value given in the unit instance.
      **/
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    constexpr explicit dim_class(float _value) : value(_value) {}
+    constexpr explicit dim_class(value_type _value) : dim_class(_value, nullptr) {}
 
     static constexpr dim_class zero() { return dim_class(0.0f, nullptr); }
 
     static constexpr dim_class nan() { return dim_class(std::numeric_limits<value_type>::quiet_NaN(), nullptr); }
+
+    static constexpr dim_class infinity() { return dim_class(std::numeric_limits<value_type>::infinity(), nullptr); }
 
     /* @brief Constructor - sets value.
      * @tparam unit_inst_t Unit instance type.
