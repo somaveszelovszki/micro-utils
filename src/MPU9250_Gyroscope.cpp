@@ -174,13 +174,13 @@ void MPU9250::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
 char MPU9250::readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data = 0;
-    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, &data, 1, 2);
+    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, &data, 1, 20);
     return data;
 }
 
 void MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
-    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, dest, count, 2);
+    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, dest, count, 20);
 }
 
 float MPU9250::getMres(Mscale scale) {

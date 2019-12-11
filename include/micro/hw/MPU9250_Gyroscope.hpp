@@ -43,7 +43,7 @@ public:
         , gRes(getGres(gScale))
         , mRes(getMres(mScale))
         , Mmode(Mmode)
-        , magBias{ -150.0f, 225.0f, 0.0f } {}
+        , magBias{ 260.0f, 0.0f, 0.0f } {}
 
     point3<m_per_sec2_t> readAccelData(void);
     point3<rad_per_sec_t> readGyroData(void);
