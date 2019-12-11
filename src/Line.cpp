@@ -3,6 +3,8 @@
 #include <micro/math/unit_utils.hpp>
 #include <cfg_car.hpp>
 
+#include <algorithm>
+
 namespace micro {
 
 Lines::const_iterator LineCalculator::getClosestLine(const Lines& lines, millimeter_t pos, bool isFront, millimeter_t& dist) {
@@ -20,9 +22,30 @@ Lines::const_iterator LineCalculator::getClosestLine(const Lines& lines, millime
     return lineIter;
 }
 
-void LineCalculator::removeUnmatchedLines(LinePositions& positions, bool isFront) {
-    Lines& lines = this->currentLines();
+Lines::const_iterator LineCalculator::findClosestLine(const Lines& lines, Lines::const_iterator line) {
+    Lines::const_iterator closest = lines.end();
+    millimeter_t minSumDist = millimeter_t::infinity();
 
+    for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it) {
+
+        const millimeter_t frontDist = abs(line->pos_front - it->pos_front);
+        const millimeter_t rearDist = abs(line->pos_rear - it->pos_rear);
+
+        const millimeter_t sumDist = frontDist + rearDist;
+        if (sumDist < minSumDist) {
+            minSumDist = sumDist;
+            closest = it;
+        }
+    }
+
+    return closest;
+}
+
+Lines::const_iterator LineCalculator::findLine(const Lines& lines, const uint32_t id) {
+    return std::find_if(lines.begin(), lines.end(), [id](const Line& l) { return l.id == id; });
+}
+
+void LineCalculator::removeUnmatchedLines(Lines& lines, LinePositions& positions, bool isFront) {
     if (positions.size() < lines.size()) {
         Lines prevLines = lines;
         lines.clear();
@@ -38,9 +61,7 @@ void LineCalculator::removeUnmatchedLines(LinePositions& positions, bool isFront
     }
 }
 
-void LineCalculator::removeUnmatchedPositions(LinePositions& positions, uint32_t targetSize, bool isFront) {
-    Lines& lines = this->currentLines();
-
+void LineCalculator::removeUnmatchedPositions(const Lines& lines, LinePositions& positions, uint32_t targetSize, bool isFront) {
     while (positions.size() > targetSize) {
 
         // Iterates through all the current line positions, and for each of them,
@@ -69,95 +90,90 @@ void LineCalculator::removeUnmatchedPositions(LinePositions& positions, uint32_t
     }
 }
 
-static Lines::const_iterator findClosestLine(const Lines& lines, Lines::const_iterator line) {
-    static constexpr millimeter_t MAX_DIST = millimeter_t(15);
-
-    Lines::const_iterator closest = lines.end();
-    millimeter_t minSumDist = millimeter_t::infinity();
-
-    for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it) {
-
-        const millimeter_t frontDist = abs(line->pos_front - it->pos_front);
-        const millimeter_t rearDist = abs(line->pos_rear - it->pos_rear);
-
-        const millimeter_t sumDist = frontDist + rearDist;
-        if (sumDist < minSumDist) {
-            minSumDist = sumDist;
-            closest = it;
-        }
-    }
-
-    return closest;
-}
-
-Line LineCalculator::getMainLine(const Lines& lines, const Line& prevMainLine) {
-    Line newMainLine;
+void LineCalculator::updateMainLine(const Lines& lines, Line& mainLine) {
 
     switch(lines.size()) {
+    case 0:
+        mainLine.angular_velocity = rad_per_sec_t(0);
+        break;
     case 1:
-        newMainLine = lines[0];
+        mainLine = lines[0];
         break;
     case 2:
     {
         const Line& line0 = lines[0];
         const Line& line1 = lines[1];
-        const millimeter_t diff0 = micro::abs(lines[0].pos_front - prevMainLine.pos_front) + micro::abs(lines[0].pos_rear - prevMainLine.pos_rear);
-        const millimeter_t diff1 = micro::abs(lines[1].pos_front - prevMainLine.pos_front) + micro::abs(lines[1].pos_rear - prevMainLine.pos_rear);
+        const millimeter_t diff0 = micro::abs(lines[0].pos_front - mainLine.pos_front) + micro::abs(lines[0].pos_rear - mainLine.pos_rear);
+        const millimeter_t diff1 = micro::abs(lines[1].pos_front - mainLine.pos_front) + micro::abs(lines[1].pos_rear - mainLine.pos_rear);
 
-        newMainLine = diff0 < diff1 ? line0 : line1;
+        mainLine = diff0 < diff1 ? line0 : line1;
         break;
     }
     case 3:
     {
-        newMainLine = lines[1];
+        mainLine = lines[1];
         break;
     }
     default:
         // should not get here
         break;
     }
-
-    return newMainLine;
 }
 
 void LineCalculator::update(LinePositions front, LinePositions rear) {
 
-    static microsecond_t prevRunTime = getExactTime();
     const microsecond_t now = getExactTime();
-
-    Lines newLines;
+    Lines lines;
 
     if (front.size() > 0 && rear.size() > 0) {
         const uint32_t numLines = std::min(front.size(), rear.size());
 
-        this->removeUnmatchedLines(front, true);
-        this->removeUnmatchedLines(rear, false);
+        Lines prevLines = this->currentLines().lines;
+
+        this->removeUnmatchedLines(prevLines, front, true);
+        this->removeUnmatchedLines(prevLines, rear, false);
         // now [lines.size() = numLines]
 
-        this->removeUnmatchedPositions(front, numLines, true);
-        this->removeUnmatchedPositions(rear, numLines, false);
+        removeUnmatchedPositions(prevLines, front, numLines, true);
+        removeUnmatchedPositions(prevLines, rear, numLines, false);
         // now [front.size() = numLines] and [rear.size() = numLines]
-
-        const Lines& prevLines = this->currentLines();
 
         for (uint32_t i = 0; i < numLines; ++i) {
             Line line;
             line.pos_front = front[i];
             line.pos_rear = rear[i];
             line.angle = micro::atan((line.pos_rear - line.pos_front) / cfg::DIST_BTW_OPTO_ROWS);
-            newLines.append(line);
+            lines.append(line);
         }
 
-        for (Lines::iterator it = newLines.begin(); it != newLines.end(); ++it) {
+        // Executes line tracking:
+        // Finds lines in the previous measurement.
+        // If they are found, they inherit the previous line id.
+        // If they are not found, the are given a new unique id.
+        // Calculates angular velocity based on this tracking, with filtering.
+
+        const StampedLines& oldLines = this->prevLines.peek_back(10);
+        const microsecond_t angVelTimeDiff = now - oldLines.time;
+
+        for (Lines::iterator it = lines.begin(); it != lines.end(); ++it) {
             Lines::const_iterator prev = findClosestLine(prevLines, it);
-            if (prev != prevLines.end() && findClosestLine(newLines, prev) == it) {
-                it->angular_velocity = (it->angle - prev->angle) / (now - prevRunTime);
+            if (prev != prevLines.end() && findClosestLine(lines, prev) == it) {
+                it->id = prev->id;
+
+                Lines::const_iterator oldLine = findLine(oldLines.lines, it->id);
+                if (oldLine != oldLines.lines.end()) {
+                    it->angular_velocity = (it->angle - oldLine->angle) / angVelTimeDiff;
+                } else {
+                    it->angular_velocity = rad_per_sec_t(0);
+                }
+            } else {
+                it->id = ++this->currentMaxLineId;
+                it->angular_velocity = rad_per_sec_t(0);
             }
         }
     }
 
-    this->prevLines.push_back(newLines);
-    prevRunTime = now;
+    this->prevLines.push_back({ lines, now });
 }
 
 } // namespace micro

@@ -10,6 +10,7 @@ namespace micro {
 /* @brief Stores data of a detected line.
  **/
 struct Line {
+    uint32_t id;
     millimeter_t pos_front; // The line position at the front sensor line (relative to car vertical middle axis).
     millimeter_t pos_rear;  // The line position at the rear sensor line (relative to car vertical middle axis).
     radian_t angle;         // The line angle (relative to car forward angle)
@@ -21,27 +22,38 @@ typedef vec<millimeter_t, cfg::MAX_NUM_LINES> LinePositions;
 
 class LineCalculator {
 public:
+    LineCalculator() : currentMaxLineId(0) {}
+
     void update(LinePositions front, LinePositions rear);
 
     const Lines& lines() {
-        return const_cast<LineCalculator*>(this)->currentLines();
+        return const_cast<LineCalculator*>(this)->currentLines().lines;
     }
 
-    static Line getMainLine(const Lines& lines, const Line& prevMainLine);
+    static void updateMainLine(const Lines& lines, Line& mainLine);
 
 private:
+    struct StampedLines {
+        Lines lines;
+        microsecond_t time;
+    };
 
-    Lines& currentLines() {
+    StampedLines& currentLines() {
         return prevLines.peek_back(0);
     }
 
     static Lines::const_iterator getClosestLine(const Lines& lines, millimeter_t pos, bool isFront, millimeter_t& dist);
 
-    void removeUnmatchedLines(LinePositions& positions, bool isFront);
+    static Lines::const_iterator findClosestLine(const Lines& lines, Lines::const_iterator line);
 
-    void removeUnmatchedPositions(LinePositions& positions, uint32_t targetSize, bool isFront);
+    static Lines::const_iterator findLine(const Lines& lines, const uint32_t id);
 
-    infinite_buffer<Lines, 50> prevLines;
+    static void removeUnmatchedLines(Lines& lines, LinePositions& positions, bool isFront);
+
+    static void removeUnmatchedPositions(const Lines& lines, LinePositions& positions, uint32_t targetSize, bool isFront);
+
+    infinite_buffer<StampedLines, 50> prevLines;
+    uint32_t currentMaxLineId;
 };
 
 } // namespace micro
