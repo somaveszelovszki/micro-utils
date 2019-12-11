@@ -24,7 +24,7 @@ void VL53L1X_DistanceSensor::initialize() {
 
     while(sensorState == 0){
         VL53L1X_BootState(this->deviceId, &sensorState);
-        vTaskDelay(2);
+        vTaskDelay(10);
     }
 
     VL53L1X_SensorInit(this->deviceId);

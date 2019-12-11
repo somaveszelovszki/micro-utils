@@ -45,8 +45,7 @@
 #include <time.h>
 #include <math.h>
 
-#define I2C_TIME_OUT_BASE   10
-#define I2C_TIME_OUT_BYTE   1
+#define I2C_TIMEOUT_MS 5
 
 uint8_t _I2CBuffer[256];
 
@@ -55,9 +54,8 @@ uint8_t _I2CBuffer[256];
 
 static int _I2CWrite(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     int status;
-    int i2c_time_out = I2C_TIME_OUT_BASE+ count* I2C_TIME_OUT_BYTE;
 
-    status = HAL_I2C_Master_Transmit(i2c_Dist, Dev, pdata, count, i2c_time_out);
+    status = HAL_I2C_Master_Transmit(i2c_Dist, Dev, pdata, count, I2C_TIMEOUT_MS);
     if (status) {
         //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
         //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
@@ -67,9 +65,8 @@ static int _I2CWrite(uint16_t Dev, uint8_t *pdata, uint32_t count) {
 
 int _I2CRead(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     int status;
-    int i2c_time_out = I2C_TIME_OUT_BASE+ count* I2C_TIME_OUT_BYTE;
 
-    status = HAL_I2C_Master_Receive(i2c_Dist, Dev|1, pdata, count, i2c_time_out);
+    status = HAL_I2C_Master_Receive(i2c_Dist, Dev|1, pdata, count, I2C_TIMEOUT_MS);
     if (status) {
         //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
         //XNUCLEO6180XA1_I2C1_Init(&hi2c1);

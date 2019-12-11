@@ -136,7 +136,7 @@ const T& NoJumpFilter<T>::update(const T& measuredValue) {
  * @tparam cleanUpdatePeriod To gain performance, the average is not calculated in every iteration, only the diff.
  *      This can cause a minor accumulative error. To prevent this, periodically the average is re-calculated.
  **/
-template <typename T, uint8_t N, uint8_t cleanUpdatePeriod = 100>
+template <typename T, uint8_t N, uint8_t cleanUpdatePeriod = N * 100>
 class LowPassFilter : public FilterBase<T> {
 public:
     /* @brief Constructor.
