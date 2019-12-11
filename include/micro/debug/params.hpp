@@ -16,6 +16,15 @@ namespace micro {
 
 struct Param {
 
+    Param()
+        : name("")
+        , type("")
+        , hmutex(nullptr)
+        , buf(nullptr)
+        , size(0)
+        , serialize(nullptr)
+        , deserialize(nullptr) {}
+
     Param(const char *name, const char *type, osMutexId hmutex, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
         : name("")
         , type("")
@@ -28,16 +37,11 @@ struct Param {
         strncpy(const_cast<char*>(this->type), type, STR_MAX_LEN_PARAM_TYPE);
     }
 
-    Param(const Param& other)
-        : name("")
-        , type("")
-        , hmutex(other.hmutex)
-        , buf(other.buf)
-        , size(other.size)
-        , serialize(other.serialize)
-        , deserialize(other.deserialize) {
-        strncpy(const_cast<char*>(this->name), other.name, STR_MAX_LEN_PARAM_NAME);
-        strncpy(const_cast<char*>(this->type), other.type, STR_MAX_LEN_PARAM_TYPE);
+    Param(const Param& other) = default;
+
+    Param& operator=(const Param& other) {
+        memcpy(this, &other, sizeof(Param));
+        return *this;
     }
 
     const char name[STR_MAX_LEN_PARAM_NAME];

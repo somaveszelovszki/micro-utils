@@ -15,11 +15,11 @@ public:
     typedef const T* const_iterator;
 
     T& operator[](uint32_t pos) {
-        return this->data_[pos].value();
+        return this->data_[pos];
     }
 
     const T& operator[](uint32_t pos) const {
-        return this->data_[pos].value();
+        return this->data_[pos];
     }
 
     /* @brief Default constructor - Sets size to 0.
@@ -84,7 +84,7 @@ public:
     uint32_t append(const T& value) {
         const uint32_t prev_size = this->size_;
         if (this->size() < this->capacity()) {
-            this->data_[this->size_++].construct(value);
+            this->data_[this->size_++] = value;
         }
         return this->size_ - prev_size;
     }
@@ -97,7 +97,7 @@ public:
     uint32_t emplace_back(Args&&... args) {
         const uint32_t prev_size = this->size_;
         if (this->size() < this->capacity()) {
-            this->data_[this->size_++].emplace(std::forward<Args>(args)...);
+            this->data_[this->size_++] = T(std::forward<Args>(args)...);
         }
         return this->size_ - prev_size;
     }
@@ -112,7 +112,7 @@ public:
         const uint32_t prev_size = this->size_;
         for (Iter it = begin_; it != end_; ++it) {
             if (this->size() < this->capacity()) {
-                this->data_[this->size_++].construct(*it);
+                this->data_[this->size_++] = *it;
             } else {
                 break;
             }
@@ -124,7 +124,7 @@ public:
         const uint32_t prev_size = this->size_;
         if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
             this->shiftRight(iter);
-            reinterpret_cast<storage_type*>(iter)->construct(value);
+            *iter = value;
             this->size_++;
         }
         return this->size_ - prev_size;
@@ -140,7 +140,7 @@ public:
         const uint32_t prev_size = this->size_;
         if (this->size() < this->capacity()) {
             this->shiftRight(iter);
-            reinterpret_cast<storage_type*>(iter)->emplace(std::forward<Args>(args)...);
+            *iter = T(std::forward<Args>(args)...);
             this->size_++;
         }
         return this->size_ - prev_size;
@@ -170,7 +170,7 @@ public:
         if (iter >= this->begin() && iter < this->end()) {
             iter->~T();
             for(iterator it = iter; it != this->end() - 1; ++it) {
-                *reinterpret_cast<storage_type*>(it) = *reinterpret_cast<storage_type*>(it + 1);
+                *it = *(it + 1);
             }
             this->size_--;
         }
@@ -231,18 +231,17 @@ public:
 private:
     void shiftLeft(iterator until) {
         for (iterator it = this->begin(); it != until; ++it) {
-            *reinterpret_cast<storage_type*>(it) = *reinterpret_cast<storage_type*>(it + 1);
+            *it = *(it + 1);
         }
     }
 
     void shiftRight(iterator from) {
         for (iterator it = this->end(); it != from; --it) {
-            *reinterpret_cast<storage_type*>(it) = *reinterpret_cast<storage_type*>(it - 1);
+            *it = *(it - 1);
         }
     }
 
-    typedef storage_t<T> storage_type;
-    storage_type data_[capacity_];
+    T data_[capacity_];
     uint32_t size_;
 };
 } // namespace micro
