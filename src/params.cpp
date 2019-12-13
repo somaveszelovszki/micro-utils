@@ -1,6 +1,7 @@
 #include <micro/debug/params.hpp>
 #include <micro/utils/log.hpp>
 #include <micro/math/numeric.hpp>
+#include <micro/utils/arrays.hpp>
 #include <micro/utils/str_utils.hpp>
 
 #include <FreeRTOS.h>
@@ -8,6 +9,10 @@
 #include <semphr.h>
 
 namespace micro {
+
+static void skipWhiteSpaces(const char * const str, uint32_t& idx) {
+    while('\r' == str[idx] || '\n' == str[idx] || ' ' == str[idx]) { ++idx; }
+}
 
 uint32_t Params::serializeAll(char * const str, uint32_t size) {
     uint32_t idx = 0;
@@ -50,7 +55,7 @@ uint32_t Params::serializeAll(char * const str, uint32_t size) {
 }
 
 uint32_t Params::deserializeAll(const char * const str) {
-    const uint32_t size = strlen(str);
+    const uint32_t size = min(strlen(str), STR_MAX_LEN_PARAM_NAME);
 
     uint32_t idx = 0;
     idx++; // '{'
@@ -58,8 +63,8 @@ uint32_t Params::deserializeAll(const char * const str) {
     char name[STR_MAX_LEN_PARAM_NAME];
 
     while (idx < size) {
-        idx++; // '"'
-        idx += strcpy_until(name, &str[idx], min(static_cast<uint32_t>(STR_MAX_LEN_PARAM_NAME), size - idx), '"');
+        idx = micro::indexOf('"', &str[idx], size - idx);
+        idx += strcpy_until(name, &str[idx], size - idx, '"');
         idx++; // '"'
         idx++; // ':'
 
@@ -79,15 +84,15 @@ uint32_t Params::deserializeAll(const char * const str) {
             xTaskResumeAll();
         }
 
+        skipWhiteSpaces(str, idx);
+
         if ('}' == str[idx]) {
+            idx++; // '$'
+            skipWhiteSpaces(str, idx);
             break;
         } else {
             idx++; // ','
         }
-    }
-
-    for (uint32_t i = 0; i < this->values.size(); ++i) {
-
     }
 
     return idx;

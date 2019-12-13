@@ -31,7 +31,8 @@ void vprintlog(logLevel_t level, const char *format, va_list args) {
         uint32_t len = strlen(levelStr);
         strncpy(msg, levelStr, len);
         len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len, format, args);
-        if (len < LOG_MSG_MAX_SIZE - 2) {
+        if (len < LOG_MSG_MAX_SIZE - 3) {
+            msg[len++] = '$';
             msg[len++] = '\r';
             msg[len++] = '\n';
             msg[len++] = '\0';
