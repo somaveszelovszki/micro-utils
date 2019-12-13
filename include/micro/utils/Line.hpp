@@ -24,6 +24,8 @@ class LineCalculator {
 public:
     LineCalculator() : currentMaxLineId(0) {}
 
+    void update(LinePositions front);
+
     void update(LinePositions front, LinePositions rear);
 
     const Lines& lines() {

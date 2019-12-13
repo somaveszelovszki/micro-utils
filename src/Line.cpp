@@ -120,6 +120,27 @@ void LineCalculator::updateMainLine(const Lines& lines, Line& mainLine) {
     }
 }
 
+void LineCalculator::update(LinePositions front) {
+
+    const microsecond_t now = getExactTime();
+    Lines lines;
+
+    if (!front.size()) {
+        lines.clear();
+        // main line is not changed
+    } else {
+        lines.clear();
+
+        for (uint32_t i = 0; i < front.size(); ++i) {
+            Line line;
+            line.pos_front = front[i];
+            lines.append(line);
+        }
+    }
+
+    this->prevLines.push_back({ lines, now });
+}
+
 void LineCalculator::update(LinePositions front, LinePositions rear) {
 
     const microsecond_t now = getExactTime();
@@ -130,8 +151,8 @@ void LineCalculator::update(LinePositions front, LinePositions rear) {
 
         Lines prevLines = this->currentLines().lines;
 
-        this->removeUnmatchedLines(prevLines, front, true);
-        this->removeUnmatchedLines(prevLines, rear, false);
+        //this->removeUnmatchedLines(prevLines, front, true);
+        //this->removeUnmatchedLines(prevLines, rear, false);
         // now [lines.size() = numLines]
 
         removeUnmatchedPositions(prevLines, front, numLines, true);
