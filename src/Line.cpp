@@ -151,9 +151,9 @@ void LineCalculator::update(LinePositions front, LinePositions rear) {
 
         Lines prevLines = this->currentLines().lines;
 
-        //this->removeUnmatchedLines(prevLines, front, true);
-        //this->removeUnmatchedLines(prevLines, rear, false);
-        // now [lines.size() = numLines]
+        this->removeUnmatchedLines(prevLines, front, true);
+        this->removeUnmatchedLines(prevLines, rear, false);
+        // now [prevLines.size() = numLines]
 
         removeUnmatchedPositions(prevLines, front, numLines, true);
         removeUnmatchedPositions(prevLines, rear, numLines, false);
