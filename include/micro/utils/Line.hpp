@@ -11,14 +11,15 @@ namespace micro {
  **/
 struct Line {
     uint32_t id;
+    millimeter_t pos; // The line position at the center line of the car (relative to the car's vertical middle axis).
     millimeter_t pos_front; // The line position at the front sensor line (relative to car vertical middle axis).
     millimeter_t pos_rear;  // The line position at the rear sensor line (relative to car vertical middle axis).
     radian_t angle;         // The line angle (relative to car forward angle)
     rad_per_sec_t angular_velocity;
 };
 
-typedef vec<Line, cfg::MAX_NUM_LINES> Lines;
-typedef vec<millimeter_t, cfg::MAX_NUM_LINES> LinePositions;
+typedef vec<Line, MAX_NUM_LINES> Lines;
+typedef vec<millimeter_t, MAX_NUM_LINES> LinePositions;
 
 class LineCalculator {
 public:
