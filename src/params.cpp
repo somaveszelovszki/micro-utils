@@ -4,6 +4,8 @@
 #include <micro/utils/arrays.hpp>
 #include <micro/utils/str_utils.hpp>
 
+#include <cfg_board.h>
+
 #include <FreeRTOS.h>
 #include <cmsis_os.h>
 #include <semphr.h>
@@ -55,7 +57,7 @@ uint32_t Params::serializeAll(char * const str, uint32_t size) {
 }
 
 uint32_t Params::deserializeAll(const char * const str) {
-    const uint32_t size = min(strlen(str), STR_MAX_LEN_PARAM_NAME);
+    const uint32_t size = MAX_RX_BUFFER_SIZE;
 
     uint32_t idx = 0;
     idx++; // '{'
@@ -63,8 +65,8 @@ uint32_t Params::deserializeAll(const char * const str) {
     char name[STR_MAX_LEN_PARAM_NAME];
 
     while (idx < size) {
-        idx = micro::indexOf('"', &str[idx], size - idx);
-        idx += strcpy_until(name, &str[idx], size - idx, '"');
+        idx = micro::indexOf('"', str, size, idx) + 1;
+        idx += strcpy_until(name, &str[idx], min(size - idx, static_cast<uint32_t>(STR_MAX_LEN_PARAM_NAME)), '"');
         idx++; // '"'
         idx++; // ':'
 
