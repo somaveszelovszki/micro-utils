@@ -7,7 +7,7 @@
 
 namespace micro {
 
-Lines::const_iterator LineCalculator::getClosestLine(const Lines& lines, millimeter_t pos, bool isFront, millimeter_t& dist) {
+Lines::const_iterator LineCalculator::findClosestLine(const Lines& lines, millimeter_t pos, bool isFront, millimeter_t& dist) {
     dist = millimeter_t::infinity();
     Lines::const_iterator lineIter = lines.end();
 
@@ -52,7 +52,7 @@ void LineCalculator::removeUnmatchedLines(Lines& lines, LinePositions& positions
 
         for (const millimeter_t pos : positions) {
             millimeter_t minDist = millimeter_t::infinity();
-            Lines::const_iterator closestLine = getClosestLine(prevLines, pos, isFront, minDist);
+            Lines::const_iterator closestLine = findClosestLine(prevLines, pos, isFront, minDist);
             if (closestLine != prevLines.end()) {
                 lines.append(*closestLine);
                 prevLines.erase(closestLine);
@@ -77,7 +77,7 @@ void LineCalculator::removeUnmatchedPositions(const Lines& lines, LinePositions&
 
             // finds minimum distance from the previous line positions
             millimeter_t minDist = millimeter_t::infinity();
-            getClosestLine(lines, *linePosIter, isFront, minDist);
+            findClosestLine(lines, *linePosIter, isFront, minDist);
 
             // stores largest minimum distance
             if (minDist > largestMinDist) {
@@ -94,6 +94,7 @@ void LineCalculator::updateMainLine(const Lines& lines, Line& mainLine) {
 
     switch(lines.size()) {
     case 0:
+        // does not change main line's position and angle
         mainLine.angular_velocity = rad_per_sec_t(0);
         break;
     case 1:

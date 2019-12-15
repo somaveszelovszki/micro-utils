@@ -45,7 +45,7 @@ private:
         return prevLines.peek_back(0);
     }
 
-    static Lines::const_iterator getClosestLine(const Lines& lines, millimeter_t pos, bool isFront, millimeter_t& dist);
+    static Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos, bool isFront, millimeter_t& dist);
 
     static Lines::const_iterator findClosestLine(const Lines& lines, Lines::const_iterator line);
 
