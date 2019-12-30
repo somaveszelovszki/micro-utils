@@ -51,7 +51,7 @@ inline bool isOk(Status status) {
  * @param status The status to convert to string.
  * @returns The status as string.
  */
-const char* getStatusString(Status status);
+const char* to_string(const Status& status);
 
 /** @brief Demangles type name.
  * @param in The mangled type name.
@@ -66,7 +66,7 @@ typedef uint8_t logLevel_t;
 #define LogLevel_Warning 0x03
 #define LogLevel_Error   0x04
 
-const char* getLogLevelString(const logLevel_t level);
+const char* to_string(const logLevel_t& level);
 
 /**
  * @brief Defines rotation direction.
@@ -77,6 +77,8 @@ enum class Direction : int8_t {
     RIGHT = -1
 };
 DEFINE_TYPEINFO(Direction);
+
+const char* to_string(const Direction& dir);
 
 /**
  * @brief Defines bit order.
@@ -92,9 +94,12 @@ DEFINE_TYPEINFO(BitOrder);
  */
 enum class Sign : int8_t {
     POSITIVE = 1,
+    NEUTRAL  = 0,
     NEGATIVE = -1
 };
 DEFINE_TYPEINFO(Sign);
+
+const char* to_string(const Sign& sign);
 
 template < template <typename...> class base,typename derived>
 struct is_base_of_template_impl

@@ -27,7 +27,7 @@ void vprintlog(logLevel_t level, const char *format, va_list args) {
     if (level >= MIN_LOG_LEVEL)
     {
         char msg[LOG_MSG_MAX_SIZE];
-        const char *levelStr = getLogLevelString(level);
+        const char *levelStr = to_string(level);
         uint32_t len = strlen(levelStr);
         strncpy(msg, levelStr, len);
         len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len, format, args);
