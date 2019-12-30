@@ -164,7 +164,7 @@ void LineCalculator::update(LinePositions front, LinePositions rear) {
             Line line;
             line.pos_front = front[i];
             line.pos_rear = rear[i];
-            line.angle = micro::atan((line.pos_rear - line.pos_front) / cfg::DIST_BTW_OPTO_ROWS);
+            line.angle = micro::atan((line.pos_rear - line.pos_front) / cfg::CAR_FRONT_REAR_OPTO_DIST);
             lines.append(line);
         }
 

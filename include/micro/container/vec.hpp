@@ -13,6 +13,7 @@ class vec {
 public:
     typedef T* iterator;
     typedef const T* const_iterator;
+    typedef T entry_type;
 
     T& operator[](uint32_t pos) {
         return this->data_[pos];
