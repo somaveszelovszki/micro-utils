@@ -95,6 +95,15 @@ template <typename T> struct point2 {
         return point2<T>((this->X + other.X * otherWeight) / weightSum, (this->Y + other.Y * otherWeight) / weightSum);
     }
 
+    point2<T> rotate(const radian_t& angle) const {
+        const float c = cos(angle);
+        const float s = sin(angle);
+        return {
+            c * this->X - s * this->Y,
+            s * this->X + c * this->Y
+        };
+    }
+
     // @note numpoints must be at least 1
     static void bbox(const point2<T> points[], uint32_t numpoints, bbox2<T> *pResult);
 
@@ -252,7 +261,7 @@ bool point2<T>::isInside(const point2<T>& a, const point2<T>& b, const point2<T>
 }
 
 typedef point2<int32_t>      point2i, vec2i;     // 32-bit integer types.
-typedef point2<float>    point2f, vec2f;     // 32-bit floating point types.
+typedef point2<float>        point2f, vec2f;     // 32-bit floating point types.
 
 typedef point2<meter_t>      point2m,   vec2m;   // meter types.
 typedef point2<centimeter_t> point2cm,  vec2cm;  // centimeter types.
