@@ -15,13 +15,17 @@ public:
     /* @brief Constructor - sets timer handle, timer channel, minimum and maximum angles.
      * @param htim The handle for the timer used for PWM generation.
      * @param chnl The timer channel used for PWM generation.
-     * @param offset_ The offset.
+     * @param pwm0 The PWM value for 0 degrees.
+     * @param pwm180 The PWM value for 180 degrees.
+     * @param offset The offset.
      * @param max_delta The maximum delta angle.
      **/
-    Servo(TIM_HandleTypeDef *htim, uint32_t chnl, radian_t offset_, radian_t max_delta_)
-        : htim(htim)
-        , chnl(chnl)
-        , offset_(offset_)
+    Servo(TIM_HandleTypeDef *htim, uint32_t chnl, uint32_t pwm0, uint32_t pwm180, radian_t offset, radian_t max_delta)
+        : htim_(htim)
+        , chnl_(chnl)
+        , pwm0_(pwm0)
+        , pwm180_(pwm180)
+        , offset_(offset)
         , max_delta_(max_delta_) {}
 
     radian_t offset() const {
@@ -41,12 +45,14 @@ public:
     }
 
 private:
-    TIM_HandleTypeDef *htim;  // The handle for the timer used for PWM generation.
-    const uint32_t chnl;      // The timer channel used for PWM generation.
+    TIM_HandleTypeDef *htim_;  // The handle for the timer used for PWM generation.
+    const uint32_t chnl_;      // The timer channel used for PWM generation.
+    const uint32_t pwm0_;      // The PWM value for 0 degrees.
+    const uint32_t pwm180_;    // The PWM value for 180 degrees.
 
-    const radian_t offset_;   // The offset.
-    radian_t max_delta_;      // The maximum delta angle.
-    radian_t angle_;          // The current angle.
+    const radian_t offset_;    // The offset.
+    radian_t max_delta_;       // The maximum delta angle.
+    radian_t angle_;           // The current angle.
 };
 } // namespace hw
 } // namespace micro
