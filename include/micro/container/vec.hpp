@@ -207,6 +207,14 @@ public:
         return reinterpret_cast<const_iterator>(this->data_ + this->size_);
     }
 
+    iterator front() {
+        return this->begin();
+    }
+
+    const_iterator front() const {
+        return this->begin();
+    }
+
     iterator back() {
         return this->begin() + this->size_ - 1;
     }

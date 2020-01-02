@@ -26,7 +26,7 @@ public:
         , pwm0_(pwm0)
         , pwm180_(pwm180)
         , offset_(offset)
-        , max_delta_(max_delta_) {}
+        , max_delta_(max_delta) {}
 
     radian_t offset() const {
         return offset_;

@@ -81,7 +81,7 @@ protected:
  * @tparam capacity The map capacity.
  **/
 template <typename K, typename V, uint32_t capacity_>
-class sorted_map : public map_base<K, V, capacity_> {
+class ordered_map : public map_base<K, V, capacity_> {
 private:
     typedef map_base<K, V, capacity_> base_type;
 
@@ -144,17 +144,17 @@ public:
      * @returns Pointer to the value or nullptr if key not found.
      **/
     V* get(const K& key) override {
-        return const_cast<V*>(const_cast<const sorted_map<K, V, capacity_>*>(this)->get(key));
+        return const_cast<V*>(const_cast<const ordered_map<K, V, capacity_>*>(this)->get(key));
     }
 };
 
-/* @brief Stores unsorted key-value pairs.
+/* @brief Stores unordered key-value pairs.
  * @tparam K The key type.
  * @tparam V The value type.
  * @tparam capacity The map capacity.
   **/
 template <typename K, typename V, uint32_t capacity_>
-class unsorted_map : public map_base<K, V, capacity_> {
+class unordered_map : public map_base<K, V, capacity_> {
 private:
     typedef map_base<K, V, capacity_> base_type;
 
@@ -195,7 +195,7 @@ public:
      * @returns Pointer to the value or nullptr if key not found.
      **/
     V* get(const K& key) override {
-        return const_cast<V*>(const_cast<const unsorted_map<K, V, capacity_>*>(this)->get(key));
+        return const_cast<V*>(const_cast<const unordered_map<K, V, capacity_>*>(this)->get(key));
     }
 };
 } // namespace micro
