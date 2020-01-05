@@ -4,15 +4,20 @@
 #include <micro/utils/time.hpp>
 #include <micro/math/unit_utils.hpp>
 
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_uart.h"
+#if defined STM32F0
+#include <stm32f0xx_hal.h>
+#include <stm32f4xx_hal_uart.h>
+#elif defined STM32F4
+#include <stm32f4xx_hal.h>
+#include <stm32f4xx_hal_uart.h>
+#endif
 
 #include <FreeRTOS.h>
 #include <task.h>
 
 namespace micro {
 
-template <typename T_toPanel, uint32_t size_toPanel, typename T_fromPanel, uint32_t size_fromPanel>
+template <typename T_toPanel, typename T_fromPanel>
 class Panel {
 public:
     explicit Panel(UART_HandleTypeDef *huart)
@@ -20,10 +25,10 @@ public:
         , newValueReceived(false) {}
 
     void start(void) {
-        HAL_UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inBuffer), size_fromPanel);
+        HAL_UART_Receive_DMA(this->huart, reinterpret_cast<uint8_t*>(&this->inBuffer), sizeof(T_fromPanel));
         panelStartData_t startData;
         startData.cmd = PANEL_START;
-        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(&startData), dataSize_panelStartData);
+        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(&startData), sizeof(panelStartData_t));
     }
 
     void waitResponse() {
@@ -33,7 +38,7 @@ public:
     }
 
     void send(const T_toPanel& out) {
-        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(const_cast<T_toPanel*>(&out)), size_toPanel);
+        HAL_UART_Transmit_DMA(this->huart, reinterpret_cast<uint8_t*>(const_cast<T_toPanel*>(&out)), sizeof(T_toPanel));
     }
 
     void onDataReceived(void) {

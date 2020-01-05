@@ -8,7 +8,7 @@ template <typename T>
 class atomic_updatable {
 public:
     template<typename ...Args>
-    atomic_updatable(osMutexId hmutex, Args&&... args)
+    atomic_updatable(SemaphoreHandle_t hmutex, Args&&... args)
         : value_(hmutex, std::forward<Args>(args)...)
         , updated_(false) {
     }

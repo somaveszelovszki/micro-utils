@@ -3,6 +3,7 @@
 #include <micro/utils/storage.hpp>
 #include <micro/math/numeric.hpp>
 
+#include <algorithm>
 #include <initializer_list>
 
 namespace micro {
@@ -147,22 +148,8 @@ public:
         return this->size_ - prev_size;
     }
 
-    const_iterator find(const T& item) const {
-        const_iterator it = this->begin();
-        for (; it != this->end(); ++it) {
-            if (*it == item) {
-                break;
-            }
-        }
-        return it;
-    }
-
-    iterator find(const T& item) {
-        return const_cast<iterator>(const_cast<const vec*>(this)->find(item));
-    }
-
     iterator erase(const T& item) {
-        iterator iter = this->find(item);
+        iterator iter = std::find(this->begin(), this->end(), item);
         this->erase(iter);
         return iter;
     }

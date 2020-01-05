@@ -1,7 +1,9 @@
 #pragma once
 
-#include <micro/bit_container.hpp>
+#include "bit_container.hpp"
+
 #include <micro/utils/arrays.hpp>
+
 #include <type_traits>
 
 namespace micro {
@@ -41,7 +43,7 @@ public:
      * @param pos The position.
      * @returns The given bit of the array.
      **/
-    uint1_t get(uint32_t pos) const {
+    bool get(uint32_t pos) const {
         return this->data[pos / C].read(pos % C);
     }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/utils/point2.hpp>
+#include "point2.hpp"
 
 namespace micro {
 

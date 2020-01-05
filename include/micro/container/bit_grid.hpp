@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/bit_array.hpp>
+#include "bit_array.hpp"
 
 namespace micro {
 
@@ -47,7 +47,7 @@ public:
      * @param y The Y coordinate.
      * @returns The given bit of the grid.
      **/
-    uint1_t read(uint32_t x, uint32_t y) const {
+    bool read(uint32_t x, uint32_t y) const {
         return this->data_[y].read(x);
     }
 
@@ -55,7 +55,7 @@ public:
      * @param pos The position.
      * @param bit The bit value to write.
      **/
-    void write(uint32_t x, uint32_t y, uint1_t bit) {
+    void write(uint32_t x, uint32_t y, bool bit) {
         this->data_[y].write(x, bit);
     }
 

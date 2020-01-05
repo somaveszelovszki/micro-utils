@@ -5,7 +5,7 @@
 
 namespace micro {
 
-class LineDetectPanel : public Panel<lineDetectPanelDataIn_t, dataSize_lineDetectPanelDataIn, lineDetectPanelDataOut_t, dataSize_lineDetectPanelDataOut> {
+class LineDetectPanel : public Panel<lineDetectPanelDataIn_t, lineDetectPanelDataOut_t> {
 public:
     using Panel::Panel;
 };

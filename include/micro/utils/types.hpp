@@ -80,6 +80,10 @@ DEFINE_TYPEINFO(Direction);
 
 const char* to_string(const Direction& dir);
 
+inline Direction switchDirection(Direction dir) {
+    return static_cast<Direction>(-static_cast<int8_t>(dir));
+}
+
 /**
  * @brief Defines bit order.
  */

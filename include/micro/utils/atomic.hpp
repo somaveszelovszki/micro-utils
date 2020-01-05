@@ -1,9 +1,8 @@
 #pragma once
 
-#include <micro/utils/storage.hpp>
+#include "storage.hpp"
 
 #include <FreeRTOS.h>
-#include <cmsis_os.h>
 #include <semphr.h>
 
 #include <algorithm>
@@ -17,7 +16,7 @@ public:
     typedef T underlying_type;
 
     template<typename ...Args>
-    atomic(osMutexId hmutex, Args&&... args)
+    atomic(SemaphoreHandle_t hmutex, Args&&... args)
         : hmutex(hmutex) {
         this->data.emplace(std::forward<Args>(args)...);
     }
@@ -33,13 +32,13 @@ public:
     void wait_copy(T& result) const volatile {
         while (!xSemaphoreTake(this->hmutex, 1)) {}
         result = *const_cast<T*>(this->data.value_ptr());
-        xSemaphoreGive(this->hMutex);
+        xSemaphoreGive(this->hmutex);
     }
 
     void wait_set(const T& value) volatile {
         while (!xSemaphoreTake(this->hmutex, 1)) {}
         this->data.construct(value);
-        xSemaphoreGive(this->hMutex);
+        xSemaphoreGive(this->hmutex);
     }
 
     volatile T* wait_ptr() volatile {
@@ -55,12 +54,12 @@ public:
         xSemaphoreGive(this->hmutex);
     }
 
-    osMutexId getMutex() const volatile {
+    SemaphoreHandle_t getMutex() const volatile {
         return this->hmutex;
     }
 
 private:
-    osMutexId hmutex;
+    SemaphoreHandle_t hmutex;
     volatile_storage_t<T> data;
 };
 

@@ -10,15 +10,8 @@ extern "C" {
 #define PANEL_START 'S'
     
 typedef struct {
-    union {
-        struct {
-            uint8_t cmd;
-        };
-        uint32_t data32[1];
-    };
-} panelStartData_t;
-
-#define dataSize_panelStartData 1
+    char cmd;
+} __attribute__((packed)) panelStartData_t;
 
 #ifdef __cplusplus
 }

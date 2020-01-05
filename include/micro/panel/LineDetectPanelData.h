@@ -10,26 +10,16 @@ extern "C" {
 #define LINE_DETECT_PANEL_FLAG_INDICATOR_LEDS_ENABLED 0x01
     
 typedef struct {
-    union {
-        struct {
-            uint8_t flags;
-        };
-        uint32_t data32[1];
-    };
-} lineDetectPanelDataIn_t;
+    uint8_t flags;
+} __attribute__((packed)) lineDetectPanelDataIn_t;
 
-#define dataSize_lineDetectPanelDataIn 1
+#define LINE_DETECT_PANEL_LINK_RECV_PERIOD_MS   400u
     
 typedef struct {
-    union {
-        struct {
-            linePositions_t lines;
-        };
-        uint32_t data32[1];
-    };
-} lineDetectPanelDataOut_t;
+    lines_t lines;
+} __attribute__((packed)) lineDetectPanelDataOut_t;
 
-#define dataSize_lineDetectPanelDataOut 4
+#define LINE_DETECT_PANEL_LINK_SEND_PERIOD_MS   0u // sends data as soon as they are available
 
 #ifdef __cplusplus
 }

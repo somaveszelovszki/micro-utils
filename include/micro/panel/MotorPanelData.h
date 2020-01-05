@@ -10,32 +10,22 @@ extern "C" {
 #define MOTOR_PANEL_FLAG_USE_SAFETY_SIGNAL 0x01
 
 typedef struct {
-    union {
-        struct {
-            float controller_Kc;
-            int16_t targetSpeed_mmps;
-            uint16_t controller_Ti_us;
-            uint8_t flags;
-        };
-        uint32_t data32[3];
-    };
-} motorPanelDataIn_t;
-
-#define dataSize_motorPanelDataIn 9
+    float controller_Kc;
+    int16_t targetSpeed_mmps;
+    uint16_t controller_Ti_us;
+    uint8_t flags;
+} __attribute__((packed)) motorPanelDataIn_t;
     
-typedef struct {
-    union {
-        struct {
-            int32_t distance_mm;
-            int16_t targetSpeed_mmps;
-            int16_t actualSpeed_mmps;
-            uint8_t isMotorEnabled;
-        };
-        uint32_t data32[2];
-    };
-} motorPanelDataOut_t;
+#define MOTOR_PANEL_LINK_RECV_PERIOD_MS   10u
 
-#define dataSize_motorPanelDataOut 9
+typedef struct {
+    int32_t distance_mm;
+    int16_t targetSpeed_mmps;
+    int16_t actualSpeed_mmps;
+    bool isMotorEnabled;
+} __attribute__((packed)) motorPanelDataOut_t;
+
+#define MOTOR_PANEL_LINK_SEND_PERIOD_MS   10u
 
 #ifdef __cplusplus
 }

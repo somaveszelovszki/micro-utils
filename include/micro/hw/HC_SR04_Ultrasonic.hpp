@@ -2,8 +2,13 @@
 
 #include <micro/utils/units.hpp>
 
+#if defined STM32F0
+#include <stm32f0xx_hal.h>
+#include <stm32f0xx_hal_gpio.h>
+#elif defined STM32F4
 #include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_gpio.h>
+#endif
 
 namespace micro {
 namespace hw {
