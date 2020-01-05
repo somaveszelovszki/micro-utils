@@ -1,5 +1,6 @@
 #pragma once
 
+#include <micro/utils/units.hpp>
 #include <micro/math/numeric.hpp>
 #include <micro/math/constants.hpp>
 

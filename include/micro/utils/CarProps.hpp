@@ -1,6 +1,7 @@
 #pragma once
 
 #include "point2.hpp"
+#include "typeinfo.hpp"
 
 namespace micro {
 
@@ -27,9 +28,9 @@ struct CarProps  {
         , speed(0.0f)
         , distance(0.0f) {}
 
-    Pose pose;          // The current pose (position and orientation) of the car.
-    m_per_sec_t speed;  // The current speed of the car.
-    meter_t distance;   // The distance that the car has driven since startup.
+    Pose pose;         // The current pose (position and orientation) of the car.
+    m_per_sec_t speed; // The current speed of the car.
+    meter_t distance;  // The distance that the car has driven since startup.
 };
 DEFINE_TYPEINFO(CarProps);
 

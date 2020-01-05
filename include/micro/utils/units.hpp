@@ -228,6 +228,11 @@ public:
     void set(float _value) {
         this->value = _value;
     }
+
+    template <typename T2, class = typename std::enable_if<std::is_arithmetic<T2>::value>::type>
+    explicit operator T2() const {
+        return T2(this->value);
+    }
 };
 
 /* @brief Adds two dimension class instances.

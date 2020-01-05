@@ -1,14 +1,13 @@
 #pragma once
 
 #include <micro/utils/types.hpp>
+
 #include <type_traits>
 #include <cmath>
 
-#include <micro/utils/pair.hpp>
-
 namespace micro {
 namespace detail {
-static constexpr float COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for equality check.
+constexpr float COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for equality check.
 }
 
 // ---------------------------------------- Type-independent functions (same implementation for unit classes) ----------------------------------------

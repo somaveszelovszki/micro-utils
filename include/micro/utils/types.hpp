@@ -80,7 +80,7 @@ DEFINE_TYPEINFO(Direction);
 
 const char* to_string(const Direction& dir);
 
-inline Direction switchDirection(Direction dir) {
+inline Direction operator-(Direction dir) {
     return static_cast<Direction>(-static_cast<int8_t>(dir));
 }
 
@@ -102,6 +102,20 @@ enum class Sign : int8_t {
     NEGATIVE = -1
 };
 DEFINE_TYPEINFO(Sign);
+
+inline Sign operator-(Sign sign) {
+    return static_cast<Sign>(-static_cast<int8_t>(sign));
+}
+
+template <typename T>
+inline T operator*(const T& value, Sign sign) {
+    return value * static_cast<int8_t>(sign);
+}
+
+template <typename T>
+inline T operator*(Sign sign, const T& value) {
+    return value * sign;
+}
 
 const char* to_string(const Sign& sign);
 
