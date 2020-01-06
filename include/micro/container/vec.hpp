@@ -33,12 +33,12 @@ public:
      **/
     vec(const vec<T, capacity_>& other)
         : size_(0) {
-        this->append(other.begin(), other.end());
+        this->push_back(other.begin(), other.end());
     }
 
     vec(const std::initializer_list<T>& values)
         : size_(0) {
-        this->append(values.begin(), values.end());
+        this->push_back(values.begin(), values.end());
     }
 
     /* @brief Copies data from the other vector.
@@ -47,13 +47,13 @@ public:
      **/
     vec<T, capacity_>& operator=(const vec<T, capacity_>& other) {
         this->clear();
-        this->append(other.begin(), other.end());
+        this->push_back(other.begin(), other.end());
         return *this;
     }
 
     vec<T, capacity_>& operator=(const std::initializer_list<T>& values) {
         this->clear();
-        this->append(values.begin(), values.end());
+        this->push_back(values.begin(), values.end());
         return *this;
     }
 
@@ -83,7 +83,7 @@ public:
      * @param value The element to append.
      * @returns The number of elements that have been appended successfully.
      **/
-    uint32_t append(const T& value) {
+    uint32_t push_back(const T& value) {
         const uint32_t prev_size = this->size_;
         if (this->size() < this->capacity()) {
             this->data_[this->size_++] = value;
@@ -110,7 +110,7 @@ public:
      * @returns The number of elements that have been appended successfully.
      **/
     template <typename Iter>
-    uint32_t append(Iter begin_, Iter end_) {
+    uint32_t push_back(Iter begin_, Iter end_) {
         const uint32_t prev_size = this->size_;
         for (Iter it = begin_; it != end_; ++it) {
             if (this->size() < this->capacity()) {

@@ -12,7 +12,7 @@ public:
     Timer(void)
         : timedOut_(false)
         , isRunning_(false) {
-        Timer::instances.append(this);
+        Timer::instances.push_back(this);
     }
 
     void setPeriod(const millisecond_t period) {

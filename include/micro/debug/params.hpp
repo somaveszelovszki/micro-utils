@@ -60,7 +60,7 @@ public:
     template <typename T>
     void registerParam(const char *name, T *value) {
         static_assert(std::is_trivially_copyable<T>::value, "Type must be trivially copyable.");
-        this->values.append(this->fillParamStruct(name, value));
+        this->values.push_back(this->fillParamStruct(name, value));
     }
 
     uint32_t serializeAll(char * const str, uint32_t size);
