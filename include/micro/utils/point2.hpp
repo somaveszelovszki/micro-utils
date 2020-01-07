@@ -107,8 +107,6 @@ template <typename T> struct point2 {
     // @note numpoints must be at least 1
     static void bbox(const point2<T> points[], uint32_t numpoints, bbox2<T> *pResult);
 
-    micro::Sign getAngleSign(const vec2<T>& other) const;
-
     bool isInside(const point2<T>& a, const point2<T>& b, const point2<T>& c) const;
 
     bool isInside(const bbox2<T>& bbox) const;
@@ -227,25 +225,6 @@ void point2<T>::bbox(const point2<T> points[], uint32_t numpoints, bbox2<T> *pRe
         else if(p.Y > pResult->tr->Y)
             pResult->tr->Y = p.Y;
     }
-}
-
-template<typename T>
-micro::Sign point2<T>::getAngleSign(const vec2<T>& other) const {
-    const float x1 = float(this->X);
-    const float y1 = float(this->Y);
-    const float x2 = float(other.X);
-    const float y2 = float(other.Y);
-    float m;
-
-    if(micro::isZero(x1)) {
-        m = y1 > 0 ? -x2 : x2;
-    } else if(micro::isZero(x2)) {
-        m = y2 > 0 ? x1 : -x1;
-    } else {
-        m = y1 / x1 - y2 / x2;
-    }
-
-    return micro::sgn(m);
 }
 
 template<typename T>

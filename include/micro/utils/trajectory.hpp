@@ -16,9 +16,8 @@ public:
 
     typedef vec<config_t, 200> configs_t;
 
-    Trajectory(meter_t optoRowCarCenterDist, const config_t& startConfig)
-        : optoRowCarCenterDist_(optoRowCarCenterDist)
-        , configs_({ startConfig })
+    explicit Trajectory(meter_t optoRowCarCenterDist)
+        : carCenterToOptoRowCenter_(optoRowCarCenterDist, meter_t(0))
         , sectionStartConfig_(this->configs_.begin())
         , length_(0)
         , coveredDistanceUntilLastConfig_(-optoRowCarCenterDist)
@@ -30,22 +29,31 @@ public:
     }
 
     meter_t coveredDistance() const {
-        return this->coveredDistanceUntilLastConfig_ + carDistanceSinceLastConfig_;
+        return min(this->coveredDistanceUntilLastConfig_ + carDistanceSinceLastConfig_, this->length_);
     }
 
     config_t lastConfig() const {
         return *this->configs_.back();
     }
 
+    void setStartConfig(const config_t& start);
     void appendLine(const config_t& dest);
     void appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t numSections);
 
     ControlData update(const CarProps car);
 
+    void clear() {
+        this->configs_.clear();
+        this->length_                         = meter_t(0);
+        this->coveredDistanceUntilLastConfig_ = meter_t(0);
+        this->carDistanceAtLastConfig_        = meter_t(0);
+        this->carDistanceSinceLastConfig_     = meter_t(0);
+    }
+
 private:
     configs_t::const_iterator getClosestConfig(const point2m& pos) const;
 
-    const meter_t optoRowCarCenterDist_; // Distance between optical sensor row and car center
+    const vec2m carCenterToOptoRowCenter_; // Vector from the car center to the optical sensor row center
     configs_t configs_;
     configs_t::const_iterator sectionStartConfig_;
     meter_t length_;

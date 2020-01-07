@@ -3,6 +3,12 @@
 
 namespace micro {
 
+void Trajectory::setStartConfig(const config_t& start) {
+    if (!this->configs_.size()) {
+        this->configs_.push_back(start);
+    }
+}
+
 void Trajectory::appendLine(const config_t& dest) {
     this->length_ += dest.pos.distance(this->configs_.back()->pos);
     this->configs_.push_back(dest);
@@ -30,7 +36,8 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t
 ControlData Trajectory::update(const CarProps car) {
     ControlData controlData;
 
-    const point2m optoRowCenterPos = car.pose.pos + vec2m(this->optoRowCarCenterDist_, meter_t(0)).rotate(car.pose.angle);
+    const vec2m currentCarCenterToOptoRowCenter = this->carCenterToOptoRowCenter_.rotate(car.pose.angle);
+    const point2m optoRowCenterPos = car.pose.pos + currentCarCenterToOptoRowCenter;
     const point2f optoRowCenterPosRaw = point2f(optoRowCenterPos);
 
     const configs_t::const_iterator closestConfig = this->getClosestConfig(optoRowCenterPos);
@@ -68,17 +75,18 @@ ControlData Trajectory::update(const CarProps car) {
         for (configs_t::const_iterator it = this->sectionStartConfig_; it != newSectionStartConfig; ++it) {
             this->coveredDistanceUntilLastConfig_ += (it + 1)->pos.distance(it->pos);
         }
+        this->sectionStartConfig_ = newSectionStartConfig;
         this->carDistanceAtLastConfig_ = car.distance;
     }
 
     this->carDistanceSinceLastConfig_ = car.distance - this->carDistanceAtLastConfig_;
 
-    const line2f optoLine(optoRowCenterPosRaw, optoRowCenterPosRaw + vec2f(0.0f, this->optoRowCarCenterDist_.get()).rotate(car.pose.angle));
+    const line2f optoLine(optoRowCenterPosRaw, optoRowCenterPosRaw + static_cast<vec2f>(currentCarCenterToOptoRowCenter).rotate(PI_2));
     const point2m linePoint(lineLine_intersection(sectionLine, optoLine));
 
-    const Sign lineSign = -(optoRowCenterPos - car.pose.pos).getAngleSign(closestConfig->pos - car.pose.pos);
+    const Sign lineSign = -sgn((optoRowCenterPos - car.pose.pos).getAngle(closestConfig->pos - car.pose.pos));
 
-    controlData.baseline.pos = linePoint.distance(optoRowCenterPos) * static_cast<int8_t>(lineSign);
+    controlData.baseline.pos = linePoint.distance(optoRowCenterPos) * lineSign;
     controlData.baseline.id = 0;
     controlData.offset = millimeter_t(0);
     controlData.angle = radian_t(0);
