@@ -20,7 +20,7 @@ public:
     }
 
     void start(const millisecond_t period) {
-        this->startTime_= micro::getTime();
+        this->startTime_= getTime();
         this->period_ = period;
         this->timedOut_ = false;
         this->isRunning_ = true;

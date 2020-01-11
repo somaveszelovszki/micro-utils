@@ -24,7 +24,7 @@ public:
     }
 
     bool shouldRun() const {
-        return micro::getTime() - this->lastRunTime >= this->period;
+        return getTime() - this->lastRunTime >= this->period;
     }
 
 protected:

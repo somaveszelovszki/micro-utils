@@ -13,13 +13,13 @@ typedef struct {
     uint8_t flags;
 } __attribute__((packed)) lineDetectPanelDataIn_t;
 
-#define LINE_DETECT_PANEL_LINK_RECV_PERIOD_MS   400u
+#define LINE_DETECT_PANEL_LINK_RX_PERIOD_MS   100u
     
 typedef struct {
     lines_t lines;
 } __attribute__((packed)) lineDetectPanelDataOut_t;
 
-#define LINE_DETECT_PANEL_LINK_SEND_PERIOD_MS   0u // sends data as soon as they are available
+#define LINE_DETECT_PANEL_LINK_TX_PERIOD_MS   0u
 
 #ifdef __cplusplus
 }

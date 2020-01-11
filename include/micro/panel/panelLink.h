@@ -15,34 +15,49 @@ extern "C" {
 #include <stm32f4xx_hal_uart.h>
 #endif
 
+typedef enum {
+    PanelLinkRole_Master,
+    PanelLinkRole_Slave
+} panelLinkRole_t;
+
+typedef enum {
+    PanelLinkState_Disconnected,
+    PanelLinkState_WaitingData,
+    PanelLinkState_Connected,
+} panelLinkState_t;
+
 typedef struct {
+    panelLinkRole_t role;
     UART_HandleTypeDef *huart;
     panelStartData_t startData;
-    void *rxData;
+    void *rxDataBuffer;
     uint32_t rxDataSize;
     uint32_t rxPeriodMs;
     uint32_t lastRxTime;
-    const void *txData;
+    void *txDataBuffer;
     uint32_t txDataSize;
     uint32_t txPeriodMs;
     uint32_t lastTxTime;
-    bool isConnected;
+    uint32_t timeout;
+    panelLinkState_t state;
     bool isAvailable;
 } panelLink_t;
 
-void panelLink_initialize(panelLink_t *link, UART_HandleTypeDef *huart,
-    void *rxData, uint32_t rxDataSize, uint32_t rxPeriodMs,
-    const void *txData, uint32_t txDataSize, uint32_t txPeriodMs);
+void panelLink_initialize(panelLink_t *link, panelLinkRole_t role, UART_HandleTypeDef *huart,
+    void *rxDataBuffer, uint32_t rxDataSize, uint32_t rxPeriodMs,
+    void *txDataBuffer, uint32_t txDataSize, uint32_t txPeriodMs);
+
+bool panelLink_isConnected(const panelLink_t *link);
 
 bool panelLink_shouldSend(const panelLink_t *link);
 
-void panelLink_send(panelLink_t *link);
+void panelLink_send(panelLink_t *link, const void *txData);
 
-void panelLink_onNewCmd(panelLink_t *link);
+void panelLink_onNewRxData(panelLink_t *link);
 
-bool panelLink_checkAvailable(panelLink_t *link);
+bool panelLink_readAvailable(panelLink_t *link, void *rxData);
 
-void panelLink_checkConnection(panelLink_t *link);
+void panelLink_update(panelLink_t *link);
 
 #ifdef __cplusplus
 }

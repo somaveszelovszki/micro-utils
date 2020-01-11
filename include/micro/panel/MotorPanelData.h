@@ -16,16 +16,15 @@ typedef struct {
     uint8_t flags;
 } __attribute__((packed)) motorPanelDataIn_t;
     
-#define MOTOR_PANEL_LINK_RECV_PERIOD_MS   10u
+#define MOTOR_PANEL_LINK_RX_PERIOD_MS   20u
 
 typedef struct {
     int32_t distance_mm;
-    int16_t targetSpeed_mmps;
     int16_t actualSpeed_mmps;
     bool isMotorEnabled;
 } __attribute__((packed)) motorPanelDataOut_t;
 
-#define MOTOR_PANEL_LINK_SEND_PERIOD_MS   10u
+#define MOTOR_PANEL_LINK_TX_PERIOD_MS   5u
 
 #ifdef __cplusplus
 }
