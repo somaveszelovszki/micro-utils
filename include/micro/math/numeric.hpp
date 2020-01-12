@@ -19,7 +19,7 @@ constexpr float COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for
  * @returns The minimum of the two values.
  */
 template <typename T>
-inline T min(const T& a, const T& b) {
+inline constexpr T min(const T& a, const T& b) {
     return a < b ? a : b;
 }
 
@@ -30,7 +30,7 @@ inline T min(const T& a, const T& b) {
  * @returns The maximum of the two values.
  */
 template <typename T>
-inline T max(const T& a, const T& b) {
+inline constexpr T max(const T& a, const T& b) {
     return a > b ? a : b;
 }
 
@@ -41,7 +41,7 @@ inline T max(const T& a, const T& b) {
  * @returns The average of the two values.
  */
 template <typename T1, typename T2>
-inline auto avg(const T1& a, const T2& b) -> decltype((a + b) / 2.0f) {
+inline constexpr auto avg(const T1& a, const T2& b) -> decltype((a + b) / 2.0f) {
     return (a + b) / 2.0f;
 }
 
@@ -54,7 +54,7 @@ inline auto avg(const T1& a, const T2& b) -> decltype((a + b) / 2.0f) {
  * @returns Boolean value indicating if the value is between the boundaries.
  */
 template <typename T1, typename T2, typename T3>
-inline bool isBtw(const T1& value, const T2& b1, const T3& b2) {
+inline constexpr bool isBtw(const T1& value, const T2& b1, const T3& b2) {
     return b2 >= b1 ? value >= b1 && value <= b2 : value >= b2 && value <= b1;
 }
 
@@ -67,8 +67,8 @@ inline bool isBtw(const T1& value, const T2& b1, const T3& b2) {
  * @returns The clampd value.
  */
 template <typename T>
-inline T clamp(const T& value, const T& b1, const T& b2) {
-    return b2 > b1 ? micro::min(micro::max(value, b1), b2) : micro::min(micro::max(value, b2), b1);
+inline constexpr T clamp(const T& value, const T& b1, const T& b2) {
+    return b2 > b1 ? min(max(value, b1), b2) : min(max(value, b2), b1);
 }
 
 /**
@@ -79,7 +79,7 @@ inline T clamp(const T& value, const T& b1, const T& b2) {
  * @param relErr The permitted relative error.
  */
 template <typename T1, typename T2>
-inline bool isInRange(const T1& value, const T2& ref, float relErr) {
+inline constexpr bool isInRange(const T1& value, const T2& ref, float relErr) {
     return isBtw(value, ref * (1.0f - relErr), ref * (1.0f + relErr));
 }
 
@@ -95,7 +95,7 @@ inline bool isInRange(const T1& value, const T2& ref, float relErr) {
  * @returns The mapped value.
  */
 template <typename S, typename R>
-inline R map(const S& value, const S& fromLow, const S& fromHigh, const R& toLow, const R& toHigh) {
+inline constexpr R map(const S& value, const S& fromLow, const S& fromHigh, const R& toLow, const R& toHigh) {
     return toLow + ((clamp(value, fromLow, fromHigh) - fromLow) * (toHigh - toLow) / (fromHigh - fromLow));
 }
 
@@ -107,7 +107,7 @@ inline R map(const S& value, const S& fromLow, const S& fromHigh, const R& toLow
  * @param eps The epsilon tolerance.
  */
 template <typename T1, typename T2, typename T3>
-inline bool eq(const T1& value, const T2& ref, const T3& eps) {
+inline constexpr bool eq(const T1& value, const T2& ref, const T3& eps) {
     return (value >= ref - eps) && (value <= ref + eps);
 }
 
@@ -119,7 +119,7 @@ inline bool eq(const T1& value, const T2& ref, const T3& eps) {
  * @returns The length of the hypotenuse of the triangle.
  */
 template <typename T>
-inline auto pythag_square(const T& a, const T& b) -> decltype (a * b) {
+inline constexpr auto pythag_square(const T& a, const T& b) -> decltype (a * b) {
     return a * a + b * b;
 }
 
@@ -132,7 +132,7 @@ inline auto pythag_square(const T& a, const T& b) -> decltype (a * b) {
  * @returns The length of the vector.
  */
 template <typename T>
-inline auto pythag_square(const T& a, const T& b, const T& c) -> decltype (a * b) {
+inline constexpr auto pythag_square(const T& a, const T& b, const T& c) -> decltype (a * b) {
     return a * a + b * b + c * c;
 }
 
@@ -144,7 +144,7 @@ inline auto pythag_square(const T& a, const T& b, const T& c) -> decltype (a * b
  * @returns The value.
  */
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type valueOf(const T& value) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type valueOf(const T& value) {
     return value;
 }
 
@@ -154,7 +154,7 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type valueOf(co
  * @returns The absolute of the value.
  */
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type abs(const T& value) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type abs(const T& value) {
     return value >= T(0) ? value : -value;
 }
 
@@ -165,17 +165,17 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type abs(const 
  * @returns The sign of the value.
  */
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, Sign>::type sgn(const T& value) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, Sign>::type sgn(const T& value) {
     return value >= 0 ? Sign::POSITIVE : Sign::NEGATIVE;
 }
 
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isinf(const T& value) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isinf(const T& value) {
     return std::isinf(value);
 }
 
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isnan(const T& value) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isnan(const T& value) {
     return std::isnan(value);
 }
 
@@ -187,8 +187,8 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isnan(c
  * @param ref The reference.
  */
 template <typename T1, typename T2>
-inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type eq(const T1& value, const T2& ref) {
-    return micro::eq(value, ref, detail::COMMON_EQ_ABS_EPS);
+inline constexpr typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type eq(const T1& value, const T2& ref) {
+    return eq(value, ref, detail::COMMON_EQ_ABS_EPS);
 }
 
 /**
@@ -199,8 +199,8 @@ inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmet
  * @param eps The epsilon tolerance - 0.0001f by default.
  */
 template <typename T1, typename T2>
-inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type isZero(const T1& value, const T2& eps) {
-    return micro::eq(value, 0, eps);
+inline constexpr typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type isZero(const T1& value, const T2& eps) {
+    return eq(value, 0, eps);
 }
 
 /**
@@ -211,8 +211,8 @@ inline typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmet
  * @param eps The epsilon tolerance - 0.0001f by default.
  */
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isZero(const T& value) {
-    return micro::eq(value, T(0));
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isZero(const T& value) {
+    return eq(value, T(0));
 }
 
 /**
@@ -224,7 +224,7 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isZero(
  * @returns The length of the hypotenuse of the triangle.
  */
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(const T& a, const T& b) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(const T& a, const T& b) {
     return T(std::sqrt(a * a + b * b));
 }
 
@@ -238,13 +238,13 @@ inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(con
  * @returns The length of the vector.
  */
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(const T& a, const T& b, const T& c) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(const T& a, const T& b, const T& c) {
     return static_cast<T>(sqrt(a * a + b * b + c * c));
 }
 
 // ---------------------------------------- Specific type functions ----------------------------------------
 
-inline int32_t round(const float value) {
+inline constexpr int32_t round(const float value) {
     return static_cast<int32_t>(value + 0.5f);
 }
 

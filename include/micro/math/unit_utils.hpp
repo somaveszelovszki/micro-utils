@@ -12,7 +12,7 @@ namespace micro {
  * @returns The value.
  */
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, float>::type valueOf(const T& value) {
+inline constexpr typename std::enable_if<T::is_dim_class, float>::type valueOf(const T& value) {
     return value.template get<true>();
 }
 
@@ -22,8 +22,8 @@ inline typename std::enable_if<T::is_dim_class, float>::type valueOf(const T& va
  * @returns The absolute of the value.
  */
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, T>::type abs(const T& value) {
-    return value >= T::zero() ? value : -value;
+inline constexpr typename std::enable_if<T::is_dim_class, T>::type abs(const T& value) {
+    return T(abs(value.template get<true>()));
 }
 
 /**
@@ -33,18 +33,18 @@ inline typename std::enable_if<T::is_dim_class, T>::type abs(const T& value) {
  * @returns The sign of the value.
  */
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, Sign>::type sgn(const T& value) {
-    return value >= T::zero() ? Sign::POSITIVE : Sign::NEGATIVE;
+inline constexpr typename std::enable_if<T::is_dim_class, Sign>::type sgn(const T& value) {
+    return sgn(value.template get<true>());
 }
 
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, bool>::type isinf(const T& value) {
-    return std::isinf(value.template get<true>());
+inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isinf(const T& value) {
+    return isinf(value.template get<true>());
 }
 
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, bool>::type isnan(const T& value) {
-    return std::isnan(value.template get<true>());
+inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isnan(const T& value) {
+    return isnan(value.template get<true>());
 }
 
 /**
@@ -55,8 +55,8 @@ inline typename std::enable_if<T::is_dim_class, bool>::type isnan(const T& value
  * @param ref The reference.
  */
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type eq(const T1& value, const T2& ref) {
-    return micro::eq(value, ref, T1(micro::detail::COMMON_EQ_ABS_EPS, nullptr));
+inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type eq(const T1& value, const T2& ref) {
+    return eq(value, ref, T1(detail::COMMON_EQ_ABS_EPS, nullptr));
 }
 
 /**
@@ -67,8 +67,8 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @param eps The epsilon tolerance - 0.0001f by default.
  */
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type isZero(const T1& value, const T2 eps) {
-    return micro::eq(value, T1::zero(), eps);
+inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type isZero(const T1& value, const T2 eps) {
+    return eq(value, T1::zero(), eps);
 }
 
 /**
@@ -79,8 +79,8 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @param eps The epsilon tolerance - 0.0001f by default.
  */
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, bool>::type isZero(const T& value) {
-    return micro::eq(value, T::zero());
+inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isZero(const T& value) {
+    return eq(value, T::zero());
 }
 
 /**
@@ -119,7 +119,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T3::is_di
  * @param value The angle.
  * @returns The sine of the angle.
  **/
-inline float sin(const radian_t& value) {
+inline constexpr float sin(const radian_t& value) {
     return std::sin(value.template get<true>());
 }
 
@@ -127,7 +127,7 @@ inline float sin(const radian_t& value) {
  * @param value The value.+
  * @returns The arc-sine of the value.
  **/
-inline radian_t asin(float value) {
+inline constexpr radian_t asin(float value) {
     return radian_t(std::asin(value)) ;
 }
 
@@ -135,7 +135,7 @@ inline radian_t asin(float value) {
  * @param value The angle.
  * @returns The cosine of the angle.
  **/
-inline float cos(const radian_t& value) {
+inline constexpr float cos(const radian_t& value) {
     return std::cos(value.template get<true>()) ;
 }
 
@@ -143,7 +143,7 @@ inline float cos(const radian_t& value) {
  * @param value The value.
  * @returns The arc-cosine of the value.
  **/
-inline radian_t acos(float value) {
+inline constexpr radian_t acos(float value) {
     return radian_t(std::acos(value)) ;
 }
 
@@ -151,7 +151,7 @@ inline radian_t acos(float value) {
  * @param value The angle.
  * @returns The tangent of the angle.
  **/
-inline float tan(const radian_t& value) {
+inline constexpr float tan(const radian_t& value) {
     return std::tan(value.template get<true>());
 }
 
@@ -159,18 +159,18 @@ inline float tan(const radian_t& value) {
  * @param value The value.
  * @returns The arc-tangent of the value.
  **/
-inline radian_t atan(float value) {
+inline constexpr radian_t atan(float value) {
     return radian_t(std::atan(value));
 }
 
 template <typename T>
-inline typename std::enable_if<std::is_arithmetic<T>::value, radian_t>::type atan2(const T& y, const T& x) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, radian_t>::type atan2(const T& y, const T& x) {
     return radian_t(std::atan2(static_cast<float>(y), static_cast<float>(x)));
 }
 
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, radian_t>::type atan2(const T1& y, const T2& x) {
-    return radian_t(std::atan2(y.template get<true>(), static_cast<T1>(x).template get<true>()));
+inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, radian_t>::type atan2(const T1& y, const T2& x) {
+    return radian_t(atan2(y.template get<true>(), static_cast<T1>(x).template get<true>()));
 }
 
 inline radian_t normalize360(radian_t value) {
@@ -196,30 +196,30 @@ inline radian_t normalize180(radian_t value) {
 
 inline bool eqWithOverflow360(radian_t value, radian_t ref, radian_t eps) {
     static constexpr radian_t DEG_360 = 2 * PI;
-    return micro::eq(value, ref, eps) || micro::eq(value + DEG_360, ref, eps) || micro::eq(value - DEG_360, ref, eps);
+    return eq(value, ref, eps) || eq(value + DEG_360, ref, eps) || eq(value - DEG_360, ref, eps);
 }
 
 inline bool eqWithOverflow180(radian_t value, radian_t ref, radian_t eps) {
-    return micro::eq(value, ref, eps) || micro::eq(value + PI, ref, eps) || micro::eq(value - PI, ref, eps);
+    return eq(value, ref, eps) || eq(value + PI, ref, eps) || eq(value - PI, ref, eps);
 }
 
 inline radian_t round45(radian_t value) {
     static constexpr radian_t EPS = PI_4 / 2;
     radian_t result;
 
-    if (micro::eqWithOverflow360(value, PI_4, EPS)) {
+    if (eqWithOverflow360(value, PI_4, EPS)) {
         result = PI_4;
-    } else if (micro::eqWithOverflow360(value, PI_2, EPS)) {
+    } else if (eqWithOverflow360(value, PI_2, EPS)) {
         result = PI_2;
-    } else if (micro::eqWithOverflow360(value, 3 * PI_4, EPS)) {
+    } else if (eqWithOverflow360(value, 3 * PI_4, EPS)) {
         result = 3 * PI_4;
-    } else if (micro::eqWithOverflow360(value, PI, EPS)) {
+    } else if (eqWithOverflow360(value, PI, EPS)) {
         result = PI;
-    } else if (micro::eqWithOverflow360(value, 5 * PI_4, EPS)) {
+    } else if (eqWithOverflow360(value, 5 * PI_4, EPS)) {
         result = 5 * PI_4;
-    } else if (micro::eqWithOverflow360(value, 3 * PI_2, EPS)) {
+    } else if (eqWithOverflow360(value, 3 * PI_2, EPS)) {
         result = 3 * PI_2;
-    } else if (micro::eqWithOverflow360(value, 7 * PI_4, EPS)) {
+    } else if (eqWithOverflow360(value, 7 * PI_4, EPS)) {
         result = 7 * PI_4;
     } else {
         result = radian_t::zero();
@@ -232,11 +232,11 @@ inline radian_t round90(radian_t value) {
     static constexpr radian_t EPS = PI_4;
     radian_t result;
 
-    if (micro::eqWithOverflow360(value, PI_2, EPS)) {
+    if (eqWithOverflow360(value, PI_2, EPS)) {
         result = PI_2;
-    } else if (micro::eqWithOverflow360(value, PI, EPS)) {
+    } else if (eqWithOverflow360(value, PI, EPS)) {
         result = PI;
-    } else if (micro::eqWithOverflow360(value, 3 * PI_2, EPS)) {
+    } else if (eqWithOverflow360(value, 3 * PI_2, EPS)) {
         result = 3 * PI_2;
     } else {
         result = radian_t::zero();
@@ -292,13 +292,13 @@ inline distance_t pythag(distance_t a, distance_t b, distance_t c) {
 }
 
 inline radian_t straighten(radian_t angle, radian_t eps) {
-    if (micro::eq(angle, PI_2, eps)) {
+    if (eq(angle, PI_2, eps)) {
         angle = PI_2;
-    } else if (micro::eq(angle, PI, eps)) {
+    } else if (eq(angle, PI, eps)) {
         angle = PI;
-    } else if (micro::eq(angle, 3 * PI_2, eps)) {
+    } else if (eq(angle, 3 * PI_2, eps)) {
         angle = 3 * PI_2;
-    } else if (micro::isZero(angle, eps) || micro::eq(angle, 2 * PI, eps)) {
+    } else if (isZero(angle, eps) || eq(angle, 2 * PI, eps)) {
         angle = radian_t::zero();
     }
 
