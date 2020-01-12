@@ -273,9 +273,9 @@ point3<gauss_t> MPU9250::readMagData(void) {
         this->readBytes(AK8963_ADDRESS, AK8963_XOUT_L, 7, &rawData[0]);  // Read the six raw data and ST2 registers sequentially into data array
         uint8_t c = rawData[6];
         if(!(c & 0x08)) { // Check if magnetic sensor overflow bit is set
-            result.X = gauss_t((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]) * this->mRes * this->magCalibration[0] - this->magBias[0]);
-            result.Y = gauss_t((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]) * this->mRes * this->magCalibration[1] - this->magBias[1]);
-            result.Z = gauss_t((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]) * this->mRes * this->magCalibration[2] - this->magBias[2]);
+            result.X = gauss_t((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]) * this->mRes * this->magCalibration[0]);// - this->magBias[0]);
+            result.Y = gauss_t((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]) * this->mRes * this->magCalibration[1]);// - this->magBias[1]);
+            result.Z = gauss_t((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]) * this->mRes * this->magCalibration[2]);// - this->magBias[2]);
         }
     }
     return result;
