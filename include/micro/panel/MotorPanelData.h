@@ -10,9 +10,10 @@ extern "C" {
 #define MOTOR_PANEL_FLAG_USE_SAFETY_SIGNAL 0x01
 
 typedef struct {
-    float controller_Kc;
+    float controller_P;
+    float controller_I;
+    float controller_integral_max;
     int16_t targetSpeed_mmps;
-    uint16_t controller_Ti_us;
     uint8_t flags;
 } __attribute__((packed)) motorPanelDataIn_t;
     

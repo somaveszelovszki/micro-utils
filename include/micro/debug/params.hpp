@@ -64,7 +64,7 @@ public:
     }
 
     uint32_t serializeAll(char * const str, uint32_t size);
-    uint32_t deserializeAll(const char * const str);
+    uint32_t deserializeAll(const char * const str, uint32_t size);
 
 private:
 

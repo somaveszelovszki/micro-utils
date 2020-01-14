@@ -14,12 +14,14 @@ typedef struct {
 } __attribute__((packed)) lineDetectPanelDataIn_t;
 
 #define LINE_DETECT_PANEL_LINK_RX_PERIOD_MS   100u
+#define LINE_DETECT_PANEL_LINK_RX_TIMEOUT_MS  400u
     
 typedef struct {
     lines_t lines;
 } __attribute__((packed)) lineDetectPanelDataOut_t;
 
 #define LINE_DETECT_PANEL_LINK_TX_PERIOD_MS   0u
+#define LINE_DETECT_PANEL_LINK_TX_TIMEOUT_MS  15u
 
 #ifdef __cplusplus
 }

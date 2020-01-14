@@ -32,12 +32,6 @@ public:
         return this->output;
     }
 
-    /* @brief Updates output according to current and previous errors.
-     * @note If an error occurs (see result status), output will not be updated!
-     * @note This is an internal method, use MEASURE(meas) macro instead!
-     * @param measured The current measured speed.
-     * @returns Status indicating operation success.
-     **/
     Status run(const float measured) {
         this->updateTimeDiff();
 

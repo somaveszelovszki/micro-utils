@@ -10,6 +10,7 @@ extern "C" {
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define ABS(a) ((a) >= 0 ? (a) : (-a))
+#define AVG(a, b) ((a) / 2 + (b) / 2)
 
 #define CLAMP(value, bound1, bound2)    \
 ((bound1) <= (bound2) ?                 \

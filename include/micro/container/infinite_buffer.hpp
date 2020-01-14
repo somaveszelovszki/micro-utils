@@ -26,8 +26,7 @@ public:
      * @returns Status indicating if element has been added.
      **/
     void push_back(const T& value) {
-        ++this->idx_;
-        if (capacity_ == this->idx_) this->idx_ = 0;
+        if (capacity_ == ++this->idx_) this->idx_ = 0;
         this->data_[this->idx_] = value;
     }
 

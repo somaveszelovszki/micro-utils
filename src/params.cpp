@@ -56,8 +56,7 @@ uint32_t Params::serializeAll(char * const str, uint32_t size) {
     return idx;
 }
 
-uint32_t Params::deserializeAll(const char * const str) {
-    const uint32_t size = MAX_RX_BUFFER_SIZE;
+uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
 
     uint32_t idx = 0;
     idx++; // '{'
