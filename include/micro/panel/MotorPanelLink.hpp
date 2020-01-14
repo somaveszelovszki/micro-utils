@@ -5,7 +5,7 @@
 
 namespace micro {
 
-class MotorPanelLink : public PanelLink<motorPanelDataOut_t, motorPanelDataIn_t, PanelLinkRole_Master> {
+class MotorPanelLink : public PanelLink<motorPanelDataOut_t, motorPanelDataIn_t, PanelLinkRole_Passive> {
 public:
     using PanelLink::PanelLink;
 };

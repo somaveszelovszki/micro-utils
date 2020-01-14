@@ -202,7 +202,7 @@ public:
 
     static constexpr dim_class nan() { return dim_class(std::numeric_limits<value_type>::quiet_NaN(), nullptr); }
 
-    static constexpr dim_class infinity() { return dim_class(static_cast<float>(std::numeric_limits<double>::infinity()), nullptr); }
+    static constexpr dim_class infinity() { return dim_class(std::numeric_limits<value_type>::infinity(), nullptr); }
 
     /* @brief Constructor - sets value.
      * @tparam unit_inst_t Unit instance type.

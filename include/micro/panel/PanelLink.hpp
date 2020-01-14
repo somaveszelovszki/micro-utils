@@ -12,9 +12,9 @@ namespace micro {
 template <typename T_rx, typename T_tx, panelLinkRole_t role>
 class PanelLink {
 public:
-    PanelLink(UART_HandleTypeDef *huart, millisecond_t rxPeriod, millisecond_t txPeriod) {
+    PanelLink(UART_HandleTypeDef *huart, millisecond_t rxTimeout, millisecond_t txPeriod) {
         panelLink_initialize(this->link(), role, huart,
-            &this->rxDataBuffer_, sizeof(T_rx), static_cast<uint32_t>(rxPeriod.get()),
+            &this->rxDataBuffer_, sizeof(T_rx), static_cast<uint32_t>(rxTimeout.get()),
             &this->txDataBuffer_, sizeof(T_tx), static_cast<uint32_t>(txPeriod.get()));
     }
 
@@ -30,8 +30,12 @@ public:
         panelLink_send(this->link(), &txData);
     }
 
-    void onNewRxData() {
-        panelLink_onNewRxData(this->link());
+    void onNewRxData(const uint32_t size) {
+        panelLink_onNewRxData(this->link(), size);
+    }
+
+    void onRxError() {
+        panelLink_onRxError(this->link());
     }
 
     bool readAvailable(T_rx& rxData) {
