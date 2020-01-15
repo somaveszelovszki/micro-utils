@@ -43,7 +43,16 @@ void panelLink_onNewRxData(panelLink_t *link, const uint32_t size) {
         link->isAvailable = true;
         link->lastRxTime = HAL_GetTick();
     }
-    HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
+
+    if (!(DMA_CIRCULAR &
+#if defined STM32F0
+        link->huart->hdmarx->Instance->CCR
+#elif defined STM32F4
+        link->huart->hdmarx->Instance->CR
+#endif
+    )) {
+        HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
+    }
 }
 
 void panelLink_onRxError(panelLink_t *link) {
