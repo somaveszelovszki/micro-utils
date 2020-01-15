@@ -17,8 +17,8 @@ typedef struct {
     uint8_t flags;
 } __attribute__((packed)) motorPanelDataIn_t;
     
-#define MOTOR_PANEL_LINK_RX_PERIOD_MS   20u
-#define MOTOR_PANEL_LINK_RX_TIMEOUT_MS  50u
+#define MOTOR_PANEL_LINK_IN_PERIOD_MS   20u
+#define MOTOR_PANEL_LINK_IN_TIMEOUT_MS  100u
 
 typedef struct {
     int32_t distance_mm;
@@ -26,8 +26,8 @@ typedef struct {
     bool isMotorEnabled;
 } __attribute__((packed)) motorPanelDataOut_t;
 
-#define MOTOR_PANEL_LINK_TX_PERIOD_MS   5u
-#define MOTOR_PANEL_LINK_TX_TIMEOUT_MS  20u
+#define MOTOR_PANEL_LINK_OUT_PERIOD_MS   10u
+#define MOTOR_PANEL_LINK_OUT_TIMEOUT_MS  50u
 
 #ifdef __cplusplus
 }
