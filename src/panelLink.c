@@ -9,14 +9,15 @@ void panelLink_initialize(panelLink_t *link, panelLinkRole_t role, UART_HandleTy
 
     link->role          = role;
     link->huart         = huart;
+    link->startData.cmd = '\0';
     link->rxDataBuffer  = rxDataBuffer;
     link->rxDataSize    = rxDataSize;
     link->rxTimeoutMs   = rxTimeoutMs;
-    link->lastRxTime    = 0;
+    link->lastRxTime    = HAL_GetTick();
     link->txDataBuffer  = txDataBuffer;
     link->txDataSize    = txDataSize;
     link->txPeriodMs    = txPeriodMs;
-    link->lastTxTime    = 0;
+    link->lastTxTime    = HAL_GetTick();
     link->state         = PanelLinkState_Disconnected;
     link->isAvailable   = false;
 }
@@ -26,44 +27,27 @@ bool panelLink_isConnected(const panelLink_t *link) {
 }
 
 bool panelLink_shouldSend(const panelLink_t *link) {
-    // communication can only be started by the active panel,
-    // passive panel must wait for link to get connected
-    return (PanelLinkRole_Active == link->role || panelLink_isConnected(link)) &&
-        (0 == link->lastTxTime || HAL_GetTick() - link->lastTxTime >= link->txPeriodMs);
+    return panelLink_isConnected(link) && HAL_GetTick() - link->lastTxTime >= link->txPeriodMs;
 }
 
 void panelLink_send(panelLink_t *link, const void *txData) {
-    memcpy(link->txDataBuffer, txData, link->txDataSize);
-    HAL_UART_Transmit_DMA(link->huart, (uint8_t*)link->txDataBuffer, link->txDataSize);
-    link->lastTxTime = HAL_GetTick();
-}
-
-void panelLink_onNewRxData(panelLink_t *link, const uint32_t size) {
-    if (size == link->rxDataSize) {
-        link->isAvailable = true;
-        link->lastRxTime = HAL_GetTick();
-    }
-
-    if (!(DMA_CIRCULAR &
-#if defined STM32F0
-        link->huart->hdmarx->Instance->CCR
-#elif defined STM32F4
-        link->huart->hdmarx->Instance->CR
-#endif
-    )) {
-        HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
+    if (panelLink_isConnected(link)) {
+        memcpy(link->txDataBuffer, txData, link->txDataSize);
+        HAL_UART_Transmit_DMA(link->huart, (uint8_t*)link->txDataBuffer, link->txDataSize);
+        link->lastTxTime = HAL_GetTick();
     }
 }
 
-void panelLink_onRxError(panelLink_t *link) {
-    HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
+void panelLink_onNewRxData(panelLink_t *link) {
+    link->isAvailable = true;
+    link->lastRxTime = HAL_GetTick();
 }
 
 bool panelLink_readAvailable(panelLink_t *link, void *rxData) {
     bool available = false;
-    if (link->isAvailable) {
-        link->isAvailable = false;
+    if (panelLink_isConnected(link) && link->isAvailable) {
         memcpy(rxData, link->rxDataBuffer, link->rxDataSize);
+        link->isAvailable = false;
         available = true;
     }
     return available;
@@ -73,15 +57,36 @@ void panelLink_update(panelLink_t *link) {
     switch (link->state) {
 
     case PanelLinkState_Disconnected:
-        HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
-        link->lastRxTime = 0;
-        link->lastTxTime = 0;
-        link->state = PanelLinkState_WaitingRx;
+        link->isAvailable = false;
+        link->lastRxTime = link->lastTxTime = HAL_GetTick();
+
+        if (PanelLinkRole_Master == link->role) {
+            HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
+            link->startData.cmd = PANEL_START;
+            HAL_UART_Transmit(link->huart, (uint8_t*)&link->startData, sizeof(link->startData), 1);
+        } else { // Slave
+            link->startData.cmd = '\0';
+            HAL_UART_Receive_DMA(link->huart, (uint8_t*)&link->startData, sizeof(link->startData));
+        }
+        link->state = PanelLinkState_WaitingData;
         break;
 
-    case PanelLinkState_WaitingRx:
-        if (link->lastRxTime != 0 && HAL_GetTick() - link->lastRxTime < link->rxTimeoutMs) {
-            link->state = PanelLinkState_Connected;
+    case PanelLinkState_WaitingData:
+        if (link->isAvailable) {
+            if (PanelLinkRole_Master == link->role) {
+                link->state = PanelLinkState_Connected;
+            } else { // Slave
+                link->isAvailable = false;
+                if (PANEL_START == link->startData.cmd) {
+                    HAL_UART_AbortReceive_IT(link->huart);
+                    HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
+                    link->lastTxTime = 0; // forces response to be sent as soon as possible
+                    link->state = PanelLinkState_Connected;
+                }
+            }
+        } else if (HAL_GetTick() - link->lastRxTime > link->rxTimeoutMs) {
+            HAL_UART_AbortReceive_IT(link->huart);
+            link->state = PanelLinkState_Disconnected;
         }
         break;
 

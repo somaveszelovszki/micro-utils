@@ -30,12 +30,8 @@ public:
         panelLink_send(this->link(), &txData);
     }
 
-    void onNewRxData(const uint32_t size) {
-        panelLink_onNewRxData(this->link(), size);
-    }
-
-    void onRxError() {
-        panelLink_onRxError(this->link());
+    void onNewRxData() {
+        panelLink_onNewRxData(this->link());
     }
 
     bool readAvailable(T_rx& rxData) {

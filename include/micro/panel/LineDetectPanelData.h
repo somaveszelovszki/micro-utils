@@ -15,8 +15,8 @@ typedef struct {
     uint8_t flags;
 } __attribute__((packed)) lineDetectPanelDataIn_t;
 
-#define LINE_DETECT_PANEL_LINK_IN_PERIOD_MS   2000u
-#define LINE_DETECT_PANEL_LINK_IN_TIMEOUT_MS  5000u
+#define LINE_DETECT_PANEL_LINK_IN_PERIOD_MS   50u
+#define LINE_DETECT_PANEL_LINK_IN_TIMEOUT_MS  120u
     
 typedef struct {
     lines_t lines;

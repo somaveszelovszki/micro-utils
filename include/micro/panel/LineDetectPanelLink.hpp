@@ -5,7 +5,7 @@
 
 namespace micro {
 
-class LineDetectPanelLink : public PanelLink<lineDetectPanelDataOut_t, lineDetectPanelDataIn_t, PanelLinkRole_Passive> {
+class LineDetectPanelLink : public PanelLink<lineDetectPanelDataOut_t, lineDetectPanelDataIn_t, PanelLinkRole_Master> {
 public:
     using PanelLink::PanelLink;
 };
