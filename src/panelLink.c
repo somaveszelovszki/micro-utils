@@ -3,6 +3,14 @@
 
 #include <string.h>
 
+static uint8_t calcChecksum(const void *data, uint8_t dataSize) {
+    uint8_t sum = 0;
+    for (uint8_t i = 0; i < dataSize - 1; ++i) {
+        sum += ((const uint8_t*)data)[i];
+    }
+    return sum;
+}
+
 void panelLink_initialize(panelLink_t *link, panelLinkRole_t role, UART_HandleTypeDef *huart,
     void *rxDataBuffer, uint32_t rxDataSize, uint32_t rxTimeoutMs,
     void *txDataBuffer, uint32_t txDataSize, uint32_t txPeriodMs) {
@@ -32,15 +40,20 @@ bool panelLink_shouldSend(const panelLink_t *link) {
 
 void panelLink_send(panelLink_t *link, const void *txData) {
     if (panelLink_isConnected(link)) {
-        memcpy(link->txDataBuffer, txData, link->txDataSize);
+        memcpy(link->txDataBuffer, txData, link->txDataSize - 1);
+        ((uint8_t*)link->txDataBuffer)[link->txDataSize - 1] = calcChecksum(link->txDataBuffer, link->txDataSize);
         HAL_UART_Transmit_DMA(link->huart, (uint8_t*)link->txDataBuffer, link->txDataSize);
         link->lastTxTime = HAL_GetTick();
     }
 }
 
 void panelLink_onNewRxData(panelLink_t *link) {
-    link->isAvailable = true;
-    link->lastRxTime = HAL_GetTick();
+    if ((uint8_t*)&link->startData == link->huart->pRxBuffPtr ||
+        ((const uint8_t*)link->rxDataBuffer)[link->rxDataSize - 1] == calcChecksum(link->rxDataBuffer, link->rxDataSize)) {
+
+        link->isAvailable = true;
+        link->lastRxTime = HAL_GetTick();
+    }
 }
 
 bool panelLink_readAvailable(panelLink_t *link, void *rxData) {

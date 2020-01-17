@@ -15,19 +15,21 @@ typedef struct {
     float controller_integral_max;
     int16_t targetSpeed_mmps;
     uint8_t flags;
+    uint8_t checksum;
 } __attribute__((packed)) motorPanelDataIn_t;
     
 #define MOTOR_PANEL_LINK_IN_PERIOD_MS   20u
-#define MOTOR_PANEL_LINK_IN_TIMEOUT_MS  100u
+#define MOTOR_PANEL_LINK_IN_TIMEOUT_MS  50u
 
 typedef struct {
     int32_t distance_mm;
     int16_t actualSpeed_mmps;
     bool isMotorEnabled;
+    uint8_t checksum;
 } __attribute__((packed)) motorPanelDataOut_t;
 
 #define MOTOR_PANEL_LINK_OUT_PERIOD_MS   10u
-#define MOTOR_PANEL_LINK_OUT_TIMEOUT_MS  50u
+#define MOTOR_PANEL_LINK_OUT_TIMEOUT_MS  25u
 
 #ifdef __cplusplus
 }

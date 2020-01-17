@@ -4,7 +4,7 @@
 
 #include <micro/container/vec.hpp>
 #include <micro/container/infinite_buffer.hpp>
-#include <micro/panel/lines.h>
+#include <micro/panel/line.h>
 
 #include <cfg_track.hpp>
 

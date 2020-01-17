@@ -1,7 +1,7 @@
 #ifndef MICRO_PANEL_PANEL_DATA
 #define MICRO_PANEL_PANEL_DATA
 
-#include "lines.h"
+#include <micro/utils/types.h>
 
 #ifdef __cplusplus
 extern "C" {
