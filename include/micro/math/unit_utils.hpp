@@ -174,12 +174,11 @@ inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class &&
 }
 
 inline radian_t normalize360(radian_t value) {
-    static constexpr radian_t DEG_360 = 2 * PI;
-    while(value >= DEG_360) {
-        value -= DEG_360;
+    while(value >= 2 * PI) {
+        value -= 2 * PI;
     }
     while(value < radian_t::zero()) {
-        value += DEG_360;
+        value += 2 * PI;
     }
     return value;
 }
@@ -195,8 +194,7 @@ inline radian_t normalize180(radian_t value) {
 }
 
 inline bool eqWithOverflow360(radian_t value, radian_t ref, radian_t eps) {
-    static constexpr radian_t DEG_360 = 2 * PI;
-    return eq(value, ref, eps) || eq(value + DEG_360, ref, eps) || eq(value - DEG_360, ref, eps);
+    return eq(value, ref, eps) || eq(value + 2 * PI, ref, eps) || eq(value - 2 * PI, ref, eps);
 }
 
 inline bool eqWithOverflow180(radian_t value, radian_t ref, radian_t eps) {
