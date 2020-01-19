@@ -9,11 +9,11 @@ namespace micro {
  * @tparam T Type of the data to filter.
  **/
 template <typename T>
-class FilterBase {
+class Filter {
 protected:
     /* @brief Constructor.
      **/
-    FilterBase() : numCalled(0) {}
+    Filter() : numCalled(0) {}
 
     /* @brief Updates filter-called counter.
      * @note Every descendant must call this function at each run.
@@ -22,7 +22,11 @@ protected:
         return ++numCalled;
     }
 
+    virtual T update(const T& measuredValue) = 0;
+
     T filteredValue;    // The filtered value.
+
+    virtual ~Filter() {}
 
 private:
     uint32_t numCalled; // Counts the times the filter has been called.
@@ -36,7 +40,7 @@ private:
  *      filtered:   0 0 0 0 0 0 0 1 1
  **/
 template <typename T, uint8_t N>
-class BounceFilter : public FilterBase<T> {
+class BounceFilter : public Filter<T> {
 
 public:
     /* @brief Constructor.
@@ -51,7 +55,7 @@ public:
     /* @brief Updates filter with a new measurement.
      * @param measuredValue The new measurement.
      **/
-    const T& update(const T& measuredValue);
+    T update(const T& measuredValue) override;
 
 private:
     /* @brief Checks if new measurement is within the acceptance interval of the stored measurements.
@@ -66,7 +70,7 @@ private:
 };
 
 template <typename T, uint8_t N>
-const T& BounceFilter<T, N>::update(const T& measuredValue) {
+T BounceFilter<T, N>::update(const T& measuredValue) {
     // If measured value is in range of the filtered (output) value, it will be the next output, as it is a valid value.
     // If it is not in the range, it can mean 2 things:
     //      1.) It is a measurement error that needs to be filtered
@@ -98,7 +102,7 @@ bool BounceFilter<T, N>::isInRangeOfRaw(const T& measuredValue) const {
  * @tparam T Type of the data to filter.
  **/
 template <typename T>
-class NoJumpFilter : public FilterBase<T> {
+class NoJumpFilter : public Filter<T> {
 
 public:
     /* @brief Constructor.
@@ -112,7 +116,7 @@ public:
     /* @brief Updates filter with a new measurement.
      * @param measuredValue The new measurement.
      **/
-    const T& update(const T& measuredValue);
+    T update(const T& measuredValue) override;
 
 private:
     const float complianceRate; // The compliance rate. A new measurement within the compliance interval of the current measurement is automatically accepted.
@@ -120,7 +124,7 @@ private:
 };
 
 template <typename T>
-const T& NoJumpFilter<T>::update(const T& measuredValue) {
+T NoJumpFilter<T>::update(const T& measuredValue) {
     // If measured value is in range of the filtered (output) value, it will be the next output, as it is a valid value.
     // If it is not in the range, it will not be saved.
     if(this->updateNumCalled() > 1 || micro::eq(measuredValue, this->filteredValue, this->deadBand) || micro::isInRange(measuredValue, this->filteredValue, this->complianceRate)) {
@@ -137,7 +141,7 @@ const T& NoJumpFilter<T>::update(const T& measuredValue) {
  *      This can cause a minor accumulative error. To prevent this, periodically the average is re-calculated.
  **/
 template <typename T, uint32_t N, uint32_t cleanUpdatePeriod = N * 100>
-class LowPassFilter : public FilterBase<T> {
+class LowPassFilter : public Filter<T> {
 public:
     /* @brief Constructor.
      **/
@@ -147,7 +151,7 @@ public:
     /* @brief Updates filter with a new measurement.
      * @param measuredValue The new measurement.
      **/
-    const T& update(const T& measuredValue);
+    T update(const T& measuredValue) override;
 
 private:
     T raw[N];       // The stored raw measurements.
@@ -155,7 +159,7 @@ private:
 };
 
 template <typename T, uint32_t N, uint32_t cleanUpdatePeriod>
-const T& LowPassFilter<T, N, cleanUpdatePeriod>::update(const T& measuredValue) {
+T LowPassFilter<T, N, cleanUpdatePeriod>::update(const T& measuredValue) {
 
     if (this->updateNumCalled() % cleanUpdatePeriod == 0) {
         this->raw[this->idx] = measuredValue;
