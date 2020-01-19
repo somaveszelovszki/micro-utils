@@ -79,6 +79,10 @@ public:
         return capacity_;
     }
 
+    bool empty() const {
+        return !this->size_;
+    }
+
     /* @brief Appends one element to the end of the vector.
      * @param value The element to append.
      * @returns The number of elements that have been appended successfully.
