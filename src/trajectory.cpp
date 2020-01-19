@@ -71,7 +71,7 @@ ControlData Trajectory::update(const CarProps car) {
         }
     }
 
-    if (newSectionStartConfig != this->sectionStartConfig_) {
+    if (newSectionStartConfig > this->sectionStartConfig_) {
         for (configs_t::const_iterator it = this->sectionStartConfig_; it != newSectionStartConfig; ++it) {
             this->coveredDistanceUntilLastConfig_ += (it + 1)->pos.distance(it->pos);
         }
@@ -84,7 +84,8 @@ ControlData Trajectory::update(const CarProps car) {
     const line2f optoLine(optoRowCenterPosRaw, optoRowCenterPosRaw + static_cast<vec2f>(currentCarCenterToOptoRowCenter).rotate(PI_2));
     const point2m linePoint(lineLine_intersection(sectionLine, optoLine));
 
-    const Sign lineSign = -sgn((optoRowCenterPos - car.pose.pos).getAngle(closestConfig->pos - car.pose.pos));
+    const radian_t angleDiff = normalize360(car.pose.pos.getAngle(optoRowCenterPos) - car.pose.pos.getAngle(linePoint));
+    const Sign lineSign = angleDiff < PI ? Sign::POSITIVE : Sign::NEGATIVE;
 
     controlData.baseline.pos = linePoint.distance(optoRowCenterPos) * lineSign;
     controlData.baseline.id = 0;
