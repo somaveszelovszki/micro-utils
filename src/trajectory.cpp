@@ -14,6 +14,18 @@ void Trajectory::appendLine(const config_t& dest) {
     this->configs_.push_back(dest);
 }
 
+void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed, uint32_t numSections) {
+    const configs_t::const_iterator lastCfg = this->configs_.back();
+    const vec2m relativeVec = lastCfg->pos - center;
+
+    for (uint32_t i = 0; i < numSections; ++i) {
+        const radian_t currentAngle = map(i, 1ul, numSections, radian_t(0), angle);
+        const m_per_sec_t currentSpeed = map(i, 1ul, numSections, lastCfg->speed, destSpeed);
+
+        this->appendLine(config_t{ relativeVec.rotate(currentAngle), currentSpeed });
+    }
+}
+
 void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t numSections) {
     const configs_t::const_iterator lastCfg = this->configs_.back();
     const point2m c1_ = lastCfg->pos.rotate(-fwdAngle);
@@ -22,12 +34,12 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t
     const meter_t dx = c2_.X - c1_.X;
     const meter_t dy = c2_.Y - c1_.Y;
 
-    for (uint32_t i = 1; i < numSections; ++i) {
+    for (uint32_t i = 1; i <= numSections; ++i) {
         const meter_t x_ = c1_.X + static_cast<float>(i) / numSections * dx;
         const meter_t y_ = c1_.Y + dy * (1 - cos(static_cast<float>(i) / numSections * PI)) / 2;
-        const m_per_sec_t speed = map(i, 0ul, numSections, lastCfg->speed, dest.speed);
+        const m_per_sec_t currentSpeed = map(i, 1ul, numSections, lastCfg->speed, dest.speed);
 
-        this->appendLine(config_t{ point2m(x_, y_).rotate(fwdAngle), speed });
+        this->appendLine(config_t{ point2m(x_, y_).rotate(fwdAngle), currentSpeed });
     }
 
     this->appendLine(dest);

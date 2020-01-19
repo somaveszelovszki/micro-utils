@@ -38,6 +38,7 @@ public:
 
     void setStartConfig(const config_t& start);
     void appendLine(const config_t& dest);
+    void appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed, uint32_t numSections);
     void appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t numSections);
 
     ControlData update(const CarProps car);
