@@ -173,6 +173,16 @@ inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class &&
     return radian_t(atan2(y.template get<true>(), static_cast<T1>(x).template get<true>()));
 }
 
+inline radian_t normalizePM180(radian_t value) {
+    while(value >= PI) {
+        value -= 2 * PI;
+    }
+    while(value < -PI) {
+        value += 2 * PI;
+    }
+    return value;
+}
+
 inline radian_t normalize360(radian_t value) {
     while(value >= 2 * PI) {
         value -= 2 * PI;
