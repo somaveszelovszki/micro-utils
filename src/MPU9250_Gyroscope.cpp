@@ -1,5 +1,7 @@
 #include <micro/hw/MPU9250_Gyroscope.hpp>
 #include <micro/utils/log.hpp>
+#include <micro/utils/arrays.hpp>
+#include <micro/math/constants.hpp>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -174,13 +176,13 @@ void MPU9250::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
 char MPU9250::readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data = 0;
-    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, &data, 1, 20);
+    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, &data, 1, 5);
     return data;
 }
 
 void MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
-    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, dest, count, 20);
+    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, dest, count, 5);
 }
 
 float MPU9250::getMres(Mscale scale) {
@@ -249,21 +251,34 @@ point3<m_per_sec2_t> MPU9250::readAccelData(void) {
     this->readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);
 
     return {
-        m_per_sec2_t(((int16_t)rawData[0] << 8) | rawData[1]),
-        m_per_sec2_t(((int16_t)rawData[2] << 8) | rawData[3]),
-        m_per_sec2_t(((int16_t)rawData[4] << 8) | rawData[5])
+        ((((int16_t)rawData[0] << 8) | rawData[1]) - this->accelBias[0]) * this->aRes * micro::G,
+        ((((int16_t)rawData[2] << 8) | rawData[3]) - this->accelBias[0]) * this->aRes * micro::G,
+        ((((int16_t)rawData[4] << 8) | rawData[5]) - this->accelBias[0]) * this->aRes * micro::G
     };
 }
 
 point3<rad_per_sec_t> MPU9250::readGyroData(void) {
+
+    point3<rad_per_sec_t> result;
+
     uint8_t rawData[6];
     this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);
 
-    return {
-        rad_per_sec_t(((int16_t)rawData[0] << 8) | rawData[1]),
-        rad_per_sec_t(((int16_t)rawData[2] << 8) | rawData[3]),
-        rad_per_sec_t(((int16_t)rawData[4] << 8) | rawData[5])
-    };
+    if (!isZeroArray(rawData, 6)) {
+        float x = (((int16_t)(int8_t)rawData[0] << 8) | rawData[1]) * this->gRes - this->gyroBias[0];
+        float y = (((int16_t)(int8_t)rawData[2] << 8) | rawData[3]) * this->gRes - this->gyroBias[1];
+        float z = (((int16_t)(int8_t)rawData[4] << 8) | rawData[5]) * this->gRes - this->gyroBias[2];
+
+        if (abs(x) < this->gyroThreshold[0]) x = 0.0f;
+        if (abs(y) < this->gyroThreshold[1]) y = 0.0f;
+        if (abs(z) < this->gyroThreshold[2]) z = 0.0f;
+
+        result.X = deg_per_sec_t(x);
+        result.Y = deg_per_sec_t(y);
+        result.Z = deg_per_sec_t(z);
+    }
+
+    return result;
 }
 
 point3<gauss_t> MPU9250::readMagData(void) {
@@ -365,7 +380,7 @@ void MPU9250::initMPU9250()
 
     // Configure Interrupts and Bypass Enable
     // Set interrupt pin active high, push-pull, and clear on read of INT_STATUS, enable I2C_BYPASS_EN so additional chips
-    // can join the I2C bus and all can be controlled by the Arduino as master
+    // can join the I2C bus and all can be controlled by the same master
     this->writeByte(MPU9250_ADDRESS, INT_PIN_CFG, 0x22);
     this->writeByte(MPU9250_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
 }
@@ -401,7 +416,6 @@ void MPU9250::calibrate(void)
     this->writeByte(MPU9250_ADDRESS, GYRO_CONFIG, 0x00);  // Set gyro full-scale to 250 degrees per second, maximum sensitivity
     this->writeByte(MPU9250_ADDRESS, ACCEL_CONFIG, 0x00); // Set accelerometer full-scale to 2 g, maximum sensitivity
 
-    uint16_t  gyrosensitivity  = 131;   // = 131 LSB/degrees/sec
     uint16_t  accelsensitivity = 16384;  // = 16384 LSB/g
 
     // Configure FIFO to capture accelerometer and gyro data for bias calculation
@@ -455,9 +469,9 @@ void MPU9250::calibrate(void)
     data[4] = (-gyro_bias[2]/4  >> 8) & 0xFF;
     data[5] = (-gyro_bias[2]/4)       & 0xFF;
 
-    this->gyroBias[0] = (float) gyro_bias[0]/(float) gyrosensitivity; // construct gyro bias in deg/s for later manual subtraction
-    this->gyroBias[1] = (float) gyro_bias[1]/(float) gyrosensitivity;
-    this->gyroBias[2] = (float) gyro_bias[2]/(float) gyrosensitivity;
+    //this->gyroBias[0] = gyro_bias[0] * this->gRes; // construct gyro bias in deg/s for later manual subtraction
+    //this->gyroBias[1] = gyro_bias[1] * this->gRes;
+    //this->gyroBias[2] = gyro_bias[2] * this->gRes;
 
     // Construct the accelerometer biases for push to the hardware accelerometer bias registers. These registers contain
     // factory trim values which must be added to the calculated accelerometer biases; on boot up these registers will hold
@@ -501,6 +515,40 @@ void MPU9250::calibrate(void)
     this->accelBias[2] = (float)accel_bias[2]/(float)accelsensitivity;
 }
 
+void MPU9250::calibrateGyro(void) {
+    static constexpr uint32_t NUM_SAMPLES = 50;
+
+    float bias[3] = { 0, 0, 0 }, sigma[3] = { 0, 0, 0 };
+
+    for (uint32_t i = 0; i < NUM_SAMPLES; ++i) {
+        uint8_t rawData[6];
+        this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);
+
+        const float x = (((int16_t)rawData[0] << 8) | rawData[1]) * this->gRes;
+        const float y = (((int16_t)rawData[2] << 8) | rawData[3]) * this->gRes;
+        const float z = (((int16_t)rawData[4] << 8) | rawData[5]) * this->gRes;
+
+        bias[0] += x;
+        bias[1] += y;
+        bias[2] += z;
+
+        sigma[0] += x * x;
+        sigma[1] += y * y;
+        sigma[2] += z * z;
+
+        vTaskDelay(5);
+    }
+
+    this->gyroBias[0] = bias[0] / NUM_SAMPLES;
+    this->gyroBias[1] = bias[1] / NUM_SAMPLES;
+    this->gyroBias[2] = bias[2] / NUM_SAMPLES;
+
+
+    this->gyroThreshold[0] = sqrt((sigma[0] / NUM_SAMPLES) - (this->gyroBias[0] * this->gyroBias[0])) * 2;
+    this->gyroThreshold[1] = sqrt((sigma[1] / NUM_SAMPLES) - (this->gyroBias[1] * this->gyroBias[1])) * 2;
+    this->gyroThreshold[2] = sqrt((sigma[2] / NUM_SAMPLES) - (this->gyroBias[2] * this->gyroBias[2])) * 2;
+}
+
 void MPU9250::initialize(void) {
     uint8_t whoAmI = this->readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
 
@@ -513,11 +561,15 @@ void MPU9250::initialize(void) {
         vTaskDelay(50);
 
         this->calibrate();
-        LOG_DEBUG("gyro bias:  %f, %f, %f", this->gyroBias[0], this->gyroBias[1], this->gyroBias[2]);
-        LOG_DEBUG("accel bias: %f, %f, %f", this->accelBias[0], this->accelBias[1], this->accelBias[2]);
         vTaskDelay(20);
 
         this->initMPU9250();
+
+        vTaskDelay(150);
+        this->calibrateGyro();
+        LOG_DEBUG("gyro bias:  %f, %f, %f", this->gyroBias[0], this->gyroBias[1], this->gyroBias[2]);
+        LOG_DEBUG("accel bias: %f, %f, %f", this->accelBias[0], this->accelBias[1], this->accelBias[2]);
+
         this->initAK8963();
         LOG_DEBUG("Gyro initialized");
         vTaskDelay(20);

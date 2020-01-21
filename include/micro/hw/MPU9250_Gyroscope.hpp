@@ -72,6 +72,8 @@ private:
 
     void calibrate(void);
 
+    void calibrateGyro(void);
+
     I2C_HandleTypeDef *hi2c;
     const Ascale aScale;
     const Gscale gScale;
@@ -82,7 +84,7 @@ private:
     const uint8_t Mmode;
 
     float magCalibration[3];
-    float gyroBias[3];
+    float gyroBias[3], gyroThreshold[3];
     float accelBias[3];
     float magBias[3];
 };
