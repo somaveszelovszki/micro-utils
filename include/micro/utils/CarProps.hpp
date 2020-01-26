@@ -23,10 +23,7 @@ DEFINE_TYPEINFO(Pose);
 struct CarProps  {
     /* @brief Default constructor - initializes fields.
      **/
-    CarProps()
-        : pose{ { meter_t(0.0f), meter_t(0.0f) }, PI_2 }
-        , speed(0.0f)
-        , distance(0.0f) {}
+    CarProps() {}
 
     Pose pose;         // The current pose (position and orientation) of the car.
     m_per_sec_t speed; // The current speed of the car.
