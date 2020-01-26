@@ -15,11 +15,14 @@ class infinite_buffer {
 private:
     T data_[capacity_]; // The buffer.
     uint32_t idx_;      // The index of the last inserted element.
+    uint32_t size_;
 
 public:
     /* @brief Default constructor - initializes last inserted index.
      **/
-    infinite_buffer() : idx_(capacity_ - 1) {}
+    infinite_buffer()
+        : idx_(capacity_ - 1)
+        , size_(0) {}
 
     /* @brief Puts new element into the buffer.
      * @param value The element to add.
@@ -27,6 +30,8 @@ public:
      **/
     void push_back(const T& value) {
         if (capacity_ == ++this->idx_) this->idx_ = 0;
+        if (capacity_ < ++this->size_) this->size_ = capacity_;
+
         this->data_[this->idx_] = value;
     }
 
@@ -43,6 +48,10 @@ public:
      **/
     uint32_t capacity() const {
         return capacity_;
+    }
+
+    uint32_t size() const {
+        return this->size_;
     }
 };
 
