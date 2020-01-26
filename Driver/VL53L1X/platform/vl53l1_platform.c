@@ -45,7 +45,7 @@
 #include <time.h>
 #include <math.h>
 
-#define I2C_TIMEOUT_MS 5
+#define I2C_TIMEOUT_MS 20
 
 uint8_t _I2CBuffer[256];
 

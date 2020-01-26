@@ -34,19 +34,8 @@ void VL53L1X_DistanceSensor::initialize() {
     VL53L1X_StartRanging(this->deviceId);
 }
 
-int cntr = 0;
-
 Status VL53L1X_DistanceSensor::readDistance(meter_t& distance) {
     Status status = Status::NO_NEW_DATA;
-
-    if (this->lastUpdateTime != millisecond_t(0) && getTime() - this->lastUpdateTime > millisecond_t(50)) {
-        // TODO reset I2C
-//        SET_BIT(I2C2->CR1, I2C_CR1_SWRST);
-//        vTaskDelay(1);
-//        CLEAR_BIT(I2C2->CR1, I2C_CR1_SWRST);
-        ++cntr;
-        this->lastUpdateTime = getTime();
-    }
 
     uint8_t dataReady = 0;
     VL53L1X_CheckForDataReady(this->deviceId, &dataReady);
@@ -56,9 +45,9 @@ Status VL53L1X_DistanceSensor::readDistance(meter_t& distance) {
         VL53L1X_GetDistance(this->deviceId, &dist_mm);
         VL53L1X_ClearInterrupt(this->deviceId);
         distance = millimeter_t(dist_mm);
-        lastUpdateTime = getTime();
         status = Status::OK;
     }
+
     return status;
 }
 
