@@ -7,7 +7,7 @@
 
 namespace micro {
 
-Lines::const_iterator LineCalculator::findClosestLine(const Lines& lines, millimeter_t pos) {
+Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos) {
     millimeter_t minDist = millimeter_t::infinity();
     Lines::const_iterator closest = lines.end();
 
@@ -22,11 +22,11 @@ Lines::const_iterator LineCalculator::findClosestLine(const Lines& lines, millim
     return closest;
 }
 
-Lines::const_iterator LineCalculator::findLine(const Lines& lines, const uint32_t id) {
+Lines::const_iterator findLine(const Lines& lines, const uint32_t id) {
     return std::find_if(lines.begin(), lines.end(), [id](const Line& l) { return l.id == id; });
 }
 
-void LineCalculator::updateMainLine(const Lines& lines, Line& mainLine) {
+void updateMainLine(const Lines& lines, Line& mainLine) {
     Lines::const_iterator l = findLine(lines, mainLine.id);
     if (l != lines.end()) {
         mainLine = *l;
@@ -36,10 +36,6 @@ void LineCalculator::updateMainLine(const Lines& lines, Line& mainLine) {
             mainLine = *l;
         }
     }
-}
-
-void LineCalculator::update(const Lines& lines) {
-    this->prevLines.push_back({ lines, getExactTime() });
 }
 
 } // namespace micro

@@ -27,31 +27,10 @@ struct Line {
 
 typedef vec<Line, MAX_NUM_LINES> Lines;
 
-class LineCalculator {
-public:
-    void update(const Lines& lines);
+void updateMainLine(const Lines& lines, Line& mainLine);
 
-    const Lines& lines() {
-        return const_cast<LineCalculator*>(this)->currentLines().lines;
-    }
+Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos);
 
-    static void updateMainLine(const Lines& lines, Line& mainLine);
-
-    static Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos);
-
-    static Lines::const_iterator findLine(const Lines& lines, const uint32_t id);
-
-private:
-    struct StampedLines {
-        Lines lines;
-        microsecond_t time;
-    };
-
-    StampedLines& currentLines() {
-        return prevLines.peek_back(0);
-    }
-
-    infinite_buffer<StampedLines, 50> prevLines;
-};
+Lines::const_iterator findLine(const Lines& lines, const uint32_t id);
 
 } // namespace micro
