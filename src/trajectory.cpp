@@ -3,9 +3,12 @@
 
 namespace micro {
 
-void Trajectory::setStartConfig(const config_t& start) {
+void Trajectory::setStartConfig(const config_t& start, meter_t currentDist) {
     if (!this->configs_.size()) {
         this->configs_.push_back(start);
+        this->carDistanceAtLastConfig_ = currentDist;
+        this->coveredDistanceUntilLastConfig_ = meter_t(0);
+        this->carDistanceSinceLastConfig_ = meter_t(0);
     }
 }
 
