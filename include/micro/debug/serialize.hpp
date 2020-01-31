@@ -47,11 +47,16 @@ inline typename std::enable_if<std::is_same<T, int8_t>::value, uint32_t>::type s
 template <typename T>
 inline typename std::enable_if<std::is_same<T, int8_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     int32_t n;
-    const uint32_t result = micro::atoi(stream, &n);
-    if (result > 0) {
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
         *static_cast<int8_t*>(value) = static_cast<int8_t>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
     }
-    return result;
+    return idx;
 }
 
 template <typename T>
@@ -62,11 +67,16 @@ inline typename std::enable_if<std::is_same<T, int16_t>::value, uint32_t>::type 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, int16_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     int32_t n;
-    const uint32_t result = micro::atoi(stream, &n);
-    if (result > 0) {
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
         *static_cast<int16_t*>(value) = static_cast<int16_t>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
     }
-    return result;
+    return idx;
 }
 
 template <typename T>
@@ -76,7 +86,17 @@ inline typename std::enable_if<std::is_same<T, int32_t>::value, uint32_t>::type 
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, int32_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    return micro::atoi(stream, static_cast<int32_t*>(value));
+    int32_t n;
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
+        *static_cast<int32_t*>(value) = n;
+        idx++; // '"'
+    } else {
+        idx = 0;
+    }
+    return idx;
 }
 
 template <typename T>
@@ -87,11 +107,16 @@ inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     int32_t n;
-    const uint32_t result = micro::atoi(stream, &n);
-    if (result > 0) {
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
         *static_cast<int64_t*>(value) = static_cast<int64_t>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
     }
-    return result;
+    return idx;
 }
 
 template <typename T>
@@ -102,9 +127,16 @@ inline typename std::enable_if<std::is_same<T, uint8_t>::value, uint32_t>::type 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, uint8_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     int32_t n;
-    const uint32_t result = micro::atoi(stream, &n);
-    *static_cast<uint8_t*>(value) = static_cast<uint8_t>(n);
-    return result;
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
+        *static_cast<uint8_t*>(value) = static_cast<uint8_t>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
+    }
+    return idx;
 }
 
 template <typename T>
@@ -115,11 +147,16 @@ inline typename std::enable_if<std::is_same<T, uint16_t>::value, uint32_t>::type
 template <typename T>
 inline typename std::enable_if<std::is_same<T, uint16_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     int32_t n;
-    const uint32_t result = micro::atoi(stream, &n);
-    if (result > 0) {
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
         *static_cast<uint16_t*>(value) = static_cast<uint16_t>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
     }
-    return result;
+    return idx;
 }
 
 template <typename T>
@@ -130,11 +167,15 @@ inline typename std::enable_if<std::is_same<T, uint32_t>::value, uint32_t>::type
 template <typename T>
 inline typename std::enable_if<std::is_same<T, uint32_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     int32_t n;
-    const uint32_t result = micro::atoi(stream, &n);
-    if (result > 0) {
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
         *static_cast<uint32_t*>(value) = static_cast<uint32_t>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
     }
-    return result;
 }
 
 template <typename T>
@@ -145,11 +186,15 @@ inline typename std::enable_if<std::is_same<T, uint64_t>::value, uint32_t>::type
 template <typename T>
 inline typename std::enable_if<std::is_same<T, uint64_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     int32_t n;
-    const uint32_t result = micro::atoi(stream, &n);
-    if (result > 0) {
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atoi(&stream[idx], &n);
+    if (idx > 1) {
         *static_cast<uint64_t*>(value) = static_cast<uint64_t>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
     }
-    return result;
 }
 
 template <typename T>
@@ -159,7 +204,17 @@ inline typename std::enable_if<std::is_same<T, float>::value, uint32_t>::type se
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, float>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    return micro::atof(stream, static_cast<float*>(value));
+    float n;
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atof(&stream[idx], &n);
+    if (idx > 1) {
+        *static_cast<float*>(value) = n;
+        idx++; // '"'
+    } else {
+        idx = 0;
+    }
+    return idx;
 }
 
 template <typename T>
@@ -170,11 +225,16 @@ inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type s
 template <typename T>
 inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     float n;
-    const uint32_t result = micro::atof(stream, &n);
-    if (result > 0) {
+    uint32_t idx = 0;
+    idx++; // '"'
+    idx += micro::atof(&stream[idx], &n);
+    if (idx > 1) {
         *static_cast<double*>(value) = static_cast<double>(n);
+        idx++; // '"'
+    } else {
+        idx = 0;
     }
-    return result;
+    return idx;
 }
 
 template <typename T>

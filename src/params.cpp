@@ -68,7 +68,6 @@ uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
         idx += strcpy_until(name, &str[idx], min(size - idx, static_cast<uint32_t>(STR_MAX_LEN_PARAM_NAME)), '"');
         idx++; // '"'
         idx++; // ':'
-        idx++; // '"'
 
         Param * const p = this->get(name);
         if (!p) {
@@ -86,8 +85,6 @@ uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
             xTaskResumeAll();
         }
 
-
-        idx++; // '"'
         skipWhiteSpaces(str, idx);
 
         if ('}' == str[idx]) {
