@@ -66,6 +66,8 @@ uint32_t atof(const char * const s, float *pResult) {
         } else {
             idx = 0;    // invalid floating point string
         }
+    } else {
+        *pResult = static_cast<float>(dec);
     }
 
     if (neg) {
