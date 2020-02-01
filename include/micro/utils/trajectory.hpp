@@ -14,7 +14,7 @@ public:
         m_per_sec_t speed;
     };
 
-    typedef vec<config_t, 200> configs_t;
+    typedef vec<config_t, 500> configs_t;
 
     explicit Trajectory(meter_t optoRowCarCenterDist)
         : carCenterToOptoRowCenter_(optoRowCarCenterDist, meter_t(0))
