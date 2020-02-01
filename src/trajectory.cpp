@@ -25,7 +25,7 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
         const radian_t currentAngle = map(i, 1ul, numSections, radian_t(0), angle);
         const m_per_sec_t currentSpeed = map(i, 1ul, numSections, lastCfg->speed, destSpeed);
 
-        this->appendLine(config_t{ relativeVec.rotate(currentAngle), currentSpeed });
+        this->appendLine(config_t{ center + relativeVec.rotate(currentAngle), currentSpeed });
     }
 }
 
@@ -102,6 +102,7 @@ ControlData Trajectory::update(const CarProps car) {
     const radian_t angleDiff = normalize360(car.pose.pos.getAngle(optoRowCenterPos) - car.pose.pos.getAngle(linePoint));
     const Sign lineSign = angleDiff < PI ? Sign::POSITIVE : Sign::NEGATIVE;
 
+    controlData.rampTime = millisecond_t(0);
     controlData.baseline.pos = linePoint.distance(optoRowCenterPos) * lineSign;
     controlData.baseline.id = 0;
     controlData.offset = millimeter_t(0);
