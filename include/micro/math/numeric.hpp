@@ -96,7 +96,7 @@ inline constexpr bool isInRange(const T1& value, const T2& ref, float relErr) {
  */
 template <typename S, typename R>
 inline constexpr R map(const S& value, const S& fromLow, const S& fromHigh, const R& toLow, const R& toHigh) {
-    return toLow + ((clamp(value, fromLow, fromHigh) - fromLow) * (toHigh - toLow) / (fromHigh - fromLow));
+    return fromLow != fromHigh ? toLow + ((clamp(value, fromLow, fromHigh) - fromLow) * (toHigh - toLow) / (fromHigh - fromLow)) : toLow;
 }
 
 /**
