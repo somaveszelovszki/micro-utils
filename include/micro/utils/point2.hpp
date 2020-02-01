@@ -76,6 +76,12 @@ template <typename T> struct point2 {
         return micro::pythag(this->X - other.X, this->Y - other.Y);
     }
 
+    /* @brief Calculates angle of the vector.
+     **/
+    radian_t getAngle() const {
+        return micro::atan2(this->Y, this->X);
+    }
+
     /* @brief Calculates angle of given vector using this point as the origo.
      * @param other The vector.
      **/
