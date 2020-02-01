@@ -25,9 +25,10 @@ struct CarProps  {
      **/
     CarProps() {}
 
-    Pose pose;         // The current pose (position and orientation) of the car.
-    m_per_sec_t speed; // The current speed of the car.
-    meter_t distance;  // The distance that the car has driven since startup.
+    Pose pose;                // The current pose (position and orientation) of the car.
+    m_per_sec_t speed;        // The current speed of the car.
+    meter_t distance;         // The distance that the car has driven since startup.
+    meter_t orientedDistance; // The distance that the has driven with no major orientation change (in a straight line).
 };
 DEFINE_TYPEINFO(CarProps);
 
