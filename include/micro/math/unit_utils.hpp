@@ -204,7 +204,7 @@ inline radian_t normalize180(radian_t value) {
 }
 
 inline bool eqWithOverflow360(radian_t value, radian_t ref, radian_t eps) {
-    return eq(value, ref, eps) || eq(value + 2 * PI, ref, eps) || eq(value - 2 * PI, ref, eps);
+    return abs(normalizePM180(value - ref)) <= eps;
 }
 
 inline bool eqWithOverflow180(radian_t value, radian_t ref, radian_t eps) {
