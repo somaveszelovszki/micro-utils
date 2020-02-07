@@ -56,35 +56,31 @@ ControlData Trajectory::update(const CarProps car) {
     const point2f optoRowCenterPosRaw = point2f(optoRowCenterPos);
 
     const configs_t::const_iterator closestConfig = this->getClosestConfig(optoRowCenterPos);
-    configs_t::const_iterator newSectionStartConfig = this->sectionStartConfig_;
-
     const point2f closestConfigPosRaw(closestConfig->pos);
-    line2f sectionLine;
+    const meter_t closestDist = car.pose.pos.distance(closestConfig->pos);
+
+    configs_t::const_iterator otherConfig;
 
     if (closestConfig == this->configs_.begin()) {
-        sectionLine = line2f(closestConfigPosRaw, point2f((closestConfig + 1)->pos));
-        controlData.speed = avg(closestConfig->speed, (closestConfig + 1)->speed);
-        newSectionStartConfig = closestConfig;
-
+        otherConfig = closestConfig + 1;
     } else if (closestConfig == this->configs_.back()) {
-        sectionLine = line2f(closestConfigPosRaw, point2f((closestConfig - 1)->pos));
-        controlData.speed = avg(closestConfig->speed, (closestConfig - 1)->speed);
-        newSectionStartConfig = closestConfig - 1;
-
+        otherConfig = closestConfig - 1;
     } else {
-        const line2f l1 = line2f(closestConfigPosRaw, point2f((closestConfig - 1)->pos));
-        const line2f l2 = line2f(closestConfigPosRaw, point2f((closestConfig + 1)->pos));
+        const float prevRelativeDist = car.pose.pos.distance((closestConfig - 1)->pos) / closestDist;
+        const float nextRelativeDist = car.pose.pos.distance((closestConfig + 1)->pos) / closestDist;
 
-        if (distance(l1, optoRowCenterPosRaw) < distance(l2, optoRowCenterPosRaw)) {
-            sectionLine = l1;
-            controlData.speed = avg(closestConfig->speed, (closestConfig - 1)->speed);
-            newSectionStartConfig = closestConfig - 1;
+        if (prevRelativeDist < nextRelativeDist) {
+            otherConfig = closestConfig - 1;
         } else {
-            sectionLine = l2;
-            controlData.speed = avg(closestConfig->speed, (closestConfig + 1)->speed);
-            newSectionStartConfig = closestConfig;
+            otherConfig = closestConfig + 1;
         }
     }
+
+    const configs_t::const_iterator newSectionStartConfig = min(closestConfig, otherConfig);
+    const line2f sectionLine = line2f(closestConfigPosRaw, point2f(otherConfig->pos));
+    const meter_t otherDist = car.pose.pos.distance(otherConfig->pos);
+
+    controlData.speed = map(closestDist.get(), 0.0f, (closestDist + otherDist).get(), closestConfig->speed, otherConfig->speed);
 
     if (newSectionStartConfig > this->sectionStartConfig_) {
         for (configs_t::const_iterator it = this->sectionStartConfig_; it != newSectionStartConfig; ++it) {
