@@ -6,28 +6,29 @@
 static uint8_t calcChecksum(const void *data, uint8_t dataSize) {
     uint8_t sum = 0;
     for (uint8_t i = 0; i < dataSize - 1; ++i) {
-        sum += ((const uint8_t*)data)[i];
+        sum += ((const uint8_t*)data)[i] * (i + 1);
     }
     return sum;
 }
 
 void panelLink_initialize(panelLink_t *link, panelLinkRole_t role, UART_HandleTypeDef *huart,
-    void *rxDataBuffer, uint32_t rxDataSize, uint32_t rxTimeoutMs,
+    void *rxDataBuffer1, void *rxDataBuffer2, uint32_t rxDataSize, uint32_t rxTimeoutMs,
     void *txDataBuffer, uint32_t txDataSize, uint32_t txPeriodMs) {
 
-    link->role          = role;
-    link->huart         = huart;
-    link->startData.cmd = '\0';
-    link->rxDataBuffer  = rxDataBuffer;
-    link->rxDataSize    = rxDataSize;
-    link->rxTimeoutMs   = rxTimeoutMs;
-    link->lastRxTime    = HAL_GetTick();
-    link->txDataBuffer  = txDataBuffer;
-    link->txDataSize    = txDataSize;
-    link->txPeriodMs    = txPeriodMs;
-    link->lastTxTime    = HAL_GetTick();
-    link->state         = PanelLinkState_Disconnected;
-    link->isAvailable   = false;
+    link->role                   = role;
+    link->huart                  = huart;
+    link->startData.cmd          = '\0';
+    link->rxDataBuffer           = rxDataBuffer1;
+    link->rxAccessibleDataBuffer = rxDataBuffer2;
+    link->rxDataSize             = rxDataSize;
+    link->rxTimeoutMs            = rxTimeoutMs;
+    link->lastRxTime             = HAL_GetTick();
+    link->txDataBuffer           = txDataBuffer;
+    link->txDataSize             = txDataSize;
+    link->txPeriodMs             = txPeriodMs;
+    link->lastTxTime             = HAL_GetTick();
+    link->state                  = PanelLinkState_Disconnected;
+    link->isAvailable            = false;
 }
 
 bool panelLink_isConnected(const panelLink_t *link) {
@@ -49,8 +50,9 @@ void panelLink_send(panelLink_t *link, const void *txData) {
 
 void panelLink_onNewRxData(panelLink_t *link) {
     if ((uint8_t*)&link->startData == link->huart->pRxBuffPtr ||
-        ((const uint8_t*)link->rxDataBuffer)[link->rxDataSize - 1] == calcChecksum(link->rxDataBuffer, link->rxDataSize)) {
+        (link->huart->pRxBuffPtr)[link->rxDataSize - 1] == calcChecksum(link->huart->pRxBuffPtr, link->rxDataSize)) {
 
+        memcpy(link->rxAccessibleDataBuffer, link->rxDataBuffer, link->rxDataSize);
         link->isAvailable = true;
         link->lastRxTime = HAL_GetTick();
     }
@@ -59,7 +61,7 @@ void panelLink_onNewRxData(panelLink_t *link) {
 bool panelLink_readAvailable(panelLink_t *link, void *rxData) {
     bool available = false;
     if (panelLink_isConnected(link) && link->isAvailable) {
-        memcpy(rxData, link->rxDataBuffer, link->rxDataSize);
+        memcpy(rxData, link->rxAccessibleDataBuffer, link->rxDataSize);
         link->isAvailable = false;
         available = true;
     }

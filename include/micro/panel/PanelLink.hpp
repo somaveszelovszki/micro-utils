@@ -14,7 +14,7 @@ class PanelLink {
 public:
     PanelLink(UART_HandleTypeDef *huart, millisecond_t rxTimeout, millisecond_t txPeriod) {
         panelLink_initialize(this->link(), role, huart,
-            &this->rxDataBuffer_, sizeof(T_rx), static_cast<uint32_t>(rxTimeout.get()),
+            &this->rxDataBuffer1_, &this->rxDataBuffer2_, sizeof(T_rx), static_cast<uint32_t>(rxTimeout.get()),
             &this->txDataBuffer_, sizeof(T_tx), static_cast<uint32_t>(txPeriod.get()));
     }
 
@@ -47,7 +47,7 @@ private:
     panelLink_t* link() { return const_cast<panelLink_t*>(&this->link_); }
 
     volatile panelLink_t link_;
-    T_rx rxDataBuffer_;
+    T_rx rxDataBuffer1_, rxDataBuffer2_;
     T_tx txDataBuffer_;
 };
 
