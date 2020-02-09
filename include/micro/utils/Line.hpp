@@ -14,7 +14,7 @@ namespace micro {
  **/
 struct Line {
     millimeter_t pos; // The line position at the front sensor line (relative to car vertical middle axis).
-    uint8_t id;
+    uint8_t id = 0;
 
     bool operator==(const Line& other) const {
         return this->pos == other.pos && this->id == other.id;
