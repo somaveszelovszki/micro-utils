@@ -20,6 +20,7 @@ public:
     typedef typename vec_type::iterator iterator;
     typedef typename vec_type::const_iterator const_iterator;
     typedef typename vec_type::entry_type entry_type;
+
     uint32_t size() const {
         return this->values_.size();
     }
@@ -27,24 +28,6 @@ public:
     uint32_t capacity() const {
         return this->values_.capacity();
     }
-
-    /* @brief Puts a key-value pair into the map.
-     * @param key The key.
-     * @param Value The value.
-     **/
-    virtual void put(const K& key, const V& value) = 0;
-
-    /* @brief Gets value by key.
-     * @param key The key.
-     * @returns Pointer to the value or nullptr if key not found.
-     **/
-    virtual const V* get(const K& key) const = 0;
-
-    /* @brief Gets value by key.
-     * @param key The key.
-     * @returns Pointer to the value or nullptr if key not found.
-     **/
-    virtual V* get(const K& key) = 0;
 
     /* @brief Clears vector.
      **/
@@ -94,7 +77,7 @@ public:
      * @param key The key.
      * @param Value The value.
      **/
-    void put(const K& key, const V& value) override {
+    void put(const K& key, const V& value) {
         if (this->values_.size() < this->values_.capacity()) {
             if (!this->size()) {
                 this->values_.emplace_back(key, value);
@@ -113,7 +96,7 @@ public:
      * @param key The key.
      * @returns Pointer to the value or nullptr if key not found.
      **/
-    const V* get(const K& key) const override {
+    const V* get(const K& key) const {
         const V *res = nullptr;
 
         if (this->size() > 0) {
@@ -143,9 +126,11 @@ public:
      * @param key The key.
      * @returns Pointer to the value or nullptr if key not found.
      **/
-    V* get(const K& key) override {
+    V* get(const K& key) {
         return const_cast<V*>(const_cast<const ordered_map<K, V, capacity_>*>(this)->get(key));
     }
+
+    ~ordered_map() {}
 };
 
 /* @brief Stores unordered key-value pairs.
@@ -167,7 +152,7 @@ public:
      * @param key The key.
      * @param Value The value.
      **/
-    void put(const K& key, const V& value) override {
+    void put(const K& key, const V& value) {
         if (this->values_.size() < this->values_.capacity()) {
             this->values_.emplace_back(key, value);
         }
@@ -177,7 +162,7 @@ public:
      * @param key The key.
      * @returns Pointer to the value or nullptr if key not found.
      **/
-    const V* get(const K& key) const override {
+    const V* get(const K& key) const {
         const V *res = nullptr;
 
         for (const std::pair<K, V>& entry : *this) {
@@ -194,8 +179,10 @@ public:
      * @param key The key.
      * @returns Pointer to the value or nullptr if key not found.
      **/
-    V* get(const K& key) override {
+    V* get(const K& key) {
         return const_cast<V*>(const_cast<const unordered_map<K, V, capacity_>*>(this)->get(key));
     }
+
+    ~unordered_map() {}
 };
 } // namespace micro
