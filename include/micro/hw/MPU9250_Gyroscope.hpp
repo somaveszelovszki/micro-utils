@@ -60,7 +60,7 @@ public:
 private:
     void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
     char readByte(uint8_t address, uint8_t subAddress);
-    void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
+    bool readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
 
     float getMres(Mscale scale);
     float getGres(Gscale scale);

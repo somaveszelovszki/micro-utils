@@ -180,9 +180,9 @@ char MPU9250::readByte(uint8_t address, uint8_t subAddress)
     return data;
 }
 
-void MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+bool MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
-    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, dest, count, 5);
+    return HAL_OK == HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, dest, count, 5);
 }
 
 float MPU9250::getMres(Mscale scale) {
@@ -261,10 +261,10 @@ point3<rad_per_sec_t> MPU9250::readGyroData(void) {
 
     point3<rad_per_sec_t> result;
 
-    uint8_t rawData[6];
-    this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);
+    this->hi2c->State = HAL_I2C_STATE_READY;
 
-    if (!isZeroArray(rawData, 6)) {
+    uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
+    if (this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0])) {
         float x = (((int16_t)(int8_t)rawData[0] << 8) | rawData[1]) * this->gRes - this->gyroBias[0];
         float y = (((int16_t)(int8_t)rawData[2] << 8) | rawData[3]) * this->gRes - this->gyroBias[1];
         float z = (((int16_t)(int8_t)rawData[4] << 8) | rawData[5]) * this->gRes - this->gyroBias[2];
@@ -276,6 +276,8 @@ point3<rad_per_sec_t> MPU9250::readGyroData(void) {
         result.X = deg_per_sec_t(x);
         result.Y = deg_per_sec_t(y);
         result.Z = deg_per_sec_t(z);
+    } else {
+        result.X = result.Y = result.Z = rad_per_sec_t::infinity();
     }
 
     return result;
