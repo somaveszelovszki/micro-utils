@@ -29,6 +29,8 @@ struct CarProps  {
     m_per_sec_t speed;        // The current speed of the car.
     meter_t distance;         // The distance that the car has driven since startup.
     meter_t orientedDistance; // The distance that the has driven with no major orientation change (in a straight line).
+    radian_t frontWheelAngle;
+    radian_t rearWheelAngle;
 };
 DEFINE_TYPEINFO(CarProps);
 
