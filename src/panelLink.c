@@ -78,7 +78,7 @@ void panelLink_update(panelLink_t *link) {
         if (PanelLinkRole_Master == link->role) {
             HAL_UART_Receive_DMA(link->huart, (uint8_t*)link->rxDataBuffer, link->rxDataSize);
             link->startData.cmd = PANEL_START;
-            HAL_UART_Transmit(link->huart, (uint8_t*)&link->startData, sizeof(link->startData), 1);
+            HAL_UART_Transmit_DMA(link->huart, (uint8_t*)&link->startData, sizeof(link->startData));
         } else { // Slave
             link->startData.cmd = '\0';
             HAL_UART_Receive_DMA(link->huart, (uint8_t*)&link->startData, sizeof(link->startData));
