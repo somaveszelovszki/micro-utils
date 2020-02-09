@@ -44,8 +44,6 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t
 
         this->appendLine(config_t{ point2m(x_, y_).rotate(fwdAngle), currentSpeed });
     }
-
-    this->appendLine(dest);
 }
 
 ControlData Trajectory::update(const CarProps car) {
