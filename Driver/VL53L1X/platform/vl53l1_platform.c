@@ -41,38 +41,63 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_i2c.h"
 
+#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
 
-#define I2C_TIMEOUT_MS 20
+#include <FreeRTOS.h>
+#include <task.h>
 
-uint8_t _I2CBuffer[256];
+#define I2C_TIMEOUT_MS 5
+
+static uint8_t _I2CBuffer[256];
 
 #define VL53L1_GetI2cBus() ((void)0)
 #define VL53L1_PutI2cBus() ((void)0)
 
+static HAL_StatusTypeDef _waitI2C(void) {
+    static const uint8_t MAX_TIMEOUT_MS = 10;
+    uint8_t msCntr = 0;
+    while (i2c_Dist->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {
+        vTaskDelay(1);
+    }
+    return msCntr < MAX_TIMEOUT_MS ? HAL_OK : HAL_BUSY;
+}
+
 static int _I2CWrite(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     int status;
 
-    status = HAL_I2C_Master_Transmit(i2c_Dist, Dev, pdata, count, I2C_TIMEOUT_MS);
-    if (status) {
-        //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
-        //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
+    status = _waitI2C();
+    if (HAL_OK == status) {
+        status = HAL_I2C_Master_Transmit_IT(i2c_Dist, Dev, pdata, count);
+        if (status) {
+            //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
+            //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
+        } else {
+            _waitI2C();
+        }
     }
     return status;
 }
 
-int _I2CRead(uint16_t Dev, uint8_t *pdata, uint32_t count) {
+static int _I2CRead(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     int status;
 
-    status = HAL_I2C_Master_Receive(i2c_Dist, Dev|1, pdata, count, I2C_TIMEOUT_MS);
-    if (status) {
-        //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
-        //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
+    status = _waitI2C();
+    if (HAL_OK == status) {
+        status = HAL_I2C_Master_Receive_IT(i2c_Dist, Dev|1, pdata, count);
+        if (status) {
+            //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
+            //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
+        } else {
+            _waitI2C();
+        }
     }
     return status;
 }
+
+void VL53L1_I2C_RxCpltCallback(void) {}
 
 int8_t VL53L1_WriteMulti(uint16_t Dev, uint16_t index, uint8_t *pdata, uint32_t count) {
     int status_int;
@@ -183,6 +208,7 @@ VL53L1_Error VL53L1_RdByte(uint16_t Dev, uint16_t index, uint8_t *data) {
     if (status_int != 0) {
         Status = VL53L1_ERROR_CONTROL_INTERFACE;
     }
+
 done:
     VL53L1_PutI2cBus();
     return Status;
@@ -240,6 +266,6 @@ done:
 
 VL53L1_Error VL53L1_WaitMs(uint16_t dev, int32_t wait_ms){
 	(void)dev;
-	HAL_Delay(wait_ms);
+	vTaskDelay(wait_ms);
     return VL53L1_ERROR_NONE;
 }
