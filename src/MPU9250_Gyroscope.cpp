@@ -166,23 +166,36 @@ namespace hw {
 #define MPU9250_ADDRESS 0x68<<1  // Device address when ADO = 0
 #endif
 
-void MPU9250::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
+bool MPU9250::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
     uint8_t data_write[2];
     data_write[0] = subAddress;
     data_write[1] = data;
-    HAL_I2C_Master_Transmit(this->hi2c, address, data_write, 2, 2);
+
+    bool isI2CReady = this->waitI2C();
+    if (isI2CReady) {
+        HAL_I2C_Master_Transmit_IT(this->hi2c, address, data_write, 2);
+        isI2CReady = this->waitI2C();
+    }
+    return isI2CReady;
 }
 
 char MPU9250::readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data = 0;
-    HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, &data, 1, 5);
+    this->waitI2C();
+    HAL_I2C_Mem_Read_IT(this->hi2c, address, subAddress, 1, &data, 1);
+    this->waitI2C();
     return data;
 }
 
 bool MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
-    return HAL_OK == HAL_I2C_Mem_Read(this->hi2c, address, subAddress, 1, dest, count, 5);
+    bool isI2CReady = this->waitI2C();
+    if (isI2CReady) {
+        HAL_I2C_Mem_Read_IT(this->hi2c, address, subAddress, 1, dest, count);
+        isI2CReady = this->waitI2C();
+    }
+    return isI2CReady;
 }
 
 float MPU9250::getMres(Mscale scale) {
@@ -395,13 +408,11 @@ void MPU9250::calibrate(void)
 
     // reset device, reset all registers, clear gyro and accelerometer bias registers
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit; toggle reset device
-    vTaskDelay(100);
 
     // get stable time source
     // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x01);
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_2, 0x00);
-    vTaskDelay(200);
 
     // Configure device for bias calculation
     this->writeByte(MPU9250_ADDRESS, INT_ENABLE, 0x00);   // Disable all interrupts
@@ -410,7 +421,6 @@ void MPU9250::calibrate(void)
     this->writeByte(MPU9250_ADDRESS, I2C_MST_CTRL, 0x00); // Disable I2C master
     this->writeByte(MPU9250_ADDRESS, USER_CTRL, 0x00);    // Disable FIFO and I2C master modes
     this->writeByte(MPU9250_ADDRESS, USER_CTRL, 0x0C);    // Reset FIFO and DMP
-    vTaskDelay(15);
 
     // Configure MPU9250 gyro and accelerometer for bias calculation
     this->writeByte(MPU9250_ADDRESS, CONFIG, 0x01);      // Set low-pass filter to 188 Hz
@@ -423,7 +433,6 @@ void MPU9250::calibrate(void)
     // Configure FIFO to capture accelerometer and gyro data for bias calculation
     this->writeByte(MPU9250_ADDRESS, USER_CTRL, 0x40);   // Enable FIFO
     this->writeByte(MPU9250_ADDRESS, FIFO_EN, 0x78);     // Enable gyro and accelerometer sensors for FIFO (max size 512 bytes in MPU-9250)
-    vTaskDelay(80);
 
     // At end of sample accumulation, turn off FIFO sensor read
     this->writeByte(MPU9250_ADDRESS, FIFO_EN, 0x00);        // Disable gyro and accelerometer sensors for FIFO
@@ -538,7 +547,7 @@ void MPU9250::calibrateGyro(void) {
         sigma[1] += y * y;
         sigma[2] += z * z;
 
-        vTaskDelay(5);
+        vTaskDelay(2);
     }
 
     this->gyroBias[0] = bias[0] / NUM_SAMPLES;
@@ -557,29 +566,30 @@ void MPU9250::initialize(void) {
     if (whoAmI == 0x73)
     {
         LOG_DEBUG("MPU9250 is online...");
-        vTaskDelay(10);
 
         this->reset();
-        vTaskDelay(50);
-
-        this->calibrate();
-        vTaskDelay(20);
-
+        //this->calibrate();
         this->initMPU9250();
-
-        vTaskDelay(150);
         this->calibrateGyro();
         LOG_DEBUG("gyro bias:  %f, %f, %f", this->gyroBias[0], this->gyroBias[1], this->gyroBias[2]);
         LOG_DEBUG("accel bias: %f, %f, %f", this->accelBias[0], this->accelBias[1], this->accelBias[2]);
 
-        this->initAK8963();
+        //this->initAK8963();
         LOG_DEBUG("Gyro initialized");
-        vTaskDelay(20);
 
     } else {
        LOG_ERROR("Could not connect to MPU9250: %u", (uint32_t)whoAmI);
        return;
     }
+}
+
+bool MPU9250::waitI2C() {
+    static constexpr uint8_t MAX_TIMEOUT_MS = 10;
+    uint8_t msCntr = 0;
+    while (this->hi2c->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {
+        vTaskDelay(1);
+    }
+    return msCntr < MAX_TIMEOUT_MS;
 }
 
 } // namespace hw

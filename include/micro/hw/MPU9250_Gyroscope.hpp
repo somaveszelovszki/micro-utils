@@ -58,7 +58,7 @@ public:
     void initialize(void);
 
 private:
-    void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
+    bool writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
     char readByte(uint8_t address, uint8_t subAddress);
     bool readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
 
@@ -73,6 +73,8 @@ private:
     void calibrate(void);
 
     void calibrateGyro(void);
+
+    bool waitI2C();
 
     I2C_HandleTypeDef *hi2c;
     const Ascale aScale;
