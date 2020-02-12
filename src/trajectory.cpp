@@ -114,6 +114,8 @@ Trajectory::configs_t::const_iterator Trajectory::getClosestConfig(const point2m
         if (dist < minDist) {
             minDist = dist;
             closest = it;
+        } else {
+            break; // if we have passed the closest config, there is no point for searching anymore
         }
     }
 

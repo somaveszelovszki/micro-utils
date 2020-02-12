@@ -45,8 +45,9 @@ public:
 
     void clear() {
         this->configs_.clear();
+        this->sectionStartConfig_             = this->configs_.begin();
         this->length_                         = meter_t(0);
-        this->coveredDistanceUntilLastConfig_ = meter_t(0);
+        this->coveredDistanceUntilLastConfig_ = -carCenterToOptoRowCenter_.length();
         this->carDistanceAtLastConfig_        = meter_t(0);
         this->carDistanceSinceLastConfig_     = meter_t(0);
     }
