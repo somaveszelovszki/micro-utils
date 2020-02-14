@@ -3,7 +3,7 @@
 #include <micro/utils/types.hpp>
 #include <micro/utils/point2.hpp>
 #include <micro/utils/CarProps.hpp>
-
+#include <micro/utils/TrackSpeeds.hpp>
 #include <micro/utils/str_utils.hpp>
 
 #include <cstring>
@@ -283,6 +283,49 @@ inline typename std::enable_if<T::is_dim_class, uint32_t>::type serialize(char *
 template <typename T>
 inline typename std::enable_if<T::is_dim_class, uint32_t>::type deserialize(const char * const stream, void * const value) {
     return deserialize<typename T::value_type>(stream, value);
+}
+
+template <typename T>
+inline typename std::enable_if<std::is_same<T, TrackSpeeds>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
+    const TrackSpeeds * const speeds = static_cast<const TrackSpeeds*>(value);
+    return sprint(stream, size,
+        "{\"fast\":%f,\"slow_1_4\":%f,\"slow_2_begin\":%f,\"slow_2_3\":%f,\"slow_3_end\":%f}",
+        speeds->fast.get(),
+        speeds->slow_1_4.get(),
+        speeds->slow_2_begin.get(),
+        speeds->slow_2_3.get(),
+        speeds->slow_3_end.get()
+    );
+}
+
+template <typename T>
+inline typename std::enable_if<std::is_same<T, TrackSpeeds>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
+    TrackSpeeds * const speeds = static_cast<TrackSpeeds*>(value);
+    float n;
+
+    uint32_t idx = strlen("{\"fast\":");
+    idx += micro::atof(&stream[idx], &n);
+    speeds->fast = m_per_sec_t(n);
+
+    idx += strlen(",\"slow_1_4\":");
+    idx += micro::atof(&stream[idx], &n);
+    speeds->slow_1_4 = m_per_sec_t(n);
+
+    idx += strlen(",\"slow_2_begin\":");
+    idx += micro::atof(&stream[idx], &n);
+    speeds->slow_2_begin = m_per_sec_t(n);
+
+    idx += strlen(",\"slow_2_3\":");
+    idx += micro::atof(&stream[idx], &n);
+    speeds->slow_2_3 = m_per_sec_t(n);
+
+    idx += strlen(",\"slow_3_end\":");
+    idx += micro::atof(&stream[idx], &n);
+    speeds->slow_3_end = m_per_sec_t(n);
+
+    idx += strlen("}");
+
+    return idx;
 }
 
 } // namespace micro
