@@ -13,17 +13,19 @@ void Trajectory::setStartConfig(const config_t& start, meter_t currentDist) {
 }
 
 void Trajectory::appendLine(const config_t& dest) {
-    this->length_ += dest.pos.distance(this->configs_.back()->pos);
-    this->configs_.push_back(dest);
+    if (dest.pos.distance(this->configs_.back()->pos) > centimeter_t(1)) {
+        this->length_ += dest.pos.distance(this->configs_.back()->pos);
+        this->configs_.push_back(dest);
+    }
 }
 
 void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed, uint32_t numSections) {
     const configs_t::const_iterator lastCfg = this->configs_.back();
     const vec2m relativeVec = lastCfg->pos - center;
 
-    for (uint32_t i = 0; i < numSections; ++i) {
-        const radian_t currentAngle = map(i, 1ul, numSections, radian_t(0), angle);
-        const m_per_sec_t currentSpeed = map(i, 1ul, numSections, lastCfg->speed, destSpeed);
+    for (uint32_t i = 1; i <= numSections; ++i) {
+        const radian_t currentAngle = map(i, 0ul, numSections, radian_t(0), angle);
+        const m_per_sec_t currentSpeed = map(i, 0ul, numSections, lastCfg->speed, destSpeed);
 
         this->appendLine(config_t{ center + relativeVec.rotate(currentAngle), currentSpeed });
     }
@@ -40,7 +42,7 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t
     for (uint32_t i = 1; i <= numSections; ++i) {
         const meter_t x_ = c1_.X + static_cast<float>(i) / numSections * dx;
         const meter_t y_ = c1_.Y + dy * (1 - cos(static_cast<float>(i) / numSections * PI)) / 2;
-        const m_per_sec_t currentSpeed = map(i, 1ul, numSections, lastCfg->speed, dest.speed);
+        const m_per_sec_t currentSpeed = map(i, 0ul, numSections, lastCfg->speed, dest.speed);
 
         this->appendLine(config_t{ point2m(x_, y_).rotate(fwdAngle), currentSpeed });
     }
