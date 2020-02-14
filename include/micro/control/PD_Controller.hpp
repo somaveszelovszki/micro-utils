@@ -3,6 +3,8 @@
 #include <micro/utils/runnable.hpp>
 #include <micro/math/unit_utils.hpp>
 
+#include <limits>
+
 namespace micro {
 /* @brief PD controller implementation.
  **/
@@ -10,7 +12,7 @@ class PD_Controller : public runnable_t {
 public:
     /* @brief Constructor - sets period time and term weights.
      **/
-    PD_Controller(float P, float D, float outMin, float outMax)
+    PD_Controller(float P, float D, float outMin = -std::numeric_limits<float>::infinity(), float outMax = std::numeric_limits<float>::infinity())
         : runnable_t(period)
         , desired(0.0f)
         , P(P)
