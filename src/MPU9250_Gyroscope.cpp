@@ -532,7 +532,7 @@ void MPU9250::calibrateGyro(void) {
     float bias[3] = { 0, 0, 0 }, sigma[3] = { 0, 0, 0 };
 
     for (uint32_t i = 0; i < NUM_SAMPLES; ++i) {
-        uint8_t rawData[6];
+        uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
         this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);
 
         const float x = (((int16_t)rawData[0] << 8) | rawData[1]) * this->gRes;
@@ -547,7 +547,7 @@ void MPU9250::calibrateGyro(void) {
         sigma[1] += y * y;
         sigma[2] += z * z;
 
-        vTaskDelay(2);
+        vTaskDelay(10);
     }
 
     this->gyroBias[0] = bias[0] / NUM_SAMPLES;
@@ -555,9 +555,9 @@ void MPU9250::calibrateGyro(void) {
     this->gyroBias[2] = bias[2] / NUM_SAMPLES;
 
 
-    this->gyroThreshold[0] = sqrt((sigma[0] / NUM_SAMPLES) - (this->gyroBias[0] * this->gyroBias[0])) * 2;
-    this->gyroThreshold[1] = sqrt((sigma[1] / NUM_SAMPLES) - (this->gyroBias[1] * this->gyroBias[1])) * 2;
-    this->gyroThreshold[2] = sqrt((sigma[2] / NUM_SAMPLES) - (this->gyroBias[2] * this->gyroBias[2])) * 2;
+    this->gyroThreshold[0] = sqrt((sigma[0] / NUM_SAMPLES) - (this->gyroBias[0] * this->gyroBias[0]));
+    this->gyroThreshold[1] = sqrt((sigma[1] / NUM_SAMPLES) - (this->gyroBias[1] * this->gyroBias[1]));
+    this->gyroThreshold[2] = sqrt((sigma[2] / NUM_SAMPLES) - (this->gyroBias[2] * this->gyroBias[2]));
 }
 
 void MPU9250::initialize(void) {
@@ -568,8 +568,11 @@ void MPU9250::initialize(void) {
         LOG_DEBUG("MPU9250 is online...");
 
         this->reset();
-        //this->calibrate();
+        vTaskDelay(150);
+        this->calibrate();
+        vTaskDelay(100);
         this->initMPU9250();
+        vTaskDelay(100);
         this->calibrateGyro();
         LOG_DEBUG("gyro bias:  %f, %f, %f", this->gyroBias[0], this->gyroBias[1], this->gyroBias[2]);
         LOG_DEBUG("accel bias: %f, %f, %f", this->accelBias[0], this->accelBias[1], this->accelBias[2]);
