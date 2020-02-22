@@ -289,12 +289,14 @@ template <typename T>
 inline typename std::enable_if<std::is_same<T, TrackSpeeds>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
     const TrackSpeeds * const speeds = static_cast<const TrackSpeeds*>(value);
     return sprint(stream, size,
-        "{\"fast\":%f,\"slow_1_4\":%f,\"slow_2_begin\":%f,\"slow_2_3\":%f,\"slow_3_end\":%f}",
+        "{\"fast\":%f,\"slow_1\":%f,\"slow_2_begin\":%f,\"slow_2\":%f,\"slow_3\":%f,\"slow_3_end\":%f,\"slow_4\":%f}",
         speeds->fast.get(),
-        speeds->slow_1_4.get(),
+        speeds->slow_1.get(),
         speeds->slow_2_begin.get(),
-        speeds->slow_2_3.get(),
-        speeds->slow_3_end.get()
+        speeds->slow_2.get(),
+        speeds->slow_3.get(),
+        speeds->slow_3_end.get(),
+        speeds->slow_4.get()
     );
 }
 
@@ -307,21 +309,29 @@ inline typename std::enable_if<std::is_same<T, TrackSpeeds>::value, uint32_t>::t
     idx += micro::atof(&stream[idx], &n);
     speeds->fast = m_per_sec_t(n);
 
-    idx += strlen(",\"slow_1_4\":");
+    idx += strlen(",\"slow_1\":");
     idx += micro::atof(&stream[idx], &n);
-    speeds->slow_1_4 = m_per_sec_t(n);
+    speeds->slow_1 = m_per_sec_t(n);
 
     idx += strlen(",\"slow_2_begin\":");
     idx += micro::atof(&stream[idx], &n);
     speeds->slow_2_begin = m_per_sec_t(n);
 
-    idx += strlen(",\"slow_2_3\":");
+    idx += strlen(",\"slow_2\":");
     idx += micro::atof(&stream[idx], &n);
-    speeds->slow_2_3 = m_per_sec_t(n);
+    speeds->slow_2 = m_per_sec_t(n);
+
+    idx += strlen(",\"slow_3\":");
+    idx += micro::atof(&stream[idx], &n);
+    speeds->slow_3 = m_per_sec_t(n);
 
     idx += strlen(",\"slow_3_end\":");
     idx += micro::atof(&stream[idx], &n);
     speeds->slow_3_end = m_per_sec_t(n);
+
+    idx += strlen(",\"slow_4\":");
+    idx += micro::atof(&stream[idx], &n);
+    speeds->slow_4 = m_per_sec_t(n);
 
     idx += strlen("}");
 

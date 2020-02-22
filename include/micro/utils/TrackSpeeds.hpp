@@ -8,10 +8,12 @@ namespace micro {
 
 struct TrackSpeeds {
     m_per_sec_t fast;
-    m_per_sec_t slow_1_4;
+    m_per_sec_t slow_1;
     m_per_sec_t slow_2_begin;
-    m_per_sec_t slow_2_3;
+    m_per_sec_t slow_2;
+    m_per_sec_t slow_3;
     m_per_sec_t slow_3_end;
+    m_per_sec_t slow_4;
 };
 DEFINE_TYPEINFO(TrackSpeeds);
 
