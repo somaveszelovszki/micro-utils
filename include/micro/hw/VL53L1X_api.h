@@ -72,7 +72,7 @@
 extern "C" {
 #endif // __cplusplus
 
-#include "../platform/vl53l1_platform.h"
+#include "vl53l1_platform.h"
 
 #define VL53L1X_IMPLEMENTATION_VER_MAJOR       3
 #define VL53L1X_IMPLEMENTATION_VER_MINOR       3

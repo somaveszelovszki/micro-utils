@@ -62,7 +62,7 @@
  * @brief Functions implementation
  */
 
-#include "VL53L1X_api.h"
+#include <micro/hw/VL53L1X_api.h>
 
 #ifdef __cplusplus
 extern "C" {
