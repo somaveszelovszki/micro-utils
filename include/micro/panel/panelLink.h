@@ -44,7 +44,7 @@ typedef struct {
 } panelLink_t;
 
 void panelLink_initialize(panelLink_t *link, panelLinkRole_t role, UART_HandleTypeDef *huart,
-    void *rxDataBuffer1, void *rxDataBuffer2, uint32_t rxDataSize, uint32_t rxPeriodMs,
+    void *rxDataBuffer1, void *rxDataBuffer2, uint32_t rxDataSize, uint32_t rxTimeoutMs,
     void *txDataBuffer, uint32_t txDataSize, uint32_t txPeriodMs);
 
 bool panelLink_isConnected(const panelLink_t *link);

@@ -36,18 +36,23 @@
 
 #include <micro/hw/vl53l1_platform.h>
 #include <micro/hw/vl53l1_error_codes.h>
-#include "cfg_board.h"
+//#include "cfg_board.h"
 
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_i2c.h"
+#if defined STM32F0
+#include <stm32f0xx_hal.h>
+#include <stm32f0xx_hal_i2c.h>
+#elif defined STM32F4
+#include <stm32f4xx_hal.h>
+#include <stm32f4xx_hal_i2c.h>
+#endif
 
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
 
-#include <FreeRTOS.h>
-#include <task.h>
+//#include <FreeRTOS.h>
+//#include <task.h>
 
 #define I2C_TIMEOUT_MS 5
 
@@ -59,9 +64,9 @@ static uint8_t _I2CBuffer[256];
 static HAL_StatusTypeDef _waitI2C(void) {
     static const uint8_t MAX_TIMEOUT_MS = 10;
     uint8_t msCntr = 0;
-    while (i2c_Dist->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {
-        vTaskDelay(1);
-    }
+//    while (i2c_Dist->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {
+//        vTaskDelay(1);
+//    }
     return msCntr < MAX_TIMEOUT_MS ? HAL_OK : HAL_BUSY;
 }
 
@@ -70,7 +75,7 @@ static int _I2CWrite(uint16_t Dev, uint8_t *pdata, uint32_t count) {
 
     status = _waitI2C();
     if (HAL_OK == status) {
-        status = HAL_I2C_Master_Transmit_IT(i2c_Dist, Dev, pdata, count);
+//        status = HAL_I2C_Master_Transmit_IT(i2c_Dist, Dev, pdata, count);
         if (status) {
             //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
             //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
@@ -86,7 +91,7 @@ static int _I2CRead(uint16_t Dev, uint8_t *pdata, uint32_t count) {
 
     status = _waitI2C();
     if (HAL_OK == status) {
-        status = HAL_I2C_Master_Receive_IT(i2c_Dist, Dev|1, pdata, count);
+//        status = HAL_I2C_Master_Receive_IT(i2c_Dist, Dev|1, pdata, count);
         if (status) {
             //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
             //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
@@ -266,6 +271,6 @@ done:
 
 VL53L1_Error VL53L1_WaitMs(uint16_t dev, int32_t wait_ms){
 	(void)dev;
-	vTaskDelay(wait_ms);
+//	vTaskDelay(wait_ms);
     return VL53L1_ERROR_NONE;
 }
