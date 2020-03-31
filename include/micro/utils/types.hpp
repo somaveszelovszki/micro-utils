@@ -1,11 +1,15 @@
 #pragma once
 
-#include "types.h"
 #include "typeinfo.hpp"
 
+#include <cstdint>
 #include <type_traits>
 
 namespace micro {
+
+#define OUT
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
 DEFINE_TYPEINFO(bool);
 

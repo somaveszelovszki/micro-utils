@@ -4,9 +4,6 @@
 
 #include <micro/container/vec.hpp>
 #include <micro/container/infinite_buffer.hpp>
-#include <micro/panel/line.h>
-
-#include <cfg_track.hpp>
 
 namespace micro {
 
@@ -25,7 +22,7 @@ struct Line {
     }
 };
 
-typedef vec<Line, MAX_NUM_LINES> Lines;
+typedef vec<Line, 3> Lines;
 
 void updateMainLine(const Lines& lines, Line& mainLine);
 

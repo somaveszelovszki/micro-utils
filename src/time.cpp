@@ -1,11 +1,15 @@
 #include <micro/utils/time_init.h>
 #include <micro/utils/time.hpp>
 
-#include <stm32f4xx_hal.h>
-#include <stm32f4xx_hal_tim.h>
+#ifdef __GNUC__
 
-#include <FreeRTOS.h>
-#include <task.h>
+//#define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
+//#define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
+//#define __STATIC_INLINE  static inline
+
+#include "cmsis_gcc.h"
+
+#endif // __GNUC__
 
 namespace micro {
 
@@ -16,16 +20,9 @@ millisecond_t getTime() {
 }
 
 microsecond_t getExactTime() {
-    taskENTER_CRITICAL();
+    __disable_irq();
     const microsecond_t time = static_cast<microsecond_t>(getTime()) + microsecond_t(__HAL_TIM_GET_COUNTER(tim_system));
-    taskEXIT_CRITICAL();
-    return time;
-}
-
-microsecond_t getExactTime_ISR() {
-    UBaseType_t uxSavedInterruptStatus = taskENTER_CRITICAL_FROM_ISR();
-    const microsecond_t time = static_cast<microsecond_t>(getTime()) + microsecond_t(__HAL_TIM_GET_COUNTER(tim_system));
-    taskEXIT_CRITICAL_FROM_ISR(uxSavedInterruptStatus);
+    __enable_irq();
     return time;
 }
 

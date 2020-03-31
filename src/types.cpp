@@ -54,7 +54,3 @@ const char* to_string(const Sign& sign) {
 }
 
 } // namespace micro
-
-extern "C" void onHardFault() {
-    while(1) {}
-}

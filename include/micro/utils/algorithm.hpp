@@ -2,90 +2,80 @@
 
 #include "types.hpp"
 
+#include <algorithm>
+
 namespace micro {
 
-/* @brief Performs test-and-set.
- * @note This function must be called from a task!
- * @param pValue Pointer to the value to test and set.
- * @param valueToSet The new value to set.
- * @returns The previous value of the variable.
- **/
-bool testAndSet(bool *pValue, bool valueToSet);
-
-/* @brief Performs test-and-set.
- * @note This function must be called from an interrupt service routine!
- * @param pValue Pointer to the value to test and set.
- * @param valueToSet The new value to set.
- * @returns The previous value of the variable.
- **/
-bool testAndSet_ISR(bool *pValue, bool valueToSet);
-
 /* @brief Helper class for concurrent getting and setting of large data set.
- * Usage:   1. call set() to get setter pointer to underlying data set
- *          2. set data under pointer
- *          3. call swap() to exchange pointers above underlying data sets
- *          4. call get() to get getter pointer to underlying data set (this will point to the data set updated in 2.)
+ * Usage:   1. call set() to get setter reference to underlying data set
+ *          2. set data
+ *          3. call swap() to exchange references above underlying data sets
+ *          4. call get() to get getter reference to underlying data set (this will point to the data set updated in 2.)
  */
-class SwapExchange {
+template <typename T>
+class swap_exchange {
 public:
     /* @brief Constructor - initializes getter and setter pointers.
-     * @param value1 Pointer to the first underlying data set
-     * @param value2 Pointer to the second underlying data set.
-     * @note The life cycles of the underlying data sets should be the same as the SwapExchange object in order to prevent segmentation fault!
      */
-    SwapExchange(void * const value1, void * const value2)
-        : value_GET(value1)
-        , value_SET(value2) {}
+    swap_exchange()
+        : value_get(this->value1_)
+        , value_set(this->value2_) {}
 
-    /* @brief Gets getter pointer.
-     * @returns The getter pointer.
-     */
-    const void* get() const { return this->value_GET; }
-
-    /* @brief Gets setter pointer.
-     * @returns The setter pointer.
-     */
-    void* set() { return this->value_SET; }
+    const T& get() const { return this->value_get; }
+    T& set() { return this->value_set; }
 
     /* @brief Swaps getter and setter pointers.
      * @note This function solves concurrency problems by swapping pointers in a critical section.
      */
-    void swap();
-private:
-    void *value_GET, *value_SET;    // Getter and setter pointers to the underlying data sets.
-};
-
-template <typename T>
-class optional {
-public:
-    optional(const T& _value)
-        : value_(_value)
-        , hasValue_(true) {}
-
-    optional() : hasValue_(false) {}
-
-    void operator=(const T& _value) {
-        this->value_ = _value;
-        this->hasValue_ = true;
+    void swap() {
+        std::swap(this->value_get, this->value_set);
     }
-
-    const T& value() const { return this->value_; }
-
-    T& value() { return this->value_; }
-
-    const T& operator*() const { return this->value_; }
-
-    T& operator*() { return this->value_; }
-
-    const T* operator->() const { return &this->value_; }
-
-    T* operator->() { return &this->value_; }
-
-    bool hasValue() const { return this->hasValue_; }
-
 private:
-    T value_;
-    bool hasValue_;
+    T value1_;
+    T value2_;
+    T& value_get;
+    T& value_set;
 };
+
+template <typename ForwardIt>
+void shift_left(ForwardIt begin, ForwardIt end) {
+    for (ForwardIt it = begin; it < end; ++it) {
+        *std::prev(it) = *it;
+    }
+}
+
+template <typename ForwardIt>
+void shift_right(ForwardIt begin, ForwardIt end) {
+    for (ForwardIt it = end; it > begin; --it) {
+        *it = *std::prev(it);
+    }
+}
+
+template< class Iter, class T>
+T accumulate(Iter begin, Iter end, T init) {
+    for (Iter it = begin; it < end; ++it) {
+        init += *it;
+    }
+    return init;
+}
+
+template< class Iter, class T, class Operation>
+T accumulate(Iter begin, Iter end, T init, Operation op) {
+    for (Iter it = begin; it < end; ++it) {
+        init = op(init, *it);
+    }
+    return init;
+}
+
+template <typename Iter>
+void bubble_sort(Iter begin, Iter end) {
+    for (Iter it1 = begin; it1 != end; ++it1) {
+        for (Iter it2 = std::next(it1); it2 != end; ++it2) {
+            if (*it1 > *it2) {
+                std::swap(*it1, *it2);
+            }
+        }
+    }
+}
 
 } // namespace micro

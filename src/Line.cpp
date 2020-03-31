@@ -1,7 +1,6 @@
 #include <micro/utils/Line.hpp>
 #include <micro/utils/time.hpp>
 #include <micro/math/unit_utils.hpp>
-#include <cfg_car.hpp>
 
 #include <algorithm>
 

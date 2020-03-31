@@ -4,11 +4,9 @@
 #include <micro/utils/arrays.hpp>
 #include <micro/utils/str_utils.hpp>
 
-#include <cfg_board.h>
-
 #include <FreeRTOS.h>
-#include <cmsis_os.h>
 #include <semphr.h>
+#include <task.h>
 
 namespace micro {
 
