@@ -36,6 +36,10 @@ private:
     static const type * const masks;    // Masks used for reading/writing elements.
 
 public:
+    bit_container() {
+        this->reset();
+    }
+
     /* @brief Casts bit container to its container type.
      * @returns The container value.
      **/

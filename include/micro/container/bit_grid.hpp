@@ -16,7 +16,9 @@ private:
 public:
     /* @brief Default constructor - does not initialize elements.
      **/
-    bit_grid() {}
+    bit_grid() {
+        this->reset();
+    }
 
     /* @brief Sets given bit of the grid.
      * @param x The X coordinate.

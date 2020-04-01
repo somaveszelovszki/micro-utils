@@ -23,6 +23,10 @@ private:
     bit_container_type data[NC];                        // Array of containers storing the binary values.
 
 public:
+    bit_array() {
+        this->reset();
+    }
+
     /* @brief Casts bit container to an array of an integral type.
      * @returns The container array.
      **/
@@ -44,7 +48,7 @@ public:
      * @returns The given bit of the array.
      **/
     bool get(uint32_t pos) const {
-        return this->data[pos / C].read(pos % C);
+        return this->data[pos / C].get(pos % C);
     }
 
     /* @brief Sets given bit of the array.
