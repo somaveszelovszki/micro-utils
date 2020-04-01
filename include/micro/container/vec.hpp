@@ -97,17 +97,6 @@ public:
         return this->begin() + this->size_ - 1;
     }
 
-    void resize(const uint32_t newSize) {
-        if (newSize <= this->capacity()) {
-            while (this->size_ > newSize) {
-                this->data_[--this->size_].~T();
-            }
-            while (this->size_ < newSize) {
-                this->data_[this->size_++] = T();
-            }
-        }
-    }
-
 protected:
     void construct(const vec_base<T, capacity_>& other) {
         this->clear();
@@ -280,14 +269,6 @@ public:
             }
         }
         return this->size_ - prev_size;
-    }
-
-    void sort() {
-        std::qsort(this->data(), this->capacity(), sizeof(T), [] (const void *a, const void *b) {
-            const T& a_ = *static_cast<const T*>(a);
-            const T& b_ = *static_cast<const T*>(b);
-            return a_ > b_ ? 1 : a_ < b_ ? -1 : 0;
-        });
     }
 };
 
