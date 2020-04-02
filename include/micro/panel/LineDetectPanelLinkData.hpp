@@ -21,6 +21,7 @@ struct LineDetectOutPanelLinkData : public micro::PanelLinkData {
         int16_t pos_mm_per16 : 13;
         uint8_t idx : 3;
     } __attribute__((packed)) lines[3];
+    uint16_t d_time_us;
 
     static constexpr microsecond_t period() { return millisecond_t(0); }
     static constexpr microsecond_t timeout() { return millisecond_t(5); }
