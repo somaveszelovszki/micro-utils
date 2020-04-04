@@ -37,4 +37,22 @@ void updateMainLine(const Lines& lines, Line& mainLine) {
     }
 }
 
+bool areClose(const Lines& lines) {
+
+    constexpr millimeter_t MAX_CLOSE_LINES_DISTANCE = centimeter_t(5.2f);
+
+    bool close = true;
+    for (uint32_t i = 1; i < lines.size(); ++i) {
+        if (lines[i].pos - lines[i - 1].pos > MAX_CLOSE_LINES_DISTANCE) {
+            close = false;
+            break;
+        }
+    }
+    return close;
+}
+
+bool areFar(const Lines& lines) {
+    return !areClose(lines);
+}
+
 } // namespace micro

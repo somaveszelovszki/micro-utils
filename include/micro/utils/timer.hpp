@@ -13,6 +13,10 @@ public:
         this->period_ = period;
     }
 
+    millisecond_t period() const {
+        return this->period_;
+    }
+
     void start(const millisecond_t period) {
         this->startTime_= getTime();
         this->period_ = period;
@@ -32,10 +36,17 @@ public:
         return hasTimedOut;
     }
 
-private:
+protected:
     millisecond_t startTime_;
     millisecond_t period_;
     bool isRunning_;
+};
+
+class WatchdogTimer : public Timer {
+public:
+    void reset() {
+        this->startTime_= getTime();
+    }
 };
 
 } // namespace micro

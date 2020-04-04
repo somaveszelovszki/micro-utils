@@ -17,7 +17,7 @@ public:
     typedef vec<config_t, 500> configs_t;
 
     explicit Trajectory(meter_t optoRowCarCenterDist)
-        : carCenterToOptoRowCenter_(optoRowCarCenterDist, meter_t(0))
+        : carCenterToOptoRowCenter_{ optoRowCarCenterDist, meter_t(0) }
         , sectionStartConfig_(this->configs_.begin())
         , length_(0)
         , coveredDistanceUntilLastConfig_(-optoRowCarCenterDist)

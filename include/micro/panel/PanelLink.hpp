@@ -8,6 +8,9 @@
 #elif defined STM32F4
 #include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_uart.h>
+
+#include <FreeRTOS.h>
+#include <task.h>
 #endif
 
 namespace micro {
@@ -33,7 +36,6 @@ template <typename T, class = typename std::enable_if<std::is_base_of<PanelLinkD
 bool isChecksumOk(const T& data) {
     return data.checksum == calcChecksum(data);
 }
-
 
 enum class panelLinkRole_t {
     Master,
@@ -119,8 +121,10 @@ template <typename T_rx, typename T_tx>
 bool PanelLink<T_rx, T_tx>::readAvailable(T_rx& rxData) {
     bool available = false;
     if (this->isConnected() && this->isAvailable_) {
+        taskENTER_CRITICAL();
         rxData = this->rxAccessibleData_;
         this->isAvailable_ = false;
+        taskEXIT_CRITICAL();
         available = true;
     }
     return available;

@@ -44,7 +44,7 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t
         const meter_t y_ = c1_.Y + dy * (1 - cos(static_cast<float>(i) / numSections * PI)) / 2;
         const m_per_sec_t currentSpeed = map(i, 0ul, numSections, lastCfg->speed, dest.speed);
 
-        this->appendLine(config_t{ point2m(x_, y_).rotate(fwdAngle), currentSpeed });
+        this->appendLine(config_t{ point2m{ x_, y_ }.rotate(fwdAngle), currentSpeed });
     }
 }
 

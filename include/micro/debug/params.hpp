@@ -1,10 +1,10 @@
 #pragma once
 
-#include "serialize.hpp"
-
 #include <micro/container/vec.hpp>
 #include <micro/utils/atomic.hpp>
 #include <micro/utils/typeinfo.hpp>
+
+#include "serialize.hpp"
 
 #include <cstring>
 
@@ -75,7 +75,7 @@ private:
         return Param(
             name,
             micro::typeinfo<T>::name(),
-            { nullptr },
+            nullptr,
             reinterpret_cast<uint8_t*>(value),
             sizeof(T),
             micro::serialize<T>,

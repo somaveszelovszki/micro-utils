@@ -22,24 +22,12 @@ template <typename T> struct point2 {
      **/
     T Y;
 
-    /* @brief Constructor - does not initializes coordinates.
-     **/
-    point2() {}
-
-    /* @brief Constructor - initializes X and Y coordinates.
-     * @param _X The X coordinate.
-     * @param _Y The Y coordinate.
-     **/
-    point2(const T& _X, const T& _Y)
-        : X(_X)
-        , Y(_Y) {}
-
     /* @brief Casts point to another type.
      * @returns point cast to another type.
      **/
     template <typename T2>
     operator point2<T2>() const {
-        return point2<T2>(T2(this->X), T2(this->Y));
+        return point2<T2>{ T2(this->X), T2(this->Y) };
     }
 
     /* @brief Checks if two points are equal
@@ -124,7 +112,7 @@ template <typename T> struct point2 {
 **/
 template <typename T1, typename T2>
 point2<T1> operator+(const point2<T1>& p1, const point2<T2>& p2) {
-    return point2<T1>(p1.X + p2.X, p1.Y + p2.Y);
+    return point2<T1>{ p1.X + p2.X, p1.Y + p2.Y };
 }
 
 /* @brief Subtracts coordinates of the other point from the coordinates of this point.
@@ -133,7 +121,7 @@ point2<T1> operator+(const point2<T1>& p1, const point2<T2>& p2) {
  **/
 template <typename T1, typename T2>
 point2<T1> operator-(const point2<T1>& p1, const point2<T2>& p2) {
-    return point2<T1>(p1.X - p2.X, p1.Y - p2.Y);
+    return point2<T1>{ p1.X - p2.X, p1.Y - p2.Y };
 }
 
 /* @brief Adds coordinates of this and the other point and stores the result in this point.

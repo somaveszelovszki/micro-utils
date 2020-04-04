@@ -14,8 +14,6 @@
 #include <cstdarg>
 #include <cstring>
 
-extern QueueHandle_t logQueue;
-
 namespace micro {
 
 constexpr uint32_t STR_MAX_LEN_INT        = 1 + 10;         // sign + decimal
@@ -23,8 +21,14 @@ constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
 constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
 constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
 
+QueueHandle_t queue = nullptr;
+
+void log_init(QueueHandle_t logQueue) {
+    queue = logQueue;
+}
+
 void vprintlog(logLevel_t level, const char *format, va_list args) {
-    if (level >= MIN_LOG_LEVEL)
+    if (level >= MIN_LOG_LEVEL && queue)
     {
         char msg[LOG_MSG_MAX_SIZE];
         const char *levelStr = to_string(level);
@@ -37,7 +41,7 @@ void vprintlog(logLevel_t level, const char *format, va_list args) {
             msg[len++] = '\n';
             msg[len++] = '\0';
         }
-        xQueueSend(logQueue, msg, 1);
+        xQueueSend(queue, msg, 1);
     }
 }
 

@@ -76,9 +76,9 @@ const char* to_string(const logLevel_t& level);
  * @brief Defines rotation direction.
  */
 enum class Direction : int8_t {
-    LEFT  = 1,
+    LEFT   = 1,
     CENTER = 0,
-    RIGHT = -1
+    RIGHT  = -1
 };
 DEFINE_TYPEINFO(Direction);
 
