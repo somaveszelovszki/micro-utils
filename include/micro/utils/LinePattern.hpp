@@ -22,22 +22,10 @@ public:
         DEAD_END    = 8  ///< Labyrinth dead-end
     };
 
-    type_t type;        // Line pattern type.
-    Sign dir;         // The pattern direction (POSITIVE means it is the same as the car direction).
-    Direction side;   // The side of the line the pattern is on. In case of symmetrical pattern: CENTER.
+    type_t type    = type_t::NONE;        // Line pattern type.
+    Sign dir       = Sign::NEUTRAL;       // The pattern direction (POSITIVE means it is the same as the car direction).
+    Direction side = Direction::CENTER;   // The side of the line the pattern is on. In case of symmetrical pattern: CENTER.
     meter_t startDist;
-
-    LinePattern()
-        : type(type_t::NONE)
-        , dir(Sign::NEUTRAL)
-        , side(Direction::CENTER)
-        , startDist(0) {}
-
-    LinePattern(type_t type, Sign dir, Direction side, meter_t startDist = meter_t(0))
-        : type(type)
-        , dir(dir)
-        , side(side)
-        , startDist(startDist) {}
 
     bool operator==(const LinePattern& other) const {
         return this->type == other.type && this->dir == other.dir && this->side == other.side;
