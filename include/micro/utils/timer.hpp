@@ -42,10 +42,26 @@ protected:
     bool isRunning_;
 };
 
-class WatchdogTimer : public Timer {
+class WatchdogTimer : private Timer {
 public:
+    using Timer::Timer;
+    using Timer::start;
+    using Timer::stop;
+
+    void setTimeout(const millisecond_t timeout) {
+        this->setPeriod(timeout);
+    }
+
+    millisecond_t timeout() const {
+        return this->period();
+    }
+
     void reset() {
         this->startTime_= getTime();
+    }
+
+    bool hasTimedOut() const {
+        return this->isRunning_ && getTime() - this->startTime_ > this->period_;
     }
 };
 
