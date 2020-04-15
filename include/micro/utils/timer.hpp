@@ -9,6 +9,10 @@ class Timer {
 public:
     Timer(void) : isRunning_(false) {}
 
+    explicit Timer(const millisecond_t period) : isRunning_(false) {
+        this->start(period);
+    }
+
     void setPeriod(const millisecond_t period) {
         this->period_ = period;
     }
