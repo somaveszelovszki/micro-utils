@@ -75,6 +75,11 @@ template <typename T> struct line2 {
             this->fromPoints(p, { p.X + T(1), p.Y + T(tan(angle)) });
         }
     }
+
+    radian_t getAngle() const {
+        // a*x + b*y + c = 0  ->  y = (-a/b)*x - c/b
+        return atan2(-this->a, this->b);
+    }
 };
 
 typedef line2<float>  line2f; // 32-bit floating point line.

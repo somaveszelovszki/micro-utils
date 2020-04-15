@@ -25,6 +25,28 @@ Lines::const_iterator findLine(const Lines& lines, const uint32_t id) {
     return std::find_if(lines.begin(), lines.end(), [id](const Line& l) { return l.id == id; });
 }
 
+MainLine::MainLine(const meter_t carFrontRearSensorRowDist)
+    : carFrontRearSensorRowDist(carFrontRearSensorRowDist) {}
+
+void MainLine::updateFrontRearLines(const bool isFwd) {
+    const meter_t diff     = (this->carFrontRearSensorRowDist / 2) * tan(this->centerLine.angle);
+    const meter_t frontPos = centerLine.pos + diff;
+    const meter_t rearPos  = centerLine.pos - diff;
+
+    this->frontLine.id  = 0;
+    this->frontLine.pos = isFwd ? frontPos : rearPos;
+    this->rearLine.id   = 0;
+    this->rearLine.pos  = isFwd ? rearPos : frontPos;
+}
+
+void MainLine::updateCenterLine(const bool isFwd) {
+    const meter_t frontPos = (isFwd ? this->frontLine : this->rearLine).pos;
+    const meter_t rearPos  = (isFwd ? this->rearLine : this->frontLine).pos;
+
+    this->centerLine.pos   = (frontPos - rearPos) / 2;
+    this->centerLine.angle = atan2(-(frontPos + rearPos), this->carFrontRearSensorRowDist);
+}
+
 void updateMainLine(const Lines& lines, Line& mainLine) {
     Lines::const_iterator l = findLine(lines, mainLine.id);
     if (l != lines.end()) {
@@ -35,6 +57,12 @@ void updateMainLine(const Lines& lines, Line& mainLine) {
             mainLine = *l;
         }
     }
+}
+
+void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine, const bool isFwd) {
+    updateMainLine(frontLines, mainLine.frontLine);
+    updateMainLine(frontLines, mainLine.rearLine);
+    mainLine.updateCenterLine(isFwd);
 }
 
 bool areClose(const Lines& lines) {

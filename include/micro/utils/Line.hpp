@@ -11,8 +11,8 @@ namespace micro {
 /* @brief Stores data of a detected line.
  **/
 struct Line {
-    millimeter_t pos; // The line position at the front sensor line (relative to car vertical middle axis).
-    uint8_t id : 3;
+    millimeter_t pos; ///< The line position at the front sensor line (relative to car vertical middle axis).
+    uint8_t id : 3;   ///< The line id @note 0 means unknown line id
 
     bool operator==(const Line& other) const { return this->pos == other.pos && this->id == other.id; }
     bool operator!=(const Line& other) const { return !(*this == other); }
@@ -22,7 +22,29 @@ struct Line {
 
 typedef sorted_vec<Line, cfg::MAX_NUM_LINES> Lines;
 
+struct OrientedLine {
+    millimeter_t pos;
+    radian_t angle;
+
+    bool operator==(const OrientedLine& other) const { return this->pos == other.pos && this->angle == other.angle; }
+    bool operator!=(const OrientedLine& other) const { return !(*this == other); }
+};
+
+struct MainLine {
+    const meter_t carFrontRearSensorRowDist;
+    Line frontLine;             ///< The position of the line at the front sensor row - in the front sensor row's coordinate system
+    Line rearLine;              ///< The position of the line at the rear sensor row - in the rear sensor row's coordinate system
+    OrientedLine centerLine;    ///< The followed line - in the car's current direction's coordinate system. @note This will be the control input.
+
+    explicit MainLine(const meter_t carFrontRearSensorRowDist);
+
+    void updateFrontRearLines(const bool isFwd);
+    void updateCenterLine(const bool isFwd);
+};
+
 void updateMainLine(const Lines& lines, Line& mainLine);
+
+void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine, const bool isFwd);
 
 Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos);
 

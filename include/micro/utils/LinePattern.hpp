@@ -26,6 +26,7 @@ public:
     Sign dir       = Sign::NEUTRAL;       // The pattern direction (POSITIVE means it is the same as the car direction).
     Direction side = Direction::CENTER;   // The side of the line the pattern is on. In case of symmetrical pattern: CENTER.
     meter_t startDist;
+    bool isPending = false;
 
     bool operator==(const LinePattern& other) const {
         return this->type == other.type && this->dir == other.dir && this->side == other.side;

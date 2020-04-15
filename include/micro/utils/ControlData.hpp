@@ -7,19 +7,27 @@ namespace micro {
 /* @brief Stores data that is sent to the ControlTask.
  **/
 struct ControlData {
+
+    enum class controlType_t : uint8_t {
+        Line   = 1,
+        Direct = 2
+    };
+
     m_per_sec_t speed;
     millisecond_t rampTime;
-    bool directControl = false;
-    bool rearServoEnabled = true;
+    controlType_t controlType = controlType_t::Line;
 
-    // line control
-    Line baseline;
-    millimeter_t offset;
-    radian_t angle; // not used
+    struct {
+        OrientedLine baseline;
+        millimeter_t offset;
+        radian_t angle;
+    } lineControl;
 
-    // direct control
-    radian_t frontWheelAngle;
-    radian_t rearWheelAngle;
+    struct {
+        // direct control
+        radian_t frontWheelAngle;
+        radian_t rearWheelAngle;
+    } directControl;
 };
 
 } // namespace micro

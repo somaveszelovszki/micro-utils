@@ -9,18 +9,23 @@ namespace micro {
 
 class Trajectory {
 public:
+
+    enum class orientationUpdate_t {
+        FIX_ORIENTATION = 1,
+        PATH_ORIENTATION = 2
+    };
+
     struct config_t {
-        point2m pos;
+        Pose pose;
         m_per_sec_t speed;
     };
 
     typedef vec<config_t, 500> configs_t;
 
-    explicit Trajectory(meter_t optoRowCarCenterDist)
-        : carCenterToOptoRowCenter_{ optoRowCarCenterDist, meter_t(0) }
-        , sectionStartConfig_(this->configs_.begin())
+    Trajectory()
+        : sectionStartConfig_(this->configs_.begin())
         , length_(0)
-        , coveredDistanceUntilLastConfig_(-optoRowCarCenterDist)
+        , coveredDistanceUntilLastConfig_(0)
         , carDistanceAtLastConfig_(0)
         , carDistanceSinceLastConfig_(0) {}
 
@@ -39,7 +44,7 @@ public:
     void setStartConfig(const config_t& start, meter_t currentDist);
     void appendLine(const config_t& dest);
     void appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed, uint32_t numSections);
-    void appendSineArc(const config_t& dest, radian_t fwdAngle, uint32_t numSections);
+    void appendSineArc(const config_t& dest, radian_t fwdAngle, orientationUpdate_t orientationUpdate, uint32_t numSections, radian_t sineStart, radian_t sineEnd);
 
     ControlData update(const CarProps car);
 
@@ -47,7 +52,7 @@ public:
         this->configs_.clear();
         this->sectionStartConfig_             = this->configs_.begin();
         this->length_                         = meter_t(0);
-        this->coveredDistanceUntilLastConfig_ = -carCenterToOptoRowCenter_.length();
+        this->coveredDistanceUntilLastConfig_ = meter_t(0);
         this->carDistanceAtLastConfig_        = meter_t(0);
         this->carDistanceSinceLastConfig_     = meter_t(0);
     }
@@ -55,7 +60,6 @@ public:
 private:
     configs_t::const_iterator getClosestConfig(const point2m& pos) const;
 
-    const vec2m carCenterToOptoRowCenter_; // Vector from the car center to the optical sensor row center
     configs_t configs_;
     configs_t::const_iterator sectionStartConfig_;
     meter_t length_;

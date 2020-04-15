@@ -89,13 +89,27 @@ template <typename T> struct point2 {
         return point2<T>((this->X + other.X * otherWeight) / weightSum, (this->Y + other.Y * otherWeight) / weightSum);
     }
 
-    point2<T> rotate(const radian_t& angle) const {
-        const float c = cos(angle);
-        const float s = sin(angle);
+    point2<T> rotate(const float c, const float s) const {
         return {
             c * this->X - s * this->Y,
             s * this->X + c * this->Y
         };
+    }
+
+    point2<T> rotate(const radian_t& angle) const {
+        return this->rotate(cos(angle), sin(angle));
+    }
+
+    point2<T> rotate90() const {
+        return this->rotate(0.0f, 1.0f);
+    }
+
+    point2<T> rotate180() const {
+        return this->rotate(-1.0f, 0.0f);
+    }
+
+    point2<T> rotate270() const {
+        return this->rotate(0.0f, -1.0f);
     }
 
     // @note numpoints must be at least 1
