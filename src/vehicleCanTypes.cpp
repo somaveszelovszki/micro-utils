@@ -1,5 +1,6 @@
 #include <micro/panel/vehicleCanTypes.hpp>
 #include <micro/math/unit_utils.hpp>
+#include <micro/utils/types.hpp>
 
 namespace micro {
 namespace can {

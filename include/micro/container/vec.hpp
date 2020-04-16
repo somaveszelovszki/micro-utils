@@ -196,7 +196,7 @@ public:
     uint32_t insert(iterator iter, const T& value) {
         const uint32_t prev_size = this->size_;
         if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
-            this->shiftRight(iter);
+            micro::shift_right(iter, this->back());
             *iter = value;
             ++this->size_;
         }
@@ -212,7 +212,7 @@ public:
     uint32_t emplace(iterator iter, Args&&... args) {
         const uint32_t prev_size = this->size_;
         if (this->size() < this->capacity()) {
-            this->shiftRight(iter);
+            micro::shift_right(iter, this->back());
             *iter = T(std::forward<Args>(args)...);
             ++this->size_;
         }
