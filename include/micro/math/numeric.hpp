@@ -88,15 +88,33 @@ inline constexpr bool isInRange(const T1& value, const T2& ref, float relErr) {
  * @tparam S Numeric type of the source value and the source range boundaries.
  * @tparam R Numeric type of the result value and the result range boundaries.
  * @param value The value to map.
- * @param fromLow Lower boundary of the source range.
- * @param fromHigh Higher boundary of the source range.
- * @param toLow Lower boundary of the destination range.
- * @param toHigh Higher boundary of the destination range.
+ * @param from1 First boundary of the source range.
+ * @param from2 Second boundary of the source range.
+ * @param to1 First boundary of the destination range.
+ * @param to2 Second boundary of the destination range.
  * @returns The mapped value.
  */
 template <typename S, typename R>
-inline constexpr R map(const S& value, const S& fromLow, const S& fromHigh, const R& toLow, const R& toHigh) {
-    return fromLow != fromHigh ? toLow + ((clamp(value, fromLow, fromHigh) - fromLow) * (toHigh - toLow) / (fromHigh - fromLow)) : toLow;
+inline constexpr R map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
+
+    const S clamped = clamp(value, from1, from2);
+    R result = to1;
+
+    if (from2 > from1) {
+        if (to2 >= to1) {
+            result = to1 + (clamped - from1) * (to2 - to1) / (from2 - from1);
+        } else {
+            result = to1 - (clamped - from1) * (to1 - to2) / (from2 - from1);
+        }
+    } else if (from2 < from1) {
+        if (to2 >= to1) {
+            result = to1 + (from1 - clamped) * (to2 - to1) / (from1 - from2);
+        } else {
+            result = to1 - (from1 - clamped) * (to1 - to2) / (from1 - from2);
+        }
+    }
+
+    return result;
 }
 
 /**
