@@ -70,15 +70,13 @@ micro::can::detail::LinePattern convert(const micro::LinePattern& in) {
     };
 }
 
-ServoOffsets::ServoOffsets(const radian_t frontSteeringServoOffset, const radian_t rearSteeringServoOffset, const radian_t extraServoOffset)
-    : frontSteeringServoOffset_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(frontSteeringServoOffset).get() * detail::SHIFT_8))
-    , rearSteeringServoOffset_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(rearSteeringServoOffset).get() * detail::SHIFT_8))
-    , extraServoOffset_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(extraServoOffset).get() * detail::SHIFT_8)) {}
+ServoParams::ServoParams(const radian_t offset, const radian_t maxDelta)
+    : offset_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(offset).get() * detail::SHIFT_8))
+    , maxDelta_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(maxDelta).get() * detail::SHIFT_8)) {}
 
-void ServoOffsets::acquire(radian_t& frontSteeringServoOffset, radian_t& rearSteeringServoOffset, radian_t& extraServoOffset) const {
-    frontSteeringServoOffset = degree_t(this->frontSteeringServoOffset_deg_8p8 / detail::SHIFT_8);
-    rearSteeringServoOffset  = degree_t(this->rearSteeringServoOffset_deg_8p8 / detail::SHIFT_8);
-    extraServoOffset         = degree_t(this->extraServoOffset_deg_8p8 / detail::SHIFT_8);
+void ServoParams::acquire(radian_t& offset, radian_t& maxAngle) const {
+    offset   = degree_t(this->offset_deg_8p8 / detail::SHIFT_8);
+    maxAngle = degree_t(this->maxDelta_deg_8p8 / detail::SHIFT_8);
 }
 
 MotorControlParams::MotorControlParams(const float controller_P, const float controller_I, const float controller_Imax)
@@ -102,7 +100,7 @@ LateralControl::LateralControl(const radian_t frontWheelTargetAngle, const radia
 void LateralControl::acquire(radian_t& frontWheelTargetAngle, radian_t& rearWheelTargetAngle, radian_t& extraServoTargetAngle) const {
     frontWheelTargetAngle = degree_t(this->frontWheelTargetAngle_deg_8p8 / detail::SHIFT_8);
     rearWheelTargetAngle  = degree_t(this->rearWheelTargetAngle_deg_8p8 / detail::SHIFT_8);
-    extraServoTargetAngle         = degree_t(this->extraServoTargetAngle_deg_8p8 / detail::SHIFT_8);
+    extraServoTargetAngle = degree_t(this->extraServoTargetAngle_deg_8p8 / detail::SHIFT_8);
 }
 
 LongitudinalControl::LongitudinalControl(const m_per_sec_t targetSpeed, const bool useSafetyEnableSignal, const millisecond_t targetSpeedRampTime)

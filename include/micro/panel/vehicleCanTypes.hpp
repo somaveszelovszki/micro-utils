@@ -7,6 +7,45 @@
 
 namespace micro {
 namespace can {
+namespace detail {
+
+struct Lines {
+    struct {
+        int16_t pos_mm_9p4 : 13;
+        uint8_t id         : 3;
+    } __attribute__((packed)) values[cfg::MAX_NUM_LINES];
+} __attribute__((packed));
+
+struct LinePattern {
+    uint8_t  type         : 4;
+    int8_t   dir          : 2;
+    int8_t   side         : 2;
+    uint32_t startDist_mm : 24;
+    bool isPatternPending : 1;
+    uint8_t reserved      : 7;
+} __attribute__((packed));
+
+struct ServoParams {
+    int16_t offset_deg_8p8   : 16;
+    int16_t maxDelta_deg_8p8 : 16;
+
+    ServoParams(const radian_t offset, const radian_t maxDelta);
+    void acquire(radian_t& offset, radian_t& maxDelta) const;
+
+} __attribute__((packed));
+
+struct MotorControlParams {
+
+    uint32_t controller_P_8p16   : 24;
+    uint32_t controller_I_8p16   : 24;
+    uint16_t controller_Imax_8p8 : 16;
+
+    MotorControlParams(const float controller_P, const float controller_I, const float controller_Imax);
+    void acquire(float& controller_P, float& controller_I, float& controller_Imax) const;
+
+} __attribute__((packed));
+
+} // namespace detail
 
 template <typename T>
 CAN_TxHeaderTypeDef buildHeader() {
@@ -47,17 +86,6 @@ struct LongitudinalControl {
     void acquire(m_per_sec_t& targetSpeed, bool& useSafetyEnableSignal, millisecond_t& targetSpeedRampTime) const;
 
 } __attribute__((packed));
-
-namespace detail {
-
-struct Lines {
-    struct {
-        int16_t pos_mm_9p4 : 13;
-        uint8_t id         : 3;
-    } __attribute__((packed)) values[cfg::MAX_NUM_LINES];
-} __attribute__((packed));
-
-} // namespace detail
 
 struct FrontLines {
     static constexpr uint16_t id() { return 0x401; }
@@ -111,19 +139,6 @@ struct LongitudinalState {
 
 } __attribute__((packed));
 
-namespace detail {
-
-struct LinePattern {
-    uint8_t  type         : 4;
-    int8_t   dir          : 2;
-    int8_t   side         : 2;
-    uint32_t startDist_mm : 24;
-    bool isPatternPending : 1;
-    uint8_t reserved      : 7;
-} __attribute__((packed));
-
-} // namespace detail
-
 struct FrontLinePattern {
     static constexpr uint16_t id() { return 0x405; }
     static constexpr millisecond_t period()  { return millisecond_t(5); }
@@ -163,55 +178,35 @@ struct LineDetectControl {
 
 } __attribute__((packed));
 
-namespace detail {
-
-struct ServoOffsets {
-    int16_t frontSteeringServoOffset_deg_8p8 : 16;
-    int16_t rearSteeringServoOffset_deg_8p8  : 16;
-    int16_t extraServoOffset_deg_8p8         : 16;
-
-    ServoOffsets(const radian_t frontSteeringServoOffset, const radian_t rearSteeringServoOffset, const radian_t extraServoOffset);
-    void acquire(radian_t& frontSteeringServoOffset, radian_t& rearSteeringServoOffset, radian_t& extraServoOffset) const;
-
-} __attribute__((packed));
-
-} // namespace detail
-
-struct SetServoOffsets : public detail::ServoOffsets {
+struct SetFrontWheelParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x601; }
     static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
 
-    using detail::ServoOffsets::ServoOffsets;
+    using detail::ServoParams::ServoParams;
 
 } __attribute__((packed));
 
-struct ServoOffsets : public detail::ServoOffsets {
+struct SetRearWheelParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x602; }
     static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
 
-    using detail::ServoOffsets::ServoOffsets;
+    using detail::ServoParams::ServoParams;
 
 } __attribute__((packed));
 
-namespace detail {
+struct SetExtraServoParams : public detail::ServoParams {
+    static constexpr uint16_t id() { return 0x603; }
+    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
+    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
 
-struct MotorControlParams {
-
-    uint32_t controller_P_8p16   : 24;
-    uint32_t controller_I_8p16   : 24;
-    uint16_t controller_Imax_8p8 : 16;
-
-    MotorControlParams(const float controller_P, const float controller_I, const float controller_Imax);
-    void acquire(float& controller_P, float& controller_I, float& controller_Imax) const;
+    using detail::ServoParams::ServoParams;
 
 } __attribute__((packed));
-
-} // namespace detail
 
 struct SetMotorControlParams : public detail::MotorControlParams {
-    static constexpr uint16_t id() { return 0x603; }
+    static constexpr uint16_t id() { return 0x604; }
     static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
 
@@ -219,8 +214,35 @@ struct SetMotorControlParams : public detail::MotorControlParams {
 
 } __attribute__((packed));
 
+struct FrontWheelParams : public detail::ServoParams {
+    static constexpr uint16_t id() { return 0x701; }
+    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
+    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+
+    using detail::ServoParams::ServoParams;
+
+} __attribute__((packed));
+
+struct RearWheelParams : public detail::ServoParams {
+    static constexpr uint16_t id() { return 0x702; }
+    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
+    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+
+    using detail::ServoParams::ServoParams;
+
+} __attribute__((packed));
+
+struct ExtraServoParams : public detail::ServoParams {
+    static constexpr uint16_t id() { return 0x703; }
+    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
+    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+
+    using detail::ServoParams::ServoParams;
+
+} __attribute__((packed));
+
 struct MotorControlParams : public detail::MotorControlParams {
-    static constexpr uint16_t id() { return 0x604; }
+    static constexpr uint16_t id() { return 0x704; }
     static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
 
