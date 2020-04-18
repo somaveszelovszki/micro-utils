@@ -37,6 +37,10 @@ public:
         return offset_;
     }
 
+    void setOffset(const radian_t offset) {
+        this->offset_ = offset;
+    }
+
     /* @brief Writes angle to the servo motor - converts value to PWM duty, and writes PWM pin.
      * @param _ang The angle to write.
      **/
@@ -55,7 +59,7 @@ private:
     const uint32_t pwm0_;      // The PWM value for 0 degrees.
     const uint32_t pwm180_;    // The PWM value for 180 degrees.
 
-    const radian_t offset_;    // The offset.
+    radian_t offset_;          // The offset.
     radian_t max_delta_;       // The maximum delta angle.
     radian_t angle_;           // The current angle.
 };

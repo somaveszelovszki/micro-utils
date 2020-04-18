@@ -10,6 +10,8 @@ namespace hw {
 class SteeringServo : private Servo {
 
 public:
+    using Servo::setOffset;
+
     /* @brief Constructor - initializes timer handle, channel, middle servo angle and delta maximum wheel angle.
      * @param htim The handle for the timer used for PWM generation.
      * @param chnl The timer channel used for PWM generation.
