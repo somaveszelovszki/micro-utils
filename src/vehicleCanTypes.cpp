@@ -94,14 +94,14 @@ void MotorControlParams::acquire(float& controller_P, float& controller_I, float
 
 } // namespace detail
 
-LateralControl::LateralControl(const radian_t frontSteeringServoTargetAngle, const radian_t rearSteeringServoTargetAngle, const radian_t extraServoTargetAngle)
-    : frontSteeringServoTargetAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(frontSteeringServoTargetAngle).get() * detail::SHIFT_8))
-    , rearSteeringServoTargetAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(rearSteeringServoTargetAngle).get() * detail::SHIFT_8))
+LateralControl::LateralControl(const radian_t frontWheelTargetAngle, const radian_t rearWheelTargetAngle, const radian_t extraServoTargetAngle)
+    : frontWheelTargetAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(frontWheelTargetAngle).get() * detail::SHIFT_8))
+    , rearWheelTargetAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(rearWheelTargetAngle).get() * detail::SHIFT_8))
     , extraServoTargetAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(extraServoTargetAngle).get() * detail::SHIFT_8)) {}
 
-void LateralControl::acquire(radian_t& frontSteeringServoTargetAngle, radian_t& rearSteeringServoTargetAngle, radian_t& extraServoTargetAngle) const {
-    frontSteeringServoTargetAngle = degree_t(this->frontSteeringServoTargetAngle_deg_8p8 / detail::SHIFT_8);
-    rearSteeringServoTargetAngle  = degree_t(this->rearSteeringServoTargetAngle_deg_8p8 / detail::SHIFT_8);
+void LateralControl::acquire(radian_t& frontWheelTargetAngle, radian_t& rearWheelTargetAngle, radian_t& extraServoTargetAngle) const {
+    frontWheelTargetAngle = degree_t(this->frontWheelTargetAngle_deg_8p8 / detail::SHIFT_8);
+    rearWheelTargetAngle  = degree_t(this->rearWheelTargetAngle_deg_8p8 / detail::SHIFT_8);
     extraServoTargetAngle         = degree_t(this->extraServoTargetAngle_deg_8p8 / detail::SHIFT_8);
 }
 
@@ -130,14 +130,14 @@ void RearLines::acquire(Lines& lines) const {
     lines = detail::convert(this->lines);
 }
 
-LateralState::LateralState(const radian_t frontSteeringServoAngle, const radian_t rearSteeringServoAngle, const radian_t extraServoAngle)
-    : frontSteeringServoAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(frontSteeringServoAngle).get() * detail::SHIFT_8))
-    , rearSteeringServoAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(rearSteeringServoAngle).get() * detail::SHIFT_8))
+LateralState::LateralState(const radian_t frontWheelAngle, const radian_t rearWheelAngle, const radian_t extraServoAngle)
+    : frontWheelAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(frontWheelAngle).get() * detail::SHIFT_8))
+    , rearWheelAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(rearWheelAngle).get() * detail::SHIFT_8))
     , extraServoAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(extraServoAngle).get() * detail::SHIFT_8)) {}
 
-void LateralState::acquire(radian_t& frontSteeringServoAngle, radian_t& rearSteeringServoAngle, radian_t& extraServoAngle) const {
-    frontSteeringServoAngle = degree_t(this->frontSteeringServoAngle_deg_8p8 / detail::SHIFT_8);
-    rearSteeringServoAngle  = degree_t(this->rearSteeringServoAngle_deg_8p8 / detail::SHIFT_8);
+void LateralState::acquire(radian_t& frontWheelAngle, radian_t& rearWheelAngle, radian_t& extraServoAngle) const {
+    frontWheelAngle = degree_t(this->frontWheelAngle_deg_8p8 / detail::SHIFT_8);
+    rearWheelAngle  = degree_t(this->rearWheelAngle_deg_8p8 / detail::SHIFT_8);
     extraServoAngle         = degree_t(this->extraServoAngle_deg_8p8 / detail::SHIFT_8);
 }
 

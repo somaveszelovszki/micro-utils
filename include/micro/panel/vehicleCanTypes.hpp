@@ -25,12 +25,12 @@ struct LateralControl {
     static constexpr millisecond_t period()  { return millisecond_t(2); }
     static constexpr millisecond_t timeout() { return millisecond_t(10); }
 
-    int16_t frontSteeringServoTargetAngle_deg_8p8 : 16;
-    int16_t rearSteeringServoTargetAngle_deg_8p8  : 16;
-    int16_t extraServoTargetAngle_deg_8p8         : 16;
+    int16_t frontWheelTargetAngle_deg_8p8 : 16;
+    int16_t rearWheelTargetAngle_deg_8p8  : 16;
+    int16_t extraServoTargetAngle_deg_8p8 : 16;
 
-    LateralControl(const radian_t frontSteeringServoTargetAngle, const radian_t rearSteeringServoTargetAngle, const radian_t extraServoTargetAngle);
-    void acquire(radian_t& frontSteeringServoTargetAngle, radian_t& rearSteeringServoTargetAngle, radian_t& extraServoTargetAngle) const;
+    LateralControl(const radian_t frontWheelTargetAngle, const radian_t rearWheelTargetAngle, const radian_t extraServoTargetAngle);
+    void acquire(radian_t& frontWheelTargetAngle, radian_t& rearWheelTargetAngle, radian_t& extraServoTargetAngle) const;
 
 } __attribute__((packed));
 
@@ -88,12 +88,12 @@ struct LateralState {
     static constexpr millisecond_t period()  { return millisecond_t(5); }
     static constexpr millisecond_t timeout() { return millisecond_t(20); }
 
-    uint16_t frontSteeringServoAngle_deg_8p8 : 16;
-    uint16_t rearSteeringServoAngle_deg_8p8  : 16;
-    uint16_t extraServoAngle_deg_8p8         : 16;
+    uint16_t frontWheelAngle_deg_8p8 : 16;
+    uint16_t rearWheelAngle_deg_8p8  : 16;
+    uint16_t extraServoAngle_deg_8p8 : 16;
 
-    LateralState(const radian_t frontSteeringServoAngle, const radian_t rearSteeringServoAngle, const radian_t extraServoAngle);
-    void acquire(radian_t& frontSteeringServoAngle, radian_t& rearSteeringServoAngle, radian_t& extraServoAngle) const;
+    LateralState(const radian_t frontWheelAngle, const radian_t rearWheelAngle, const radian_t extraServoAngle);
+    void acquire(radian_t& frontWheelAngle, radian_t& rearWheelAngle, radian_t& extraServoAngle) const;
 
 } __attribute__((packed));
 
