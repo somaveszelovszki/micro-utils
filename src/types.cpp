@@ -1,6 +1,9 @@
 #include <micro/utils/types.hpp>
 #include <micro/utils/log.hpp>
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 namespace micro {
 
 const char* to_string(const Status& status) {
@@ -51,6 +54,12 @@ const char* to_string(const Sign& sign) {
         default:             result = "unknown";  break;
     }
     return result;
+}
+
+void waitReady(const volatile void * const item) {
+    while (!item) {
+        vTaskDelay(1);
+    }
 }
 
 } // namespace micro

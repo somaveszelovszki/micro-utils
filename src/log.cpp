@@ -28,7 +28,10 @@ void log_init(QueueHandle_t logQueue) {
 }
 
 void vprintlog(logLevel_t level, const char *format, va_list args) {
-    if (level >= MIN_LOG_LEVEL && queue)
+
+    micro::waitReady(queue);
+
+    if (level >= MIN_LOG_LEVEL)
     {
         char msg[LOG_MSG_MAX_SIZE];
         const char *levelStr = to_string(level);
