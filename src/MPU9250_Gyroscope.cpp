@@ -290,7 +290,7 @@ point3<rad_per_sec_t> MPU9250::readGyroData(void) {
         result.Y = deg_per_sec_t(y);
         result.Z = deg_per_sec_t(z);
     } else {
-        result.X = result.Y = result.Z = rad_per_sec_t::infinity();
+        result.X = result.Y = result.Z = micro::numeric_limits<rad_per_sec_t>::infinity();
     }
 
     return result;

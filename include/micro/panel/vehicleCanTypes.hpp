@@ -1,9 +1,17 @@
 #pragma once
 
+#include <micro/math/unit_utils.hpp>
 #include <micro/utils/LinePattern.hpp>
 
+
+
+#if defined STM32F0
+#include <stm32f0xx_hal.h>
+#include <stm32f0xx_hal_can.h>
+#elif defined STM32F4
 #include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_can.h>
+#endif
 
 namespace micro {
 namespace can {
@@ -180,8 +188,8 @@ struct LineDetectControl {
 
 struct SetFrontWheelParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x601; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::ServoParams::ServoParams;
 
@@ -189,8 +197,8 @@ struct SetFrontWheelParams : public detail::ServoParams {
 
 struct SetRearWheelParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x602; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::ServoParams::ServoParams;
 
@@ -198,8 +206,8 @@ struct SetRearWheelParams : public detail::ServoParams {
 
 struct SetExtraServoParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x603; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::ServoParams::ServoParams;
 
@@ -207,8 +215,8 @@ struct SetExtraServoParams : public detail::ServoParams {
 
 struct SetMotorControlParams : public detail::MotorControlParams {
     static constexpr uint16_t id() { return 0x604; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::MotorControlParams::MotorControlParams;
 
@@ -216,8 +224,8 @@ struct SetMotorControlParams : public detail::MotorControlParams {
 
 struct FrontWheelParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x701; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::ServoParams::ServoParams;
 
@@ -225,8 +233,8 @@ struct FrontWheelParams : public detail::ServoParams {
 
 struct RearWheelParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x702; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::ServoParams::ServoParams;
 
@@ -234,8 +242,8 @@ struct RearWheelParams : public detail::ServoParams {
 
 struct ExtraServoParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x703; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::ServoParams::ServoParams;
 
@@ -243,8 +251,8 @@ struct ExtraServoParams : public detail::ServoParams {
 
 struct MotorControlParams : public detail::MotorControlParams {
     static constexpr uint16_t id() { return 0x704; }
-    static constexpr millisecond_t period()  { return millisecond_t::infinity(); }
-    static constexpr millisecond_t timeout() { return millisecond_t::infinity(); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
 
     using detail::MotorControlParams::MotorControlParams;
 

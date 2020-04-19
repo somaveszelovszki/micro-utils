@@ -53,7 +53,7 @@ void HC_SR04_Ultrasonic::startMeasurement() {
         micro::getExactTime() - this->lastStartTime <= millisecond_t(500)) {}
 
     const microsecond_t echoTime = getExactTime();
-    this->distance = echoTime > this->lastStartTime ? echoTimeToDist(echoTime - this->lastStartTime) : centimeter_t::zero();
+    this->distance = echoTime > this->lastStartTime ? echoTimeToDist(echoTime - this->lastStartTime) : centimeter_t(0);
     this->busy = false;
 }
 

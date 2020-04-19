@@ -2,13 +2,20 @@
 
 #include <micro/utils/types.hpp>
 
-#include <type_traits>
 #include <cmath>
+#include <limits>
+#include <type_traits>
 
 namespace micro {
-namespace detail {
-constexpr float COMMON_EQ_ABS_EPS = 0.00001f;    // Default absolute epsilon for equality check.
-}
+
+template <typename T, typename partial = void>
+struct numeric_limits {
+    static constexpr T min()       { return std::numeric_limits<T>::min(); }
+    static constexpr T max()       { return std::numeric_limits<T>::max(); }
+    static constexpr T quiet_Nan() { return std::numeric_limits<T>::quiet_NaN(); }
+    static constexpr T infinity()  { return std::numeric_limits<T>::infinity(); }
+    static constexpr T epsilon()   { return std::numeric_limits<T>::epsilon(); }
+};
 
 // ---------------------------------------- Type-independent functions (same implementation for unit classes) ----------------------------------------
 
@@ -130,6 +137,42 @@ inline constexpr bool eq(const T1& value, const T2& ref, const T3& eps) {
 }
 
 /**
+ * @brief Checks if given value equals the reference with the default epsilon tolerance.
+ * @restrict Type must be arithmetic.
+ * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
+ * @param value The value to compare to the reference.
+ * @param ref The reference.
+ */
+template <typename T1, typename T2>
+inline constexpr bool eq(const T1& value, const T2& ref) {
+    return eq(value, ref, micro::numeric_limits<T1>::epsilon());
+}
+
+/**
+ * @brief Checks if given value equals zero with the given epsilon tolerance.
+ * @restrict Type must be arithmetic.
+ * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
+ * @param value The value to compare to the reference.
+ * @param eps The epsilon tolerance - 0.0001f by default.
+ */
+template <typename T1, typename T2>
+inline constexpr bool isZero(const T1& value, const T2& eps) {
+    return eq(value, T1(0), eps);
+}
+
+/**
+ * @brief Checks if given value equals zero with the given epsilon tolerance.
+ * @restrict Type must be arithmetic.
+ * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
+ * @param value The value to compare to the reference.
+ * @param eps The epsilon tolerance - 0.0001f by default.
+ */
+template <typename T>
+inline constexpr bool isZero(const T& value) {
+    return eq(value, T(0));
+}
+
+/**
  * @brief Calculates square of the vector length using the Pythagorean theory.
  * @tparam T The type of the values.
  * @param a The length of the first leg of the triangle.
@@ -198,42 +241,6 @@ inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, bool>::ty
 }
 
 /**
- * @brief Checks if given value equals the reference with the default epsilon tolerance.
- * @restrict Type must be arithmetic.
- * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
- * @param value The value to compare to the reference.
- * @param ref The reference.
- */
-template <typename T1, typename T2>
-inline constexpr typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type eq(const T1& value, const T2& ref) {
-    return eq(value, ref, detail::COMMON_EQ_ABS_EPS);
-}
-
-/**
- * @brief Checks if given value equals zero with the given epsilon tolerance.
- * @restrict Type must be arithmetic.
- * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
- * @param value The value to compare to the reference.
- * @param eps The epsilon tolerance - 0.0001f by default.
- */
-template <typename T1, typename T2>
-inline constexpr typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, bool>::type isZero(const T1& value, const T2& eps) {
-    return eq(value, 0, eps);
-}
-
-/**
- * @brief Checks if given value equals zero with the given epsilon tolerance.
- * @restrict Type must be arithmetic.
- * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
- * @param value The value to compare to the reference.
- * @param eps The epsilon tolerance - 0.0001f by default.
- */
-template <typename T>
-inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isZero(const T& value) {
-    return eq(value, T(0));
-}
-
-/**
  * @brief Calculates the hypotenuse of a triangle using the Pythagorean theory.
  * @restrict Type must be arithmetic.
  * @tparam T The type of the values.
@@ -257,7 +264,7 @@ inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type 
  */
 template <typename T>
 inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(const T& a, const T& b, const T& c) {
-    return static_cast<T>(sqrt(a * a + b * b + c * c));
+    return static_cast<T>(std::sqrt(a * a + b * b + c * c));
 }
 
 // ---------------------------------------- Specific type functions ----------------------------------------

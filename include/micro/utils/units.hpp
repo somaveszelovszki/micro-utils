@@ -198,12 +198,6 @@ public:
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
     constexpr dim_class(value_type value) : dim_class(value, nullptr) {}
 
-    static constexpr dim_class zero() { return dim_class(0.0f, nullptr); }
-
-    static constexpr dim_class nan() { return dim_class(std::numeric_limits<value_type>::quiet_NaN(), nullptr); }
-
-    static constexpr dim_class infinity() { return dim_class(std::numeric_limits<value_type>::infinity(), nullptr); }
-
     /* @brief Constructor - sets value.
      * @tparam unit_inst_t Unit instance type.
      * @param [unnamed] The unit instance.

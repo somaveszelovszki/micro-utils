@@ -112,7 +112,7 @@ ControlData Trajectory::update(const CarProps car) {
 
 Trajectory::configs_t::const_iterator Trajectory::getClosestConfig(const point2m& pos) const {
     configs_t::const_iterator closest = this->configs_.end();
-    meter_t minDist = meter_t::infinity();
+    meter_t minDist = micro::numeric_limits<meter_t>::infinity();
 
     for (configs_t::const_iterator it = this->sectionStartConfig_; it != this->configs_.end(); ++it) {
         const meter_t dist = pos.distance(it->pose.pos);

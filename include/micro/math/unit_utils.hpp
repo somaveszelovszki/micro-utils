@@ -6,6 +6,15 @@
 
 namespace micro {
 
+template <typename T>
+struct numeric_limits<T, typename std::enable_if<T::is_dim_class, void>::type> {
+    static constexpr T min()       { return std::numeric_limits<typename T::value_type>::min()      ; }
+    static constexpr T max()       { return std::numeric_limits<typename T::value_type>::max()      ; }
+    static constexpr T quiet_Nan() { return std::numeric_limits<typename T::value_type>::quiet_NaN(); }
+    static constexpr T infinity()  { return std::numeric_limits<typename T::value_type>::infinity() ; }
+    static constexpr T epsilon()   { return std::numeric_limits<typename T::value_type>::epsilon()  ; }
+};
+
 /**
  * @brief Gets value.
  * @param value The value.
@@ -45,42 +54,6 @@ inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isinf(cons
 template <typename T>
 inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isnan(const T& value) {
     return isnan(value.template get<true>());
-}
-
-/**
- * @brief Checks if given value equals the reference with the default epsilon tolerance.
- * @restrict Types must be unit classes of the same dimension.
- * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
- * @param value The value to compare to the reference.
- * @param ref The reference.
- */
-template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type eq(const T1& value, const T2& ref) {
-    return eq(value, ref, T1(detail::COMMON_EQ_ABS_EPS, nullptr));
-}
-
-/**
- * @brief Checks if given value equals zero with the given epsilon tolerance.
- * @restrict Type must be a unit class.
- * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
- * @param value The value to compare to the reference.
- * @param eps The epsilon tolerance - 0.0001f by default.
- */
-template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type isZero(const T1& value, const T2 eps) {
-    return eq(value, T1::zero(), eps);
-}
-
-/**
- * @brief Checks if given value equals zero with the given epsilon tolerance.
- * @restrict Type must be a unit class.
- * @tparam T Numeric type of the value, the reference and the epsilon tolerance.
- * @param value The value to compare to the reference.
- * @param eps The epsilon tolerance - 0.0001f by default.
- */
-template <typename T>
-inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isZero(const T& value) {
-    return eq(value, T::zero());
 }
 
 /**
@@ -187,7 +160,7 @@ inline radian_t normalize360(radian_t value) {
     while(value >= 2 * PI) {
         value -= 2 * PI;
     }
-    while(value < radian_t::zero()) {
+    while(value < radian_t(0)) {
         value += 2 * PI;
     }
     return value;
@@ -197,7 +170,7 @@ inline radian_t normalize180(radian_t value) {
     while(value >= PI) {
         value -= PI;
     }
-    while(value < radian_t::zero()) {
+    while(value < radian_t(0)) {
         value += PI;
     }
     return value;
@@ -230,7 +203,7 @@ inline radian_t round45(radian_t value) {
     } else if (eqWithOverflow360(value, 7 * PI_4, EPS)) {
         result = 7 * PI_4;
     } else {
-        result = radian_t::zero();
+        result = radian_t(0);
     }
 
     return result;
@@ -247,7 +220,7 @@ inline radian_t round90(radian_t value) {
     } else if (eqWithOverflow360(value, 3 * PI_2, EPS)) {
         result = 3 * PI_2;
     } else {
-        result = radian_t::zero();
+        result = radian_t(0);
     }
 
     return result;
@@ -255,7 +228,7 @@ inline radian_t round90(radian_t value) {
 
 inline bool isMultipleOf90(radian_t value, radian_t eps) {
 
-    return eqWithOverflow360(value, radian_t::zero(), eps)
+    return eqWithOverflow360(value, radian_t(0), eps)
         || eqWithOverflow360(value, PI_2, eps)
         || eqWithOverflow360(value, PI, eps)
         || eqWithOverflow360(value, 3 * PI_2, eps);
@@ -299,18 +272,5 @@ inline distance_t pythag(distance_t a, distance_t b, distance_t c) {
     return centimeter_t(pythag(centimeter_t(a).template get<true>(), centimeter_t(b).template get<true>(), centimeter_t(c).template get<true>()));
 }
 
-inline radian_t straighten(radian_t angle, radian_t eps) {
-    if (eq(angle, PI_2, eps)) {
-        angle = PI_2;
-    } else if (eq(angle, PI, eps)) {
-        angle = PI;
-    } else if (eq(angle, 3 * PI_2, eps)) {
-        angle = 3 * PI_2;
-    } else if (isZero(angle, eps) || eq(angle, 2 * PI, eps)) {
-        angle = radian_t::zero();
-    }
-
-    return angle;
-}
 } // namespace micro
 

@@ -7,7 +7,7 @@
 namespace micro {
 
 Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos) {
-    millimeter_t minDist = millimeter_t::infinity();
+    millimeter_t minDist = micro::numeric_limits<millimeter_t>::infinity();
     Lines::const_iterator closest = lines.end();
 
     for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it) {
