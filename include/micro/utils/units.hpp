@@ -1,7 +1,7 @@
 #pragma once
 
 #include <micro/utils/types.hpp>
-#include <cmath>
+
 #include <limits>
 
 namespace micro {
@@ -183,9 +183,9 @@ private:
 public:
     /* @brief Constructor - sets value.
      * @tparam T Numeric type of the parameter value.
-     * param _value The value given in the unit instance.
+     * param value The value given in the unit instance.
      **/
-    constexpr explicit dim_class(value_type _value, void*) : value(_value) {}
+    constexpr explicit dim_class(value_type value, void*) : value(value) {}
 
     /* @brief Default constructor - sets value to 0.
      **/
@@ -193,10 +193,10 @@ public:
 
     /* @brief Constructor - sets value.
      * @tparam T Numeric type of the parameter value.
-     * param _value The value given in the unit instance.
+     * param value The value given in the unit instance.
      **/
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    constexpr explicit dim_class(value_type _value) : dim_class(_value, nullptr) {}
+    constexpr dim_class(value_type value) : dim_class(value, nullptr) {}
 
     static constexpr dim_class zero() { return dim_class(0.0f, nullptr); }
 
@@ -207,7 +207,7 @@ public:
     /* @brief Constructor - sets value.
      * @tparam unit_inst_t Unit instance type.
      * @param [unnamed] The unit instance.
-     * param _value The value given in the unit instance.
+     * param value The value given in the unit instance.
      **/
     template <typename unit_inst2, bool explicit_unit2>
     constexpr dim_class(const dim_class<dim, unit_inst2, explicit_unit2>& other)
@@ -225,8 +225,8 @@ public:
     }
 
     template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    void set(float _value) {
-        this->value = _value;
+    void set(float value) {
+        this->value = value;
     }
 
     template <typename T2, class = typename std::enable_if<std::is_arithmetic<T2>::value>::type>
@@ -495,4 +495,3 @@ create_div_unit_instance(radian, second, rad_per_sec);
 create_div_unit_instance(degree, second, deg_per_sec);
 
 } // namespace micro
-
