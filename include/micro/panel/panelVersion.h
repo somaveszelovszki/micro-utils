@@ -7,7 +7,9 @@
 extern "C" {
 #endif // __cplusplus
 
-void panelVersion_check(const uint8_t expected);
+typedef uint8_t panelVersion_t;
+
+panelVersion_t panelVersion_get(void);
 
 #ifdef __cplusplus
 }
