@@ -1,7 +1,7 @@
 #pragma once
 
 #include <micro/utils/units.hpp>
-#include <micro/utils/time.hpp>
+#include <micro/utils/timer.hpp>
 
 namespace micro {
 

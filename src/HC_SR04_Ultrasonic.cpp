@@ -1,6 +1,6 @@
 #include <micro/hw/HC_SR04_Ultrasonic.hpp>
 #include <micro/math/numeric.hpp>
-#include <micro/utils/time.hpp>
+#include <micro/utils/timer.hpp>
 
 namespace micro {
 namespace hw {

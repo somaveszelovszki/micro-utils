@@ -1,7 +1,7 @@
 #include <micro/hw/VL53L1X_DistanceSensor.hpp>
 #include <micro/hw/VL53L1X_api.h>
 #include <micro/utils/log.hpp>
-#include <micro/utils/time.hpp>
+#include <micro/utils/timer.hpp>
 
 #include <FreeRTOS.h>
 #include <task.h>

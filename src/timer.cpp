@@ -1,5 +1,5 @@
 #include <micro/utils/time_init.h>
-#include <micro/utils/time.hpp>
+#include <micro/utils/timer.hpp>
 
 #ifdef __GNUC__
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/utils/time.hpp>
+#include <micro/utils/timer.hpp>
 
 #if defined STM32F0
 #include <stm32f0xx_hal.h>

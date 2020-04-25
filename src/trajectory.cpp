@@ -1,5 +1,5 @@
+#include <micro/math/linalg.hpp>
 #include <micro/utils/trajectory.hpp>
-#include <micro/linalg/linalg.hpp>
 
 namespace micro {
 

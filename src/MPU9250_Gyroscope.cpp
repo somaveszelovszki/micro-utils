@@ -1,7 +1,7 @@
 #include <micro/hw/MPU9250_Gyroscope.hpp>
+#include <micro/math/unit_utils.hpp>
 #include <micro/utils/log.hpp>
 #include <micro/utils/arrays.hpp>
-#include <micro/math/constants.hpp>
 
 #include <FreeRTOS.h>
 #include <task.h>

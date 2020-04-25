@@ -2,7 +2,7 @@
 
 #include <micro/math/numeric.hpp>
 #include <micro/math/unit_utils.hpp>
-#include <micro/utils/time.hpp>
+#include <micro/utils/timer.hpp>
 
 namespace micro {
 
