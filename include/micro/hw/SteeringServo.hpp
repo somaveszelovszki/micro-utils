@@ -19,8 +19,8 @@ public:
      * @param wheelAngle_d_max The maximum delta wheel angle.
      * @param servoWheelTransferRate The transfer rate between the servo and the wheels.
      **/
-    SteeringServo(TIM_HandleTypeDef *htim, uint32_t chnl, uint32_t pwm0, uint32_t pwm180, radian_t wheelOffset, radian_t wheelAngle_d_max, float servoWheelTransferRate)
-        : Servo(htim, chnl, pwm0, pwm180, wheelOffset / servoWheelTransferRate, wheelAngle_d_max / servoWheelTransferRate)
+    SteeringServo(TIM_HandleTypeDef *htim, uint32_t chnl, uint32_t pwm0, uint32_t pwm180, rad_per_sec_t maxAngVel, radian_t wheelOffset, radian_t wheelAngle_d_max, float servoWheelTransferRate)
+        : Servo(htim, chnl, pwm0, pwm180, maxAngVel, wheelOffset / servoWheelTransferRate, wheelAngle_d_max / servoWheelTransferRate)
         , servoWheelTransferRate_(servoWheelTransferRate) {}
 
     radian_t wheelOffset() const {
@@ -34,7 +34,7 @@ public:
     /* @brief Gets wheel angle - converts servo angle to wheel angle and returns it.
      * @returns The wheel angle.
      **/
-    radian_t wheelAngle() const {
+    radian_t wheelAngle() {
         return this->angle() * this->servoWheelTransferRate_;
     }
 

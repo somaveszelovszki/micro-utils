@@ -22,14 +22,16 @@ public:
      * @param chnl The timer channel used for PWM generation.
      * @param pwm0 The PWM value for 0 degrees.
      * @param pwm180 The PWM value for 180 degrees.
+     * @param maxAngVel The maximum angular velocity of the servo.
      * @param offset The offset.
      * @param maxDelta The maximum delta angle.
      **/
-    Servo(TIM_HandleTypeDef *htim, uint32_t chnl, uint32_t pwm0, uint32_t pwm180, radian_t offset, radian_t maxDelta)
+    Servo(TIM_HandleTypeDef *htim, uint32_t chnl, uint32_t pwm0, uint32_t pwm180, rad_per_sec_t maxAngVel, radian_t offset, radian_t maxDelta)
         : htim_(htim)
         , chnl_(chnl)
         , pwm0_(pwm0)
         , pwm180_(pwm180)
+        , maxAngVel_(maxAngVel)
         , offset_(offset)
         , maxDelta_(maxDelta) {}
 
@@ -41,9 +43,7 @@ public:
         return this->maxDelta_;
     }
 
-    radian_t angle() const {
-        return this->angle_ - this->offset_;
-    }
+    radian_t angle();
 
     void setOffset(const radian_t offset) {
         this->offset_ = offset;
@@ -56,14 +56,17 @@ public:
     void write(const radian_t angle);
 
 private:
-    TIM_HandleTypeDef *htim_;  // The handle for the timer used for PWM generation.
-    const uint32_t chnl_;      // The timer channel used for PWM generation.
-    const uint32_t pwm0_;      // The PWM value for 0 degrees.
-    const uint32_t pwm180_;    // The PWM value for 180 degrees.
+    TIM_HandleTypeDef *htim_;       // The handle for the timer used for PWM generation.
+    const uint32_t chnl_;           // The timer channel used for PWM generation.
+    const uint32_t pwm0_;           // The PWM value for 0 degrees.
+    const uint32_t pwm180_;         // The PWM value for 180 degrees.
+    const rad_per_sec_t maxAngVel_; // The max angular velocity of the servo.
 
-    radian_t offset_;          // The offset.
-    radian_t maxDelta_;        // The maximum delta angle.
-    radian_t angle_;           // The current angle.
+    radian_t offset_;
+    radian_t maxDelta_;
+    radian_t angle_;
+    radian_t targetAngle_;
+    microsecond_t prevAngleUpdateTime_;
 };
 } // namespace hw
 } // namespace micro
