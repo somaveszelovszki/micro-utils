@@ -1,7 +1,6 @@
 #pragma once
 
 #include <micro/utils/algorithm.hpp>
-#include <micro/utils/storage.hpp>
 #include <micro/math/numeric.hpp>
 
 #include <initializer_list>
