@@ -31,6 +31,11 @@ struct CarProps  {
     meter_t orientedDistance; // The distance that the has driven with no major orientation change (in a straight line).
     radian_t frontWheelAngle;
     radian_t rearWheelAngle;
+    rad_per_sec_t yawRate;
+
+    radian_t getSpeedAngle(const meter_t frontRearPivotDist) const;
+
+    vec2mps getSpeedVector(const meter_t frontRearPivotDist) const;
 };
 DEFINE_TYPEINFO(CarProps);
 
