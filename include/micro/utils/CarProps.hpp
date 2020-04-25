@@ -1,7 +1,6 @@
 #pragma once
 
 #include "point2.hpp"
-#include "typeinfo.hpp"
 
 namespace micro {
 
@@ -16,7 +15,6 @@ struct Pose {
      **/
     radian_t angle;
 };
-DEFINE_TYPEINFO(Pose);
 
 /* @brief Car properties.
  **/
@@ -37,6 +35,5 @@ struct CarProps  {
 
     vec2mps getSpeedVector(const meter_t frontRearPivotDist) const;
 };
-DEFINE_TYPEINFO(CarProps);
 
 } // namespace micro
