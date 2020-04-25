@@ -2,6 +2,9 @@
 
 #include "types.hpp"
 
+#include <FreeRTOS.h>
+#include <semphr.h>
+
 #include <algorithm>
 
 namespace micro {
@@ -36,6 +39,45 @@ private:
     T& value_get;
     T& value_set;
 };
+
+template <typename T>
+class atomic {
+public:
+    typedef T underlying_type;
+
+    template<typename ...Args>
+    atomic(SemaphoreHandle_t hmutex_, Args&&... args)
+        : hmutex_(hmutex_)
+        , value_(std::forward<Args>(args)...) {}
+
+    T get() const {
+        xSemaphoreTake(this->hmutex_, portMAX_DELAY);
+        const T result = this->value_;
+        xSemaphoreGive(this->hmutex_);
+        return result;
+    }
+
+    void set(const T& value) {
+        xSemaphoreTake(this->hmutex_, portMAX_DELAY);
+        this->value_ = value;
+        xSemaphoreGive(this->hmutex_);
+    }
+
+    void operator=(const T& value) {
+        this->set(value);
+    }
+
+private:
+    SemaphoreHandle_t hmutex_;
+    T value_;
+};
+
+template <typename T> struct is_atomic { enum { value = micro::is_base_of_template<atomic, T>::value }; };
+
+template <typename T>
+T valueOf(const atomic<T>& value) {
+    return value.get();
+}
 
 template <typename ForwardIt>
 void shift_left(ForwardIt begin, ForwardIt end) {

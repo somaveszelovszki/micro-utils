@@ -1,11 +1,8 @@
 #pragma once
 
 #include <micro/container/vec.hpp>
-#include <micro/utils/atomic.hpp>
 
 #include "serialize.hpp"
-
-#include <cstring>
 
 #define STR_MAX_LEN_PARAM_NAME 32u     // Maximum length of global parameter name.
 #define MAX_NUM_GLOBAL_PARAMS  128u    // Maximum number of global parameters, that can be set from monitoring app.
@@ -14,33 +11,15 @@ namespace micro {
 
 struct Param {
 
-    Param()
-        : name("")
-        , hmutex(nullptr)
-        , buf(nullptr)
-        , size(0)
-        , serialize(nullptr)
-        , deserialize(nullptr) {}
+    Param();
 
-    Param(const char *name, SemaphoreHandle_t hmutex, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
-        : name("")
-        , hmutex(hmutex)
-        , buf(buf)
-        , size(size)
-        , serialize(serialize)
-        , deserialize(deserialize) {
-        strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_PARAM_NAME);
-    }
+    Param(const char *name, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize);
 
     Param(const Param& other) = default;
 
-    Param& operator=(const Param& other) {
-        memcpy(this, &other, sizeof(Param));
-        return *this;
-    }
+    Param& operator=(const Param& other);
 
     const char name[STR_MAX_LEN_PARAM_NAME];
-    SemaphoreHandle_t hmutex;
     uint8_t * const buf;
     const uint8_t size;
     serialize_func serialize;
@@ -68,22 +47,7 @@ private:
     Param fillParamStruct(const char *name, T *value) {
         return Param(
             name,
-            nullptr,
             reinterpret_cast<uint8_t*>(value),
-            sizeof(T),
-            micro::serialize<T>,
-            micro::deserialize<T>
-        );
-    }
-
-    template <typename T>
-    Param fillParamStruct(const char *name, atomic<T> *value) {
-        T *value_ptr = const_cast<T*>(value->wait_ptr());
-        value->release_ptr();
-        return Param(
-            name,
-            value->getMutex(),
-            reinterpret_cast<uint8_t*>(value_ptr),
             sizeof(T),
             micro::serialize<T>,
             micro::deserialize<T>

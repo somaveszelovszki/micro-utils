@@ -8,10 +8,33 @@
 #include <semphr.h>
 #include <task.h>
 
+#include <cstring>
+
 namespace micro {
 
 static void skipWhiteSpaces(const char * const str, uint32_t& idx) {
     while('\r' == str[idx] || '\n' == str[idx] || ' ' == str[idx]) { ++idx; }
+}
+
+Param::Param()
+    : name("")
+    , buf(nullptr)
+    , size(0)
+    , serialize(nullptr)
+    , deserialize(nullptr) {}
+
+Param::Param(const char *name, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
+    : name("")
+    , buf(buf)
+    , size(size)
+    , serialize(serialize)
+    , deserialize(deserialize) {
+    strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_PARAM_NAME);
+}
+
+Param& Param::operator=(const Param& other) {
+    memcpy(this, &other, sizeof(Param));
+    return *this;
 }
 
 uint32_t Params::serializeAll(char * const str, uint32_t size) {
@@ -29,15 +52,10 @@ uint32_t Params::serializeAll(char * const str, uint32_t size) {
         str[idx++] = '"';
         str[idx++] = ':';
 
-        if (p.hmutex != nullptr) {
-            while (!xSemaphoreTake(p.hmutex, 1)) {}
-            idx += p.serialize(&str[idx], size - idx, p.buf);
-            xSemaphoreGive(p.hmutex);
-        } else {
-            vTaskSuspendAll();
-            idx += p.serialize(&str[idx], size - idx, p.buf);
-            xTaskResumeAll();
-        }
+        vTaskSuspendAll();
+        idx += p.serialize(&str[idx], size - idx, p.buf);
+        xTaskResumeAll();
+
         if (idx >= size) break;
 
         if (i < this->values.size() - 1) {
@@ -73,15 +91,9 @@ uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
             break;
         }
 
-        if (p->hmutex != nullptr) {
-            while (!xSemaphoreTake(p->hmutex, 1)) {}
-            idx += p->deserialize(&str[idx], p->buf);
-            xSemaphoreGive(p->hmutex);
-        } else {
-            vTaskSuspendAll();
-            idx += p->deserialize(&str[idx], p->buf);
-            xTaskResumeAll();
-        }
+        vTaskSuspendAll();
+        idx += p->deserialize(&str[idx], p->buf);
+        xTaskResumeAll();
 
         skipWhiteSpaces(str, idx);
 
