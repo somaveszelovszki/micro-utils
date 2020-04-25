@@ -6,7 +6,6 @@
 #include <micro/container/vec.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/math/numeric.hpp>
-#include <micro/utils/convert.hpp>
 
 #include <FreeRTOS.h>
 #include <queue.h>

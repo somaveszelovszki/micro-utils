@@ -1,6 +1,6 @@
-#include <micro/utils/convert.hpp>
 #include <micro/math/numeric.hpp>
 #include <micro/utils/arrays.hpp>
+#include <micro/utils/bytes.hpp>
 
 #include <cstring>
 #include <cstdlib>
