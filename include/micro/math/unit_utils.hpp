@@ -16,11 +16,11 @@ const m_per_sec2_t G = m_per_sec2_t(9.81f);  // Gravitational acceleration.
 
 template <typename T>
 struct numeric_limits<T, typename std::enable_if<T::is_dim_class, void>::type> {
-    static constexpr T min()       { return std::numeric_limits<typename T::value_type>::min()      ; }
-    static constexpr T max()       { return std::numeric_limits<typename T::value_type>::max()      ; }
+    static constexpr T min()       { return std::numeric_limits<typename T::value_type>::min();       }
+    static constexpr T max()       { return std::numeric_limits<typename T::value_type>::max();       }
     static constexpr T quiet_Nan() { return std::numeric_limits<typename T::value_type>::quiet_NaN(); }
-    static constexpr T infinity()  { return std::numeric_limits<typename T::value_type>::infinity() ; }
-    static constexpr T epsilon()   { return std::numeric_limits<typename T::value_type>::epsilon()  ; }
+    static constexpr T infinity()  { return std::numeric_limits<typename T::value_type>::infinity();  }
+    static constexpr T epsilon()   { return std::numeric_limits<typename T::value_type>::epsilon();   }
 };
 
 /**
