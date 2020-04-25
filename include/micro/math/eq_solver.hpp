@@ -1,6 +1,9 @@
 #pragma once
 
+#include <micro/math/numeric.hpp>
+
 #include <limits>
+#include <utility>
 
 namespace micro {
 
@@ -9,7 +12,7 @@ namespace micro {
  */
 template <typename T>
 std::pair<T, T> solve_quadratic(const T& A, const T& B, const T& C) {
-    const T det = B*B - 4 * A * C;
+    const T det = B * B - 4 * A * C;
 
     std::pair<T, T> result = { std::numeric_limits<T>::quiet_NaN(), std::numeric_limits<T>::quiet_NaN() };
 

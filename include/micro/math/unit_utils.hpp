@@ -1,10 +1,18 @@
 #pragma once
 
-#include <micro/utils/units.hpp>
 #include <micro/math/numeric.hpp>
-#include <micro/math/constants.hpp>
+#include <micro/utils/units.hpp>
 
 namespace micro {
+
+static constexpr float SQRT_2 = std::sqrt(2.0f);
+static constexpr float SQRT_3 = std::sqrt(3.0f);
+
+constexpr radian_t PI = radian_t(3.14159265358979323846);
+constexpr radian_t PI_2 = PI / 2;
+constexpr radian_t PI_4 = PI / 4;
+
+const m_per_sec2_t G = m_per_sec2_t(9.81f);  // Gravitational acceleration.
 
 template <typename T>
 struct numeric_limits<T, typename std::enable_if<T::is_dim_class, void>::type> {
@@ -23,37 +31,6 @@ struct numeric_limits<T, typename std::enable_if<T::is_dim_class, void>::type> {
 template <typename T>
 inline constexpr typename std::enable_if<T::is_dim_class, float>::type valueOf(const T& value) {
     return value.template get<true>();
-}
-
-/**
- * @brief Gets absolute of the value.
- * @param value The value.
- * @returns The absolute of the value.
- */
-template <typename T>
-inline constexpr typename std::enable_if<T::is_dim_class, T>::type abs(const T& value) {
-    return T(abs(value.template get<true>()));
-}
-
-/**
- * @brief Gets sign of the value.
- * @restrict Type must be a unit class.
- * @param value The value.
- * @returns The sign of the value.
- */
-template <typename T>
-inline constexpr typename std::enable_if<T::is_dim_class, Sign>::type sgn(const T& value) {
-    return sgn(value.template get<true>());
-}
-
-template <typename T>
-inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isinf(const T& value) {
-    return isinf(value.template get<true>());
-}
-
-template <typename T>
-inline constexpr typename std::enable_if<T::is_dim_class, bool>::type isnan(const T& value) {
-    return isnan(value.template get<true>());
 }
 
 /**

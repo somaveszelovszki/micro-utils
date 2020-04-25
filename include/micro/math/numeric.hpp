@@ -215,7 +215,7 @@ inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type 
  * @returns The absolute of the value.
  */
 template <typename T>
-inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type abs(const T& value) {
+inline constexpr T abs(const T& value) {
     return value >= T(0) ? value : -value;
 }
 
@@ -226,18 +226,18 @@ inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type 
  * @returns The sign of the value.
  */
 template <typename T>
-inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, Sign>::type sgn(const T& value) {
-    return value >= 0 ? Sign::POSITIVE : Sign::NEGATIVE;
+inline constexpr Sign sgn(const T& value) {
+    return value >= T(0) ? Sign::POSITIVE : Sign::NEGATIVE;
 }
 
 template <typename T>
-inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isinf(const T& value) {
-    return std::isinf(value);
+inline constexpr bool isinf(const T& value) {
+    return std::isinf(valueOf(value));
 }
 
 template <typename T>
-inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, bool>::type isnan(const T& value) {
-    return std::isnan(value);
+inline constexpr bool isnan(const T& value) {
+    return std::isnan(valueOf(value));
 }
 
 /**

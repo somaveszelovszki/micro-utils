@@ -10,44 +10,47 @@ namespace micro {
 
 template <typename T>
 T distance(const line2<T>& line, const point2<T>& point) {
-    return abs(line.a * point.X + line.b * point.Y + line.c) / line.normFactor();
+    return T(abs(valueOf(line.a) * valueOf(point.X) + valueOf(line.b) * valueOf(point.Y) + valueOf(line.c)) / line.normFactor());
 }
 
 template <typename T>
 T distanceNorm(const line2<T>& lineNorm, const point2<T>& point) {
-    return abs(lineNorm.a * point.X + lineNorm.b * point.Y + lineNorm.c);
+    return T(abs(valueOf(lineNorm.a) * valueOf(point.X) + valueOf(lineNorm.b) * valueOf(point.Y) + valueOf(lineNorm.c)));
 }
 
 template <typename T>
 std::pair<point2<T>, point2<T>> lineCircle_intersection(const line2<T>& line, const point2<T>& circleCenter, const T& circleRadius) {
-    T x_2 = T(0), x_1 = T(0), x_0 = T(0);
+    float x_2 = 0, x_1 = 0, x_0 = 0;
+
+    const point2<float> circleCenterRaw = { valueOf(circleCenter.X), valueOf(circleCenter.Y) };
+    const float circleRadiusRaw = valueOf(circleRadius);
 
     if (isZero(line.b)) { // vertical line
         x_2 = 1;
-        x_1 = -2 * circleCenter.Y;
-        x_0 = (line.c / line.a + circleCenter.X) * (line.c / line.a + circleCenter.X) + circleCenter.Y * circleCenter.Y - circleRadius * circleRadius;
+        x_1 = -2 * circleCenterRaw.Y;
+        x_0 = (line.c / line.a + circleCenterRaw.X) * (line.c / line.a + circleCenterRaw.X) + circleCenterRaw.Y * circleCenterRaw.Y - circleRadius * circleRadius;
     } else {
         // applies conversion between (0 = a*x + b*y + c) and (y = A*x + B)
-        const T A = -line.a / line.b;
-        const T B = -line.c / line.b;
+        const float A = -line.a / line.b;
+        const float B = -line.c / line.b;
 
         x_2 = 1 + A * A;
-        x_1 = 2 * A * B - 2 * circleCenter.X - 2 * A * circleCenter.Y;
-        x_0 = circleCenter.X * circleCenter.X + (B - circleCenter.Y) * (B - circleCenter.Y) - circleRadius * circleRadius;
+        x_1 = 2 * A * B - 2 * circleCenterRaw.X - 2 * A * circleCenterRaw.Y;
+        x_0 = circleCenterRaw.X * circleCenterRaw.X + (B - circleCenterRaw.Y) * (B - circleCenterRaw.Y) - circleRadiusRaw * circleRadiusRaw;
     }
 
-    const std::pair<T, T> x1_2 = solve_quadratic(x_2, x_1, x_0);
+    const std::pair<float, float> x1_2 = solve_quadratic(x_2, x_1, x_0);
 
     std::pair<point2<T>, point2<T>> result = {
-        { std::numeric_limits<T>::quiet_NaN(), std::numeric_limits<T>::quiet_NaN() },
-        { std::numeric_limits<T>::quiet_NaN(), std::numeric_limits<T>::quiet_NaN() }
+        { micro::numeric_limits<T>::quiet_NaN(), micro::numeric_limits<T>::quiet_NaN() },
+        { micro::numeric_limits<T>::quiet_NaN(), micro::numeric_limits<T>::quiet_NaN() }
     };
 
-    if (!std::isnan(x1_2.first)) {
+    if (!micro::isnan(x1_2.first)) {
         result.first = { x1_2.first, line.getY(x1_2.first) };
     }
 
-    if (!std::isnan(x1_2.second)) {
+    if (!micro::isnan(x1_2.second)) {
         result.second = { x1_2.second, line.getY(x1_2.second) };
     }
 
@@ -56,13 +59,18 @@ std::pair<point2<T>, point2<T>> lineCircle_intersection(const line2<T>& line, co
 
 template <typename T>
 point2<T> lineLine_intersection(const line2<T>& line1, const line2<T>& line2) {
-    point2<T> intersection = { std::numeric_limits<T>::infinity(), std::numeric_limits<T>::infinity() };
-    const T det = line2.a * line1.b - line1.a * line2.b;
+    point2<T> intersection = { micro::numeric_limits<T>::infinity(), micro::numeric_limits<T>::infinity() };
+
+    const line2f line1Raw(valueOf(line1.a), valueOf(line1.b), valueOf(line1.c));
+    const line2f line2Raw(valueOf(line2.a), valueOf(line2.b), valueOf(line2.c));
+    const float det = line2Raw.a * line1Raw.b - line1Raw.a * line2Raw.b;
+
     if (!isZero(det)) {
-        intersection.X = (line1.c * line2.b - line2.c * line1.b) / det;
-        intersection.Y = (line2.c * line1.a - line1.c * line2.a) / det;
+        intersection.X = T(line1Raw.c * line2Raw.b - line2Raw.c * line1Raw.b) / det;
+        intersection.Y = T(line2Raw.c * line1Raw.a - line1Raw.c * line2Raw.a) / det;
     }
     return intersection;
 }
 
 } // namespace micro
+

@@ -1,14 +1,13 @@
 #pragma once
 
+#include <micro/math/unit_utils.hpp>
 #include <micro/utils/point2.hpp>
 
 namespace micro {
-
 /** @brief Template implementation for 2-dimensional lines.
  * @tparam T Numeric type of the coordinates.
  */
-template <typename T>
-struct line2 {
+template <typename T> struct line2 {
     /** @brief a*x + b*y + c = 0
     */
     T a, b, c;
@@ -40,12 +39,12 @@ struct line2 {
         return line2<T2>(T2(a), T2(b), T2(c));
     }
 
-    T normFactor() const {
-        return std::sqrt(a * a + b * b);
+    float normFactor() const {
+        return std::sqrt(valueOf(a) * valueOf(a) + valueOf(b) * valueOf(b));
     }
 
     void normalize() {
-        const T factor = this->normFactor();
+        const float factor = this->normFactor();
         a /= factor;
         b /= factor;
         c /= factor;
@@ -62,7 +61,7 @@ struct line2 {
     void fromPoints(const point2<T>& p1, const point2<T>& p2) {
         a = p1.Y - p2.Y;
         b = p2.X - p1.X;
-        c = p1.X * p2.Y - p2.X * p1.Y;
+        c = T(valueOf(p1.X) * valueOf(p2.Y) - valueOf(p2.X) * valueOf(p1.Y));
 
         this->normalize();
     }
@@ -77,10 +76,17 @@ struct line2 {
             this->fromPoints(p, { p.X + T(1), p.Y + T(tan(angle)) });
         }
     }
+
+    radian_t getAngle() const {
+        // a*x + b*y + c = 0  ->  y = (-a/b)*x - c/b
+        return atan2(-this->a, this->b);
+    }
 };
 
-typedef line2<float> line2f;  // 32-bit floating point line.
-typedef line2<double> line2d; // 64-bit floating point line.
+typedef line2<float>    line2f;
+typedef line2<double>   line2d;
+
+typedef line2<meter_t>  line2m;
 
 } // namespace micro
 
