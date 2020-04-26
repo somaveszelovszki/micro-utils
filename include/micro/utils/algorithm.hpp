@@ -2,8 +2,10 @@
 
 #include "types.hpp"
 
+#ifdef OS_FREERTOS
 #include <FreeRTOS.h>
 #include <semphr.h>
+#endif // OS_FREERTOS
 
 #include <algorithm>
 
@@ -39,6 +41,8 @@ private:
     T& value_get;
     T& value_set;
 };
+
+#ifdef OS_FREERTOS
 
 template <typename T>
 class atomic {
@@ -78,6 +82,8 @@ template <typename T>
 T valueOf(const atomic<T>& value) {
     return value.get();
 }
+
+#endif // OS_FREERTOS
 
 template <typename ForwardIt>
 void shift_left(ForwardIt begin, ForwardIt end) {

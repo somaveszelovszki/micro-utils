@@ -23,14 +23,22 @@ panelVersion_t panelVersion_get(void) {
     if (0xff == version) {
         GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-#ifdef STM32F4
+#if defined STM32F0
+        gpio_t PINS[NUM_VERSION_BITS] = {
+            { GPIOA, GPIO_PIN_0  },
+            { GPIOA, GPIO_PIN_1  },
+            { GPIOA, GPIO_PIN_12 },
+            { GPIOA, GPIO_PIN_15 }
+        };
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+
+#elif defined STM32F4
         gpio_t PINS[NUM_VERSION_BITS] = {
             { GPIOB, GPIO_PIN_12 },
             { GPIOB, GPIO_PIN_13 },
             { GPIOB, GPIO_PIN_14 },
             { GPIOB, GPIO_PIN_15 }
         };
-
         __HAL_RCC_GPIOB_CLK_ENABLE();
 #endif
 

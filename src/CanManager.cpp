@@ -1,5 +1,7 @@
 #include <micro/panel/CanManager.hpp>
 
+#if defined STM32F4
+
 namespace micro {
 
 CanManager::CanManager(CAN_HandleTypeDef * const hcan, const uint32_t rxFifo, const millisecond_t rxTimeout)
@@ -31,3 +33,5 @@ void CanManager::handleIncomingFrame(const uint32_t id, const uint8_t * const da
 }
 
 }  // namespace micro
+
+#endif // STM32F4

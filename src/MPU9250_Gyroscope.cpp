@@ -2,9 +2,7 @@
 #include <micro/math/unit_utils.hpp>
 #include <micro/utils/log.hpp>
 #include <micro/utils/arrays.hpp>
-
-#include <FreeRTOS.h>
-#include <task.h>
+#include <micro/utils/task.hpp>
 
 namespace micro {
 namespace hw {
@@ -325,10 +323,10 @@ void MPU9250::reset(void) {
 void MPU9250::initAK8963(void)
 {
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
-    vTaskDelay(10);
+    os_delay(10);
 
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x0F); // Enter Fuse ROM access mode
-    vTaskDelay(10);
+    os_delay(10);
 
     uint8_t rawData[3];
     this->readBytes(AK8963_ADDRESS, AK8963_ASAX, 3, &rawData[0]); // Read the x-, y-, and z-axis calibration values
@@ -337,13 +335,13 @@ void MPU9250::initAK8963(void)
     this->magCalibration[2] = (float)(rawData[2] - 128)/256.0f + 1.0f;
 
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
-    vTaskDelay(10);
+    os_delay(10);
 
     // Configure the magnetometer for continuous read and highest resolution
     // set Mscale bit 4 to 1 (0) to enable 16 (14) bit resolution in CNTL register,
     // and enable continuous mode data acquisition Mmode (bits [3:0]), 0010 for 8 Hz and 0110 for 100 Hz sample rates
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, (((uint8_t)this->mScale << 4) | this->Mmode)); // Set magnetometer data resolution and sample ODR
-    vTaskDelay(10);
+    os_delay(10);
 }
 
 void MPU9250::initMPU9250()
@@ -351,7 +349,7 @@ void MPU9250::initMPU9250()
     // Initialize MPU9250 device
     // wake up device
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x00); // Clear sleep mode bit (6), enable all sensors
-    vTaskDelay(100); // Delay 100 ms for PLL to get established on x-axis gyro; should check for PLL ready interrupt
+    os_delay(100); // Delay 100 ms for PLL to get established on x-axis gyro; should check for PLL ready interrupt
 
     // get stable time source
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
@@ -547,7 +545,7 @@ void MPU9250::calibrateGyro(void) {
         sigma[1] += y * y;
         sigma[2] += z * z;
 
-        vTaskDelay(10);
+        os_delay(10);
     }
 
     this->gyroBias[0] = bias[0] / NUM_SAMPLES;
@@ -568,11 +566,11 @@ void MPU9250::initialize(void) {
         LOG_DEBUG("MPU9250 is online...");
 
         this->reset();
-        vTaskDelay(150);
+        os_delay(150);
         this->calibrate();
-        vTaskDelay(100);
+        os_delay(100);
         this->initMPU9250();
-        vTaskDelay(100);
+        os_delay(100);
         this->calibrateGyro();
         LOG_DEBUG("gyro bias:  %f, %f, %f", this->gyroBias[0], this->gyroBias[1], this->gyroBias[2]);
         LOG_DEBUG("accel bias: %f, %f, %f", this->accelBias[0], this->accelBias[1], this->accelBias[2]);
@@ -590,7 +588,7 @@ bool MPU9250::waitI2C() {
     static constexpr uint8_t MAX_TIMEOUT_MS = 10;
     uint8_t msCntr = 0;
     while (this->hi2c->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {
-        vTaskDelay(1);
+        os_delay(1);
     }
     return msCntr < MAX_TIMEOUT_MS;
 }

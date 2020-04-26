@@ -3,10 +3,7 @@
 #include <micro/math/numeric.hpp>
 #include <micro/utils/arrays.hpp>
 #include <micro/utils/str_utils.hpp>
-
-#include <FreeRTOS.h>
-#include <semphr.h>
-#include <task.h>
+#include <micro/utils/task.hpp>
 
 #include <cstring>
 
@@ -52,9 +49,9 @@ uint32_t Params::serializeAll(char * const str, uint32_t size) {
         str[idx++] = '"';
         str[idx++] = ':';
 
-        vTaskSuspendAll();
+        os_taskSuspendAll();
         idx += p.serialize(&str[idx], size - idx, p.buf);
-        xTaskResumeAll();
+        os_taskResumeAll();
 
         if (idx >= size) break;
 
@@ -91,9 +88,9 @@ uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
             break;
         }
 
-        vTaskSuspendAll();
+        os_taskSuspendAll();
         idx += p->deserialize(&str[idx], p->buf);
-        xTaskResumeAll();
+        os_taskResumeAll();
 
         skipWhiteSpaces(str, idx);
 

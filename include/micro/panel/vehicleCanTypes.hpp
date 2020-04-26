@@ -1,17 +1,12 @@
 #pragma once
 
+#if defined STM32F4
+
 #include <micro/math/unit_utils.hpp>
 #include <micro/utils/LinePattern.hpp>
 
-
-
-#if defined STM32F0
-#include <stm32f0xx_hal.h>
-#include <stm32f0xx_hal_can.h>
-#elif defined STM32F4
 #include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_can.h>
-#endif
 
 namespace micro {
 namespace can {
@@ -260,3 +255,5 @@ struct MotorControlParams : public detail::MotorControlParams {
 
 } // namespace can
 } // namespace micro
+
+#endif // STM32F4

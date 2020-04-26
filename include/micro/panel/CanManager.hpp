@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined STM32F4
+
 #include <micro/container/map.hpp>
 #include <micro/utils/timer.hpp>
 
@@ -41,3 +43,5 @@ private:
 };
 
 }  // namespace micro
+
+#endif // STM32F4

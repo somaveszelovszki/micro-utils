@@ -2,9 +2,7 @@
 #include <micro/hw/VL53L1X_api.h>
 #include <micro/utils/log.hpp>
 #include <micro/utils/timer.hpp>
-
-#include <FreeRTOS.h>
-#include <task.h>
+#include <micro/utils/task.hpp>
 
 namespace micro {
 namespace hw {
@@ -23,7 +21,7 @@ void VL53L1X_DistanceSensor::initialize() {
 
     while(sensorState == 0){
         VL53L1X_BootState(this->deviceId, &sensorState);
-        vTaskDelay(10);
+        os_delay(10);
     }
 
     VL53L1X_SensorInit(this->deviceId);
