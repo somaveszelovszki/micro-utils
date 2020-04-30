@@ -1,6 +1,7 @@
 #pragma once
 
 #include <micro/utils/timer.hpp>
+#include <micro/utils/task.hpp>
 
 #if defined STM32F0
 #include <stm32f0xx_hal.h>
@@ -8,9 +9,6 @@
 #elif defined STM32F4
 #include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_uart.h>
-
-#include <FreeRTOS.h>
-#include <task.h>
 #endif
 
 namespace micro {
@@ -121,10 +119,10 @@ template <typename T_rx, typename T_tx>
 bool PanelLink<T_rx, T_tx>::readAvailable(T_rx& rxData) {
     bool available = false;
     if (this->isConnected() && this->isAvailable_) {
-        taskENTER_CRITICAL();
+        os_enterCritical();
         rxData = this->rxAccessibleData_;
         this->isAvailable_ = false;
-        taskEXIT_CRITICAL();
+        os_exitCritical();
         available = true;
     }
     return available;
