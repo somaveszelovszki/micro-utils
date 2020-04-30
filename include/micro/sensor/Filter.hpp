@@ -1,7 +1,5 @@
 #pragma once
 
-#include <micro/math/numeric.hpp>
-#include <micro/math/unit_utils.hpp>
 #include <micro/utils/timer.hpp>
 
 namespace micro {
@@ -117,7 +115,7 @@ bool BounceFilter<T, N>::isInRangeOfRaw(const T& measuredValue) const {
 template <typename T, uint32_t N>
 class LowPassFilter : public Filter<T> {
 public:
-    LowPassFilter(const T& init)
+    explicit LowPassFilter(const T& init)
         : Filter<T>(init)
         , idx(0) {
 
