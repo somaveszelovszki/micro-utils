@@ -2,13 +2,7 @@
 #include <micro/utils/timer.hpp>
 
 #ifdef __GNUC__
-
-//#define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */
-//#define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */
-//#define __STATIC_INLINE  static inline
-
 #include "cmsis_gcc.h"
-
 #endif // __GNUC__
 
 namespace micro {
