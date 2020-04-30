@@ -164,7 +164,18 @@ namespace hw {
 #define MPU9250_ADDRESS 0x68<<1  // Device address when ADO = 0
 #endif
 
-bool MPU9250::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
+MPU9250_Gyroscope::MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
+    : hi2c(hi2c)
+    , aScale(aScale)
+    , gScale(gScale)
+    , mScale(mScale)
+    , aRes(getAres(aScale))
+    , gRes(getGres(gScale))
+    , mRes(getMres(mScale))
+    , Mmode(Mmode)
+    , magBias{ 260.0f, 0.0f, 0.0f } {}
+
+bool MPU9250_Gyroscope::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
     uint8_t data_write[2];
     data_write[0] = subAddress;
     data_write[1] = data;
@@ -177,7 +188,7 @@ bool MPU9250::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
     return isI2CReady;
 }
 
-char MPU9250::readByte(uint8_t address, uint8_t subAddress)
+char MPU9250_Gyroscope::readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data = 0;
     this->waitI2C();
@@ -186,7 +197,7 @@ char MPU9250::readByte(uint8_t address, uint8_t subAddress)
     return data;
 }
 
-bool MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+bool MPU9250_Gyroscope::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
     bool isI2CReady = this->waitI2C();
     if (isI2CReady) {
@@ -196,7 +207,7 @@ bool MPU9250::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint
     return isI2CReady;
 }
 
-float MPU9250::getMres(Mscale scale) {
+float MPU9250_Gyroscope::getMres(Mscale scale) {
     float mRes = 0.0f;
     switch (scale)
     {
@@ -212,7 +223,7 @@ float MPU9250::getMres(Mscale scale) {
     return mRes;
 }
 
-float MPU9250::getGres(Gscale scale) {
+float MPU9250_Gyroscope::getGres(Gscale scale) {
     float gRes = 0.0f;
     switch (scale)
     {
@@ -234,7 +245,7 @@ float MPU9250::getGres(Gscale scale) {
     return gRes;
 }
 
-float MPU9250::getAres(Ascale scale) {
+float MPU9250_Gyroscope::getAres(Ascale scale) {
     float aRes = 0.0f;
     switch (scale)
     {
@@ -256,7 +267,7 @@ float MPU9250::getAres(Ascale scale) {
     return aRes;
 }
 
-point3<m_per_sec2_t> MPU9250::readAccelData(void) {
+point3<m_per_sec2_t> MPU9250_Gyroscope::readAccelData(void) {
 
     uint8_t rawData[6];
     this->readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);
@@ -268,7 +279,7 @@ point3<m_per_sec2_t> MPU9250::readAccelData(void) {
     };
 }
 
-point3<rad_per_sec_t> MPU9250::readGyroData(void) {
+point3<rad_per_sec_t> MPU9250_Gyroscope::readGyroData(void) {
 
     point3<rad_per_sec_t> result;
 
@@ -294,7 +305,7 @@ point3<rad_per_sec_t> MPU9250::readGyroData(void) {
     return result;
 }
 
-point3<gauss_t> MPU9250::readMagData(void) {
+point3<gauss_t> MPU9250_Gyroscope::readMagData(void) {
     point3<gauss_t> result;
     uint8_t rawData[7];
     if(this->readByte(AK8963_ADDRESS, AK8963_ST1) & 0x01) { // wait for magnetometer data ready bit to be set
@@ -309,18 +320,18 @@ point3<gauss_t> MPU9250::readMagData(void) {
     return result;
 }
 
-celsius_t MPU9250::readTempData(void)
+celsius_t MPU9250_Gyroscope::readTempData(void)
 {
   uint8_t rawData[2];
   this->readBytes(MPU9250_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);
   return celsius_t((((int16_t)rawData[0]) << 8 | rawData[1]) / 333.87f + 21.0f);
 }
 
-void MPU9250::reset(void) {
+void MPU9250_Gyroscope::reset(void) {
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit - toggle reset device
 }
 
-void MPU9250::initAK8963(void)
+void MPU9250_Gyroscope::initAK8963(void)
 {
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
     os_delay(10);
@@ -344,7 +355,7 @@ void MPU9250::initAK8963(void)
     os_delay(10);
 }
 
-void MPU9250::initMPU9250()
+void MPU9250_Gyroscope::initMPU9250()
 {
     // Initialize MPU9250 device
     // wake up device
@@ -398,7 +409,7 @@ void MPU9250::initMPU9250()
     this->writeByte(MPU9250_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
 }
 
-void MPU9250::calibrate(void)
+void MPU9250_Gyroscope::calibrate(void)
 {
     uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
     uint16_t i, packet_count, fifo_count;
@@ -524,7 +535,7 @@ void MPU9250::calibrate(void)
     this->accelBias[2] = (float)accel_bias[2]/(float)accelsensitivity;
 }
 
-void MPU9250::calibrateGyro(void) {
+void MPU9250_Gyroscope::calibrateGyro(void) {
     static constexpr uint32_t NUM_SAMPLES = 50;
 
     float bias[3] = { 0, 0, 0 }, sigma[3] = { 0, 0, 0 };
@@ -558,7 +569,7 @@ void MPU9250::calibrateGyro(void) {
     this->gyroThreshold[2] = sqrt((sigma[2] / NUM_SAMPLES) - (this->gyroBias[2] * this->gyroBias[2]));
 }
 
-void MPU9250::initialize(void) {
+void MPU9250_Gyroscope::initialize(void) {
     uint8_t whoAmI = this->readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
 
     if (whoAmI == 0x73)
@@ -584,7 +595,7 @@ void MPU9250::initialize(void) {
     }
 }
 
-bool MPU9250::waitI2C() {
+bool MPU9250_Gyroscope::waitI2C() {
     static constexpr uint8_t MAX_TIMEOUT_MS = 10;
     uint8_t msCntr = 0;
     while (this->hi2c->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {

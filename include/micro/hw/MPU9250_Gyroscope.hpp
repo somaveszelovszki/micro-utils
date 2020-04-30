@@ -36,19 +36,10 @@ enum class Mscale : uint8_t {
 #define MMODE_ODR_8Hz   0x02
 #define MMODE_ODR_100Hz 0x06
 
-class MPU9250 {
+class MPU9250_Gyroscope {
 public:
 
-    MPU9250(I2C_HandleTypeDef *hi2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
-        : hi2c(hi2c)
-        , aScale(aScale)
-        , gScale(gScale)
-        , mScale(mScale)
-        , aRes(getAres(aScale))
-        , gRes(getGres(gScale))
-        , mRes(getMres(mScale))
-        , Mmode(Mmode)
-        , magBias{ 260.0f, 0.0f, 0.0f } {}
+    MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
 
     point3<m_per_sec2_t> readAccelData(void);
     point3<rad_per_sec_t> readGyroData(void);
