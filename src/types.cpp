@@ -1,6 +1,5 @@
 #include <micro/utils/types.hpp>
 #include <micro/utils/log.hpp>
-#include <micro/utils/task.hpp>
 
 namespace micro {
 
@@ -52,12 +51,6 @@ const char* to_string(const Sign& sign) {
         default:             result = "unknown";  break;
     }
     return result;
-}
-
-void waitReady(const volatile void * const item) {
-    while (!item) {
-        os_delay(1);
-    }
 }
 
 } // namespace micro

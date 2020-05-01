@@ -112,6 +112,4 @@ T getValue(const T& value) {
     return value;
 }
 
-void waitReady(const volatile void * const item);
-
 } // namespace micro

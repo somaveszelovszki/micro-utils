@@ -33,3 +33,13 @@
 
 #endif // OS_FREERTOS
 
+namespace micro {
+
+template <typename ptr>
+void waitReady(const volatile ptr& item) {
+    while (!item) {
+        os_delay(1);
+    }
+}
+
+} // namespace micro
