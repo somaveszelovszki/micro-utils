@@ -9,7 +9,10 @@
 namespace micro {
 
 template <typename T, typename partial = void>
-struct numeric_limits {
+struct numeric_limits {};
+
+template <typename T>
+struct numeric_limits<T, typename std::enable_if<std::is_arithmetic<T>::value, void>::type> {
     static constexpr T min()       { return std::numeric_limits<T>::min();       }
     static constexpr T max()       { return std::numeric_limits<T>::max();       }
     static constexpr T quiet_Nan() { return std::numeric_limits<T>::quiet_NaN(); }
