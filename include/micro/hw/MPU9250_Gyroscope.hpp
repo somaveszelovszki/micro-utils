@@ -69,8 +69,6 @@ private:
     void initMPU9250(void);
     void initAK8963(void);
 
-    void calibrate(void);
-
     void calibrateGyro(void);
 
     struct handle_t {
