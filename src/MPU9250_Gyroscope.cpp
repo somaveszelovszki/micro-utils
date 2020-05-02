@@ -3,6 +3,9 @@
 #include <micro/utils/log.hpp>
 #include <micro/utils/arrays.hpp>
 #include <micro/utils/task.hpp>
+#include <micro/utils/timer.hpp>
+
+#include <string.h>
 
 namespace micro {
 namespace hw {
@@ -165,7 +168,7 @@ namespace hw {
 #endif
 
 MPU9250_Gyroscope::MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
-    : hi2c(hi2c)
+    : handle{ hi2c, nullptr, nullptr, 0 }
     , aScale(aScale)
     , gScale(gScale)
     , mScale(mScale)
@@ -173,38 +176,89 @@ MPU9250_Gyroscope::MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, Ascale aScale, Gsc
     , gRes(getGres(gScale))
     , mRes(getMres(mScale))
     , Mmode(Mmode)
-    , magBias{ 260.0f, 0.0f, 0.0f } {}
+    , isCommActive(false) {}
+
+#ifdef STM32F4
+MPU9250_Gyroscope::MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
+    : handle{ nullptr, hspi, csGpio, csGpioPin }
+    , aScale(aScale)
+    , gScale(gScale)
+    , mScale(mScale)
+    , aRes(getAres(aScale))
+    , gRes(getGres(gScale))
+    , mRes(getMres(mScale))
+    , Mmode(Mmode)
+    , isCommActive(false) {}
+#endif // STM32F4
+
+bool MPU9250_Gyroscope::waitComm() {
+    static constexpr millisecond_t MAX_TIMEOUT = { 10 };
+    const millisecond_t startTime = getTime();
+    bool timeout = false;
+    while (this->isCommActive) {
+        if ((timeout = getTime() - startTime < MAX_TIMEOUT)) {
+            break;
+        }
+        os_delay(1);
+    }
+    return timeout;
+}
+
 
 bool MPU9250_Gyroscope::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
-    uint8_t data_write[2];
-    data_write[0] = subAddress;
-    data_write[1] = data;
+    bool isOk = this->waitComm();
+    if (isOk) {
+        if (this->handle.hi2c) {
+            //HAL_I2C_Master_Transmit_DMA(this->handle.hi2c, address, data_write, 2);
+            HAL_I2C_Mem_Write_DMA(this->handle.hi2c, address, subAddress, 1, &data, 1);
+            isOk = this->waitComm();
 
-    bool isI2CReady = this->waitI2C();
-    if (isI2CReady) {
-        HAL_I2C_Master_Transmit_IT(this->hi2c, address, data_write, 2);
-        isI2CReady = this->waitI2C();
+        } else if (this->handle.hspi) {
+            HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
+            HAL_SPI_Transmit_DMA(this->handle.hspi, &subAddress, 1);
+            isOk = this->waitComm();
+            if (isOk) {
+                HAL_SPI_Transmit_DMA(this->handle.hspi, &data, 1);
+                isOk = this->waitComm();
+            }
+            HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
+        }
     }
-    return isI2CReady;
+    return isOk;
 }
 
 char MPU9250_Gyroscope::readByte(uint8_t address, uint8_t subAddress)
 {
-    uint8_t data = 0;
-    this->waitI2C();
-    HAL_I2C_Mem_Read_IT(this->hi2c, address, subAddress, 1, &data, 1);
-    this->waitI2C();
-    return data;
+    uint8_t result;
+    return this->readBytes(address, subAddress, 1, &result) ? (char)result : 0;
 }
 
 bool MPU9250_Gyroscope::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
-    bool isI2CReady = this->waitI2C();
-    if (isI2CReady) {
-        HAL_I2C_Mem_Read_IT(this->hi2c, address, subAddress, 1, dest, count);
-        isI2CReady = this->waitI2C();
+    bool isOk = this->waitComm();
+    if (isOk) {
+        if (this->handle.hi2c) {
+            HAL_I2C_Mem_Read_DMA(this->handle.hi2c, address, subAddress, 1, dest, count);
+            isOk = this->waitComm();
+
+        } else if (this->handle.hspi) {
+            static constexpr uint8_t MAX_COUNT = 32;
+            static uint8_t txRxData[MAX_COUNT];
+
+            if (count <= MAX_COUNT) {
+                txRxData[0] = subAddress;
+                HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
+                HAL_SPI_TransmitReceive_DMA(this->handle.hspi, txRxData, txRxData, count + 1);
+                isOk = this->waitComm();
+                HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
+                memcpy(dest, &txRxData[1], count);
+            } else {
+                isOk = false;
+            }
+
+        }
     }
-    return isI2CReady;
+    return isOk;
 }
 
 float MPU9250_Gyroscope::getMres(Mscale scale) {
@@ -283,8 +337,6 @@ point3<rad_per_sec_t> MPU9250_Gyroscope::readGyroData(void) {
 
     point3<rad_per_sec_t> result;
 
-    this->hi2c->State = HAL_I2C_STATE_READY;
-
     uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
     if (this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0])) {
         float x = (((int16_t)(int8_t)rawData[0] << 8) | rawData[1]) * this->gRes - this->gyroBias[0];
@@ -312,9 +364,9 @@ point3<gauss_t> MPU9250_Gyroscope::readMagData(void) {
         this->readBytes(AK8963_ADDRESS, AK8963_XOUT_L, 7, &rawData[0]);  // Read the six raw data and ST2 registers sequentially into data array
         uint8_t c = rawData[6];
         if(!(c & 0x08)) { // Check if magnetic sensor overflow bit is set
-            result.X = gauss_t((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]) * this->mRes * this->magCalibration[0]);// - this->magBias[0]);
-            result.Y = gauss_t((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]) * this->mRes * this->magCalibration[1]);// - this->magBias[1]);
-            result.Z = gauss_t((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]) * this->mRes * this->magCalibration[2]);// - this->magBias[2]);
+            result.X = gauss_t((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]) * this->mRes * this->magCalibration[0]);
+            result.Y = gauss_t((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]) * this->mRes * this->magCalibration[1]);
+            result.Z = gauss_t((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]) * this->mRes * this->magCalibration[2]);
         }
     }
     return result;
@@ -593,15 +645,6 @@ void MPU9250_Gyroscope::initialize(void) {
        LOG_ERROR("Could not connect to MPU9250: %u", (uint32_t)whoAmI);
        return;
     }
-}
-
-bool MPU9250_Gyroscope::waitI2C() {
-    static constexpr uint8_t MAX_TIMEOUT_MS = 10;
-    uint8_t msCntr = 0;
-    while (this->hi2c->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {
-        os_delay(1);
-    }
-    return msCntr < MAX_TIMEOUT_MS;
 }
 
 } // namespace hw
