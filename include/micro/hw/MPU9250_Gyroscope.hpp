@@ -45,12 +45,14 @@ public:
     MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
 #endif
 
-    point3<m_per_sec2_t> readAccelData(void);
-    point3<rad_per_sec_t> readGyroData(void);
-    point3<gauss_t> readMagData(void);
-    celsius_t readTempData(void);
+    point3<m_per_sec2_t> readAccelData();
+    point3<rad_per_sec_t> readGyroData();
+    point3<gauss_t> readMagData();
+    celsius_t readTempData();
 
-    void initialize(void);
+    void initialize();
+
+    void onCommFinished();
 
 private:
     bool waitComm();

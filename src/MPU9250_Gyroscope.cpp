@@ -615,7 +615,6 @@ void MPU9250_Gyroscope::calibrateGyro(void) {
     this->gyroBias[1] = bias[1] / NUM_SAMPLES;
     this->gyroBias[2] = bias[2] / NUM_SAMPLES;
 
-
     this->gyroThreshold[0] = sqrt((sigma[0] / NUM_SAMPLES) - (this->gyroBias[0] * this->gyroBias[0]));
     this->gyroThreshold[1] = sqrt((sigma[1] / NUM_SAMPLES) - (this->gyroBias[1] * this->gyroBias[1]));
     this->gyroThreshold[2] = sqrt((sigma[2] / NUM_SAMPLES) - (this->gyroBias[2] * this->gyroBias[2]));
@@ -645,6 +644,10 @@ void MPU9250_Gyroscope::initialize(void) {
        LOG_ERROR("Could not connect to MPU9250: %u", (uint32_t)whoAmI);
        return;
     }
+}
+
+void MPU9250_Gyroscope::onCommFinished() {
+    this->isCommActive = false;
 }
 
 } // namespace hw
