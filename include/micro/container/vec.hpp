@@ -16,6 +16,8 @@ public:
     typedef const T* const_iterator;
     typedef T entry_type;
 
+    vec_base() : size_(0) {}
+
     T& operator[](uint32_t pos) {
         return this->data_[pos];
     }
@@ -119,9 +121,7 @@ public:
     typedef typename base_type::const_iterator const_iterator;
     typedef typename base_type::entry_type entry_type;
 
-    /* @brief Default constructor - Sets size to 0.
-     **/
-    vec() {}
+    vec() : base_type() {}
 
     /* @brief Copy constructor - copies elements.
      * @param other The other vector.
@@ -233,9 +233,7 @@ public:
     typedef typename base_type::const_iterator const_iterator;
     typedef typename base_type::entry_type entry_type;
 
-    /* @brief Default constructor - Sets size to 0.
-     **/
-    sorted_vec() {}
+    sorted_vec() : base_type() {}
 
     sorted_vec(const sorted_vec<T, capacity_>& other) {
         this->construct(other);
