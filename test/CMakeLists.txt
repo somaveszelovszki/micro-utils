@@ -4,7 +4,7 @@ project(micro_utils)
 add_subdirectory(gtest)
 
 include_directories(
-    "."
+    "src"
     "../include"
 )
 
