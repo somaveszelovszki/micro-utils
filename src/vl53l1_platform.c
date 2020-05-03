@@ -36,13 +36,12 @@
 
 #include <micro/hw/vl53l1_platform.h>
 #include <micro/hw/vl53l1_error_codes.h>
+#include <micro/port/hal.h>
 //#include "cfg_board.h"
 
 #if defined STM32F0
-#include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_i2c.h>
 #elif defined STM32F4
-#include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_i2c.h>
 #endif
 
@@ -271,6 +270,6 @@ done:
 
 VL53L1_Error VL53L1_WaitMs(uint16_t dev, int32_t wait_ms){
 	(void)dev;
-//	vTaskDelay(wait_ms);
+//	os_delay(wait_ms);
     return VL53L1_ERROR_NONE;
 }

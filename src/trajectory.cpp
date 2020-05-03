@@ -1,4 +1,5 @@
 #include <micro/math/linalg.hpp>
+#include <micro/math/unit_utils.hpp>
 #include <micro/utils/trajectory.hpp>
 
 namespace micro {
@@ -25,8 +26,8 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
     const vec2m relativeVec = lastCfg->pose.pos - center;
 
     for (uint32_t i = 1; i <= numSections; ++i) {
-        const m_per_sec_t currentSpeed    = map(i, 0ul, numSections, lastCfg->speed, destSpeed);
-        const vec2m currentRelativeVec    = relativeVec.rotate(map(i, 0ul, numSections, radian_t(0), angle));
+        const m_per_sec_t currentSpeed    = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, destSpeed);
+        const vec2m currentRelativeVec    = relativeVec.rotate(map<uint32_t, radian_t>(i, 0, numSections, radian_t(0), angle));
         const radian_t currentOrientation = currentRelativeVec.getAngle() + sgn(angle) * PI_2;
 
         this->appendLine(config_t{ { center + currentRelativeVec, currentOrientation }, currentSpeed });
@@ -47,7 +48,7 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
         const meter_t x_ = c1_.X + static_cast<float>(i) / numSections * dx;
         const meter_t y_ = c1_.Y + dy * (1 - cos(map<float, radian_t>(i, 0, numSections, sineStart, sineEnd))) / 2;
         const point2m currentPoint        = point2m{ x_, y_ }.rotate(fwdAngle);
-        const m_per_sec_t currentSpeed    = map(i, 0ul, numSections, lastCfg->speed, dest.speed);
+        const m_per_sec_t currentSpeed    = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, dest.speed);
         const radian_t currentOrientation = (currentPoint - prevCfg->pose.pos).getAngle();
 
         this->appendLine(config_t{ { currentPoint, currentOrientation }, currentSpeed });

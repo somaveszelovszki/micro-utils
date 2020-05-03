@@ -1,8 +1,11 @@
 #include <micro/hw/MPU9250_Gyroscope.hpp>
+
+#ifdef STM32F4
+
 #include <micro/math/unit_utils.hpp>
+#include <micro/port/task.hpp>
 #include <micro/utils/log.hpp>
 #include <micro/utils/arrays.hpp>
-#include <micro/utils/task.hpp>
 #include <micro/utils/timer.hpp>
 
 #include <string.h>
@@ -519,3 +522,5 @@ void MPU9250_Gyroscope::onCommFinished() {
 
 } // namespace hw
 } // namespace micro
+
+#endif // STM32F4

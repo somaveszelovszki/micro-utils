@@ -1,10 +1,10 @@
 #include <micro/panel/panelVersion.h>
 
+#include <micro/port/hal.h>
+
 #if defined STM32F0
-#include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_gpio.h>
 #elif defined STM32F4
-#include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_gpio.h>
 #endif
 
@@ -20,6 +20,7 @@ typedef struct {
 static panelVersion_t version = 0xff;
 
 panelVersion_t panelVersion_get(void) {
+#if defined BSP_LIB_HAL
     if (0xff == version) {
         GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -54,5 +55,7 @@ panelVersion_t panelVersion_get(void) {
             version |= ((HAL_GPIO_ReadPin(PINS[i].gpio, PINS[i].pin) == GPIO_PIN_SET ? 1 : 0) << i);
         }
     }
+#endif // BSP_LIB_HAL
+
     return version;
 }

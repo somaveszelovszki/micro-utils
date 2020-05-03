@@ -1,15 +1,13 @@
 #pragma once
 
+#ifdef STM32F4
+
+#include <micro/port/hal.h>
 #include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
 
-#if defined STM32F0
-#include <stm32f0xx_hal.h>
-#include <stm32f0xx_hal_i2c.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_i2c.h>
-#endif
+#include <stm32f4xx_hal_spi.h>
 
 namespace micro {
 namespace hw {
@@ -101,3 +99,5 @@ private:
 
 } // namespace hw
 } // namespace micro
+
+#endif // STM32F4

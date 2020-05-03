@@ -1,15 +1,14 @@
 #pragma once
 
 #include <micro/hw/lsm6dso_reg.h>
+#include <micro/port/hal.h>
 #include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
 
 #if defined STM32F0
-#include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_gpio.h>
 #include <stm32f0xx_hal_i2c.h>
 #elif defined STM32F4
-#include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_gpio.h>
 #include <stm32f4xx_hal_i2c.h>
 #include <stm32f4xx_hal_spi.h>

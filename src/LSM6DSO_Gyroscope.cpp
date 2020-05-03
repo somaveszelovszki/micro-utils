@@ -1,7 +1,6 @@
 #include <micro/hw/LSM6DSO_Gyroscope.hpp>
 #include <micro/math/unit_utils.hpp>
-#include <micro/utils/task.hpp>
-
+#include <micro/port/task.hpp>
 #include <cstring>
 
 namespace micro {

@@ -1,13 +1,12 @@
 #pragma once
 
+#include <micro/port/hal.h>
 #include <micro/utils/timer.hpp>
-#include <micro/utils/task.hpp>
+#include <micro/port/task.hpp>
 
 #if defined STM32F0
-#include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_uart.h>
 #elif defined STM32F4
-#include <stm32f4xx_hal.h>
 #include <stm32f4xx_hal_uart.h>
 #endif
 

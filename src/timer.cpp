@@ -1,9 +1,10 @@
+#include <micro/port/task.hpp>
 #include <micro/utils/time_init.h>
 #include <micro/utils/timer.hpp>
 
-#ifdef __GNUC__
+#if defined __GNUC__ && defined STM32
 #include "cmsis_gcc.h"
-#endif // __GNUC__
+#endif
 
 namespace micro {
 
@@ -14,9 +15,9 @@ millisecond_t getTime() {
 }
 
 microsecond_t getExactTime() {
-    __disable_irq();
+    os_enterCritical();
     const microsecond_t time = static_cast<microsecond_t>(getTime()) + microsecond_t(__HAL_TIM_GET_COUNTER(tim_system));
-    __enable_irq();
+    os_exitCritical();
     return time;
 }
 

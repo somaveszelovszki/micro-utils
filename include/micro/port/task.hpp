@@ -1,8 +1,6 @@
 #pragma once
 
-#include "types.hpp"
-
-#ifdef OS_FREERTOS
+#if defined OS_FREERTOS
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -13,7 +11,7 @@
 #define os_exitCritical()   taskEXIT_CRITICAL()
 #define os_delay(ms)        vTaskDelay(ms)
 
-#else
+#elif defined BSP_LIB_HAL
 
 #if defined STM32F0
 #include <stm32f0xx_hal.h>
@@ -31,7 +29,15 @@
 #define os_exitCritical()   __enable_irq()
 #define os_delay(ms)        HAL_Delay(ms)
 
-#endif // OS_FREERTOS
+#else
+
+#define os_taskSuspendAll()
+#define os_taskResumeAll()
+#define os_enterCritical()
+#define os_exitCritical()
+#define os_delay(ms)
+
+#endif
 
 namespace micro {
 
