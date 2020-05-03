@@ -16,14 +16,14 @@ public:
     };
 
     struct config_t {
-        Pose pose;
+        Pose pose; // the desired position and forward angle (independent from the speed sign)
         m_per_sec_t speed;
     };
 
     typedef vec<config_t, 500> configs_t;
 
     Trajectory()
-        : sectionStartConfig_(this->configs_.begin())
+        : sectionStartConfig_(this->configs_.end())
         , length_(0)
         , coveredDistanceUntilLastConfig_(0)
         , carDistanceAtLastConfig_(0)

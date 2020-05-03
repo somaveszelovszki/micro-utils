@@ -18,9 +18,8 @@ struct ControlData {
     controlType_t controlType = controlType_t::Line;
 
     struct {
-        OrientedLine baseline;
-        millimeter_t offset;
-        radian_t angle;
+        OrientedLine actual;    // actual line offset and angle - relative to car: line offset to the right is POSITIVE, counter-clockwise line angle is POSITIVE
+        OrientedLine desired;   // desired line offset and angle - relative to car: line offset to the right is POSITIVE, counter-clockwise line angle is POSITIVE
     } lineControl;
 
     struct {
