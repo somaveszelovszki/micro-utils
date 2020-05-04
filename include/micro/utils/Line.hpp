@@ -4,13 +4,13 @@
 
 #include "units.hpp"
 
-#include <cfg_micro.hpp>
-
 namespace micro {
 
 /* @brief Stores data of a detected line.
  **/
 struct Line {
+    static constexpr uint8_t MAX_NUM_LINES = 3;
+
     millimeter_t pos; ///< The line position at the front sensor line (relative to car vertical middle axis).
     uint8_t id : 3;   ///< The line id @note 0 means unknown line id
 
@@ -20,7 +20,7 @@ struct Line {
     bool operator>(const Line& other) const  { return this->pos > other.pos; }
 };
 
-typedef sorted_vec<Line, cfg::MAX_NUM_LINES> Lines;
+typedef sorted_vec<Line, Line::MAX_NUM_LINES> Lines;
 
 struct OrientedLine {
     millimeter_t pos;

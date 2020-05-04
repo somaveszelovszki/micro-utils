@@ -16,7 +16,7 @@ struct Lines {
     struct {
         int16_t pos_mm_9p4 : 13;
         uint8_t id         : 3;
-    } __attribute__((packed)) values[cfg::MAX_NUM_LINES];
+    } __attribute__((packed)) values[Line::MAX_NUM_LINES];
 } __attribute__((packed));
 
 struct LinePattern {

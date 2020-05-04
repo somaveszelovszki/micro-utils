@@ -22,11 +22,11 @@ const char* to_string(const Status& status) {
 const char* to_string(const logLevel_t& level) {
     const char *result = nullptr;
     switch (level) {
-        case LogLevel_Debug:   result = "[D]"; break;
-        case LogLevel_Info:    result = "[I]"; break;
-        case LogLevel_Warning: result = "[W]"; break;
-        case LogLevel_Error:   result = "[E]"; break;
-        default:               result = "[!]"; break;
+        case logLevel_t::Debug:   result = "[D]"; break;
+        case logLevel_t::Info:    result = "[I]"; break;
+        case logLevel_t::Warning: result = "[W]"; break;
+        case logLevel_t::Error:   result = "[E]"; break;
+        default:                  result = "[!]"; break;
     }
     return result;
 }

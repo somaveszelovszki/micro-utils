@@ -40,11 +40,12 @@ inline bool isOk(Status status) {
  */
 const char* to_string(const Status& status);
 
-typedef uint8_t logLevel_t;
-#define LogLevel_Debug   0x01
-#define LogLevel_Info    0x02
-#define LogLevel_Warning 0x03
-#define LogLevel_Error   0x04
+enum class logLevel_t : uint8_t {
+    Debug   = 0x01,
+    Info    = 0x02,
+    Warning = 0x03,
+    Error   = 0x04
+};
 
 const char* to_string(const logLevel_t& level);
 

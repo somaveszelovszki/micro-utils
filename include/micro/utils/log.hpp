@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cfg_micro.hpp>
-
-#if LOG_ENABLED
+#if defined OS_FREERTOS // logging is only supported if FreeRTOS is available
 
 #include <micro/utils/types.hpp>
 
@@ -15,7 +13,7 @@ namespace micro {
 
 constexpr uint8_t LOG_MSG_MAX_SIZE = 128;
 
-void log_init(QueueHandle_t logQueue);
+void log_init(QueueHandle_t logQueue, const logLevel_t minLogLevel = logLevel_t::Debug);
 
 /* @brief Prints a debug code and a string to the console through USART.
  * Supported modifiers : %s, %c, %d, %f
@@ -35,38 +33,16 @@ void printlog(logLevel_t level, const char *format, ...);
 
 } // namespace micro
 
+#define LOG_DEBUG(format, ...)   micro::printlog(logLevel_t::Debug,   format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)    micro::printlog(logLevel_t::Info,    format, ##__VA_ARGS__)
+#define LOG_WARNING(format, ...) micro::printlog(logLevel_t::Warning, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...)   micro::printlog(logLevel_t::Error,   format, ##__VA_ARGS__)
+
 #else
 
-namespace micro {
+#define LOG_DEBUG(format, ...)
+#define LOG_INFO(format, ...)
+#define LOG_WARNING(format, ...)
+#define LOG_ERROR(format, ...)
 
-#define vprintlog(...)
-#define printlog(...)
-#define log_init(...)
-
-} // namespace micro
-
-#endif // LOG_ENABLED
-
-#if MIN_LOG_LEVEL <= LogLevel_Debug && LOG_ENABLED
-#define LOG_DEBUG(format, ...) micro::printlog(LogLevel_Debug, format, ##__VA_ARGS__)
-#else
-#define LOG_DEBUG(...)
-#endif
-
-#if MIN_LOG_LEVEL <= LogLevel_Info && LOG_ENABLED
-#define LOG_INFO(format, ...) micro::printlog(LogLevel_Info, format, ##__VA_ARGS__)
-#else
-#define LOG_INFO(...)
-#endif
-
-#if MIN_LOG_LEVEL <= LogLevel_Warning && LOG_ENABLED
-#define LOG_WARNING(format, ...) micro::printlog(LogLevel_Warning, format, ##__VA_ARGS__)
-#else
-#define LOG_WARNING(...)
-#endif
-
-#if MIN_LOG_LEVEL <= LogLevel_Error && LOG_ENABLED
-#define LOG_ERROR(format, ...) micro::printlog(LogLevel_Error, format, ##__VA_ARGS__)
-#else
-#define LOG_ERROR(...)
-#endif
+#endif // OS_FREERTOS

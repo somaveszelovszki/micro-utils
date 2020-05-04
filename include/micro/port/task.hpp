@@ -35,7 +35,7 @@
 #define os_taskResumeAll()
 #define os_enterCritical()
 #define os_exitCritical()
-#define os_delay(ms)
+#define os_delay(...)
 
 #endif
 

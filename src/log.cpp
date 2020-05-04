@@ -1,15 +1,11 @@
-#include <micro/utils/log.hpp>
+#if defined OS_FREERTOS // logging is only supported if FreeRTOS is available
 
-#if LOG_ENABLED
-
-#include <micro/utils/str_utils.hpp>
 #include <micro/container/vec.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/math/numeric.hpp>
 #include <micro/port/task.hpp>
-
-#include <FreeRTOS.h>
-#include <queue.h>
+#include <micro/utils/log.hpp>
+#include <micro/utils/str_utils.hpp>
 
 #include <cstdarg>
 #include <cstring>
@@ -22,16 +18,18 @@ constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
 constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
 
 QueueHandle_t queue = nullptr;
+logLevel_t minLevel = logLevel_t::Debug;
 
-void log_init(QueueHandle_t logQueue) {
-    queue = logQueue;
+void log_init(QueueHandle_t logQueue, const logLevel_t minLogLevel) {
+    queue    = logQueue;
+    minLevel = minLogLevel;
 }
 
 void vprintlog(logLevel_t level, const char *format, va_list args) {
 
     micro::waitReady(queue);
 
-    if (level >= MIN_LOG_LEVEL)
+    if (level >= minLevel)
     {
         char msg[LOG_MSG_MAX_SIZE];
         const char *levelStr = to_string(level);
@@ -57,4 +55,4 @@ void printlog(logLevel_t level, const char *format, ...) {
 
 } // namespace micro
 
-#endif // LOG_ENABLED
+#endif // OS_FREERTOS
