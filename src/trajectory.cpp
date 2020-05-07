@@ -48,7 +48,7 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
         const meter_t y_ = c1_.Y + dy * (1 - cos(map<float, radian_t>(i, 0, numSections, sineStart, sineEnd))) / 2;
         const point2m currentPoint        = point2m{ x_, y_ }.rotate(fwdAngle);
         const m_per_sec_t currentSpeed    = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, dest.speed);
-        const radian_t currentOrientation = (currentPoint - prevCfg->pose.pos).getAngle();
+        const radian_t currentOrientation = orientationUpdate == orientationUpdate_t::FIX_ORIENTATION ? lastCfg->pose.angle : (currentPoint - prevCfg->pose.pos).getAngle();
 
         this->appendLine(config_t{ { currentPoint, currentOrientation }, currentSpeed });
         prevCfg = this->configs_.back();
@@ -98,17 +98,21 @@ ControlData Trajectory::update(const CarProps car) {
     const radian_t linePointAngle   = (linePoint - car.pose.pos).getAngle();
     const Sign lineSign             = eqWithOverflow360(linePointAngle, fwdAngle - PI_2, PI_2) ? Sign::POSITIVE : Sign::NEGATIVE;
 
-    const meter_t sectionStartDist = sectionStartConfig->pose.pos.distance(car.pose.pos);
-    const meter_t sectionEndDist   = sectionEndConfig->pose.pos.distance(car.pose.pos);
+    const meter_t sectionStartDist  = sectionStartConfig->pose.pos.distance(car.pose.pos);
+    const meter_t sectionEndDist    = sectionEndConfig->pose.pos.distance(car.pose.pos);
+    const meter_t sectionLength     = sectionEndDist - sectionStartDist;
+
+    const radian_t fwdAngleDiff     = normalizePM180(sectionEndConfig->pose.angle - sectionStartConfig->pose.angle);
+    const radian_t desiredFwdAngle  = sectionStartConfig->pose.angle + map(sectionStartDist.get(), 0.0f, sectionLength.get(), radian_t(0), fwdAngleDiff);
 
     ControlData controlData;
-    controlData.speed                     = map(sectionStartDist.get(), 0.0f, (sectionStartDist + sectionEndDist).get(), sectionStartConfig->speed, sectionEndConfig->speed);
+    controlData.speed                     = map(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionStartConfig->speed, sectionEndConfig->speed);
     controlData.rampTime                  = millisecond_t(0);
     controlData.controlType               = ControlData::controlType_t::Line;
     controlData.lineControl.actual.pos    = linePoint.distance(car.pose.pos) * lineSign;
     controlData.lineControl.actual.angle  = normalizePM180(sectionLineAngle - fwdAngle);
     controlData.lineControl.desired.pos   = millimeter_t(0);
-    controlData.lineControl.desired.angle = radian_t(0); // TODO
+    controlData.lineControl.desired.angle = normalizePM180(sectionLineAngle - desiredFwdAngle);
     return controlData;
 }
 
