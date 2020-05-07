@@ -126,4 +126,10 @@ void bubble_sort(Iter begin, Iter end) {
     }
 }
 
+template <typename Iter, typename T>
+Iter find_sorted(Iter begin, Iter end, const T& value) {
+    Iter it = std::lower_bound(begin, end, value);
+    return it != end && *it == value ? it : end;
+}
+
 } // namespace micro
