@@ -11,6 +11,8 @@ inline bool isInterrupt()
 {
 #if defined STM32F4 || defined STM32F0
     return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
+#else
+    return false;
 #endif
 }
 } // namespace micro
@@ -97,6 +99,8 @@ private:
 #define os_delay(ms)        vTaskDelay(ms)
 
 #else // !OS_FREERTOS
+
+#include <cstdint>
 
 namespace micro {
 class mutex_t {
