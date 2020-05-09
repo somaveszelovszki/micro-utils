@@ -482,4 +482,10 @@ typedef detail::dim_class<Dimension::angular_velocity> angular_velocity_t;
 create_div_unit_instance(radian, second, rad_per_sec);
 create_div_unit_instance(degree, second, deg_per_sec);
 
+template <typename T1, typename T2, typename partial = void>
+struct is_same_unit_dimension : std::false_type {};
+
+template <typename T1, typename T2>
+struct is_same_unit_dimension<T1, T2, typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, void>::type> : std::true_type {};
+
 } // namespace micro

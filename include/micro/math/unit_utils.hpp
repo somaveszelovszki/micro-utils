@@ -16,11 +16,11 @@ const m_per_sec2_t G = m_per_sec2_t(9.81f);  // Gravitational acceleration.
 
 template <typename T>
 struct numeric_limits<T, typename std::enable_if<T::is_dim_class, void>::type> {
-    static constexpr T min()       { return { std::numeric_limits<typename T::value_type>::min()       }; }
-    static constexpr T max()       { return { std::numeric_limits<typename T::value_type>::max()       }; }
-    static constexpr T quiet_Nan() { return { std::numeric_limits<typename T::value_type>::quiet_NaN() }; }
-    static constexpr T infinity()  { return { std::numeric_limits<typename T::value_type>::infinity()  }; }
-    static constexpr T epsilon()   { return { std::numeric_limits<typename T::value_type>::epsilon()   }; }
+    static constexpr T min()       { return { micro::numeric_limits<typename T::value_type>::min()       }; }
+    static constexpr T max()       { return { micro::numeric_limits<typename T::value_type>::max()       }; }
+    static constexpr T quiet_Nan() { return { micro::numeric_limits<typename T::value_type>::quiet_NaN() }; }
+    static constexpr T infinity()  { return { micro::numeric_limits<typename T::value_type>::infinity()  }; }
+    static constexpr T epsilon()   { return { micro::numeric_limits<typename T::value_type>::epsilon()   }; }
 };
 
 /**
@@ -42,7 +42,7 @@ inline constexpr typename std::enable_if<T::is_dim_class, float>::type valueOf(c
  * @returns The length of the hypotenuse of the triangle.
  */
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, T1>::type pythag(const T1& a, const T2& b) {
+inline typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value, T1>::type pythag(const T1& a, const T2& b) {
     const float _a = a.template get<true>();
     const float _b = static_cast<T1>(b).template get<true>();
     return T1(std::sqrt(_a * _a + _b * _b), nullptr);
@@ -58,7 +58,8 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns The length of the vector.
  */
 template <typename T1, typename T2, typename T3>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T3::is_dim_class && T1::dim == T2::dim && T1::dim == T3::dim, T1>::type pythag(const T1& a, const T2& b, const T3& c) {
+inline typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value && micro::is_same_unit_dimension<T1, T3>::value, T1>::type
+pythag(const T1& a, const T2& b, const T3& c) {
     const float _a = a.template get<true>();
     const float _b = static_cast<T1>(b).template get<true>();
     const float _c = static_cast<T1>(c).template get<true>();
@@ -119,7 +120,7 @@ inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, radian_t>
 }
 
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, radian_t>::type atan2(const T1& y, const T2& x) {
+inline constexpr typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value, radian_t>::type atan2(const T1& y, const T2& x) {
     return radian_t(atan2(y.template get<true>(), static_cast<T1>(x).template get<true>()));
 }
 
@@ -216,8 +217,8 @@ inline bool isMultipleOf90(radian_t value, radian_t eps) {
  * @param b The length of the other leg of the triangle.
  * @returns The length of the hypotenuse of the triangle.
  **/
-inline distance_t pythag_square(distance_t a, distance_t b) {
-    return centimeter_t(pythag_square(centimeter_t(a).template get<true>(), centimeter_t(b).template get<true>()));
+inline meter_t pythag_square(meter_t a, meter_t b) {
+    return meter_t(pythag_square(a.get(), b.get()));
 }
 
 /* @brief Calculates vector length using the Pythagorean theory.
@@ -225,8 +226,8 @@ inline distance_t pythag_square(distance_t a, distance_t b) {
  * @param b The length of the other leg of the triangle.
  * @returns The length of the hypotenuse of the triangle.
  **/
-inline distance_t pythag(distance_t a, distance_t b) {
-    return centimeter_t(pythag(centimeter_t(a).template get<true>(), centimeter_t(b).template get<true>()));
+inline meter_t pythag(meter_t a, meter_t b) {
+    return meter_t(pythag(a.get(), b.get()));
 }
 
 /* @brief Calculates square of the vector length using the Pythagorean theory.
@@ -235,8 +236,8 @@ inline distance_t pythag(distance_t a, distance_t b) {
  * @param c The length of the third coordinate.
  * @returns The length of the vector.
  **/
-inline distance_t pythag_square(distance_t a, distance_t b, distance_t c) {
-    return centimeter_t(pythag_square(centimeter_t(a).template get<true>(), centimeter_t(b).template get<true>(), centimeter_t(c).template get<true>()));
+inline meter_t pythag_square(meter_t a, meter_t b, meter_t c) {
+    return meter_t(pythag_square(a.get(), b.get(), c.get()));
 }
 
 /* @brief Calculates vector length using the Pythagorean theory.
@@ -245,8 +246,8 @@ inline distance_t pythag_square(distance_t a, distance_t b, distance_t c) {
  * @param c The length of the third coordinate.
  * @returns The length of the vector.
  **/
-inline distance_t pythag(distance_t a, distance_t b, distance_t c) {
-    return centimeter_t(pythag(centimeter_t(a).template get<true>(), centimeter_t(b).template get<true>(), centimeter_t(c).template get<true>()));
+inline meter_t pythag(meter_t a, meter_t b, meter_t c) {
+    return meter_t(pythag(a.get(), b.get(), c.get()));
 }
 
 } // namespace micro
