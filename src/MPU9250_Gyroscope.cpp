@@ -143,7 +143,7 @@ namespace hw {
 #define I2C_MST_DELAY_CTRL 0x67
 #define SIGNAL_PATH_RESET  0x68
 #define MOT_DETECT_CTRL  0x69
-#define USER_CTRL        0x6A  // Bit 7 enable DMP, bit 3 reset DMP
+#define USER_CTRL        0x6A
 #define PWR_MGMT_1       0x6B // Device defaults to the SLEEP mode
 #define PWR_MGMT_2       0x6C
 #define DMP_BANK         0x6D  // Activates a specific bank in the DMP
@@ -198,13 +198,10 @@ bool MPU9250_Gyroscope::waitComm() {
     static constexpr millisecond_t MAX_TIMEOUT = { 10 };
     const millisecond_t startTime = getTime();
     bool timeout = false;
-    while (this->isCommActive) {
-        if ((timeout = getTime() - startTime < MAX_TIMEOUT)) {
-            break;
-        }
+    while (this->isCommActive && !(timeout = getTime() - startTime > MAX_TIMEOUT)) {
         os_delay(1);
     }
-    return timeout;
+    return !timeout;
 }
 
 
@@ -213,11 +210,13 @@ bool MPU9250_Gyroscope::writeByte(uint8_t address, uint8_t subAddress, uint8_t d
     if (isOk) {
         if (this->handle.hi2c) {
             //HAL_I2C_Master_Transmit_DMA(this->handle.hi2c, address, data_write, 2);
+            this->isCommActive = true;
             HAL_I2C_Mem_Write_DMA(this->handle.hi2c, address, subAddress, 1, &data, 1);
             isOk = this->waitComm();
 
         } else if (this->handle.hspi) {
             HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
+            this->isCommActive = true;
             HAL_SPI_Transmit_DMA(this->handle.hspi, &subAddress, 1);
             isOk = this->waitComm();
             if (isOk) {
@@ -241,6 +240,7 @@ bool MPU9250_Gyroscope::readBytes(uint8_t address, uint8_t subAddress, uint8_t c
     bool isOk = this->waitComm();
     if (isOk) {
         if (this->handle.hi2c) {
+            this->isCommActive = true;
             HAL_I2C_Mem_Read_DMA(this->handle.hi2c, address, subAddress, 1, dest, count);
             isOk = this->waitComm();
 
@@ -249,12 +249,13 @@ bool MPU9250_Gyroscope::readBytes(uint8_t address, uint8_t subAddress, uint8_t c
             static uint8_t txRxData[MAX_COUNT];
 
             if (count <= MAX_COUNT) {
-                txRxData[0] = subAddress;
+                txRxData[0] = subAddress | 0x80;
                 HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
-                HAL_SPI_TransmitReceive_DMA(this->handle.hspi, txRxData, txRxData, count + 1);
+                this->isCommActive = true;
+                HAL_SPI_TransmitReceive_DMA(this->handle.hspi, txRxData, txRxData, 1 + count);
                 isOk = this->waitComm();
-                HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
                 memcpy(dest, &txRxData[1], count);
+                HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
             } else {
                 isOk = false;
             }
@@ -328,31 +329,22 @@ point3<m_per_sec2_t> MPU9250_Gyroscope::readAccelData(void) {
 
     uint8_t rawData[6];
     this->readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);
-
-    return {
-        ((((int16_t)rawData[0] << 8) | rawData[1]) - this->accelBias[0]) * this->aRes * micro::G,
-        ((((int16_t)rawData[2] << 8) | rawData[3]) - this->accelBias[0]) * this->aRes * micro::G,
-        ((((int16_t)rawData[4] << 8) | rawData[5]) - this->accelBias[0]) * this->aRes * micro::G
-    };
+    return static_cast<point3<m_per_sec2_t>>(bufferToRaw(rawData) * this->aRes * micro::G.get());
 }
 
 point3<rad_per_sec_t> MPU9250_Gyroscope::readGyroData(void) {
 
     point3<rad_per_sec_t> result;
+    point3f gyroData;
 
-    uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
-    if (this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0])) {
-        float x = (((int16_t)(int8_t)rawData[0] << 8) | rawData[1]) * this->gRes - this->gyroBias[0];
-        float y = (((int16_t)(int8_t)rawData[2] << 8) | rawData[3]) * this->gRes - this->gyroBias[1];
-        float z = (((int16_t)(int8_t)rawData[4] << 8) | rawData[5]) * this->gRes - this->gyroBias[2];
+    if (this->readRawGyroData(gyroData)) {
+        gyroData -= this->gyroBias;
 
-        if (abs(x) < this->gyroThreshold[0]) x = 0.0f;
-        if (abs(y) < this->gyroThreshold[1]) y = 0.0f;
-        if (abs(z) < this->gyroThreshold[2]) z = 0.0f;
+        if (abs(gyroData.X) < this->gyroThreshold.X) gyroData.X = 0.0f;
+        if (abs(gyroData.Y) < this->gyroThreshold.Y) gyroData.Y = 0.0f;
+        if (abs(gyroData.Z) < this->gyroThreshold.Z) gyroData.Z = 0.0f;
 
-        result.X = deg_per_sec_t(x);
-        result.Y = deg_per_sec_t(y);
-        result.Z = deg_per_sec_t(z);
+        result = point3<rad_per_sec_t>(point3<deg_per_sec_t>(gyroData));
     } else {
         result.X = result.Y = result.Z = micro::numeric_limits<rad_per_sec_t>::infinity();
     }
@@ -367,9 +359,12 @@ point3<gauss_t> MPU9250_Gyroscope::readMagData(void) {
         this->readBytes(AK8963_ADDRESS, AK8963_XOUT_L, 7, &rawData[0]);  // Read the six raw data and ST2 registers sequentially into data array
         uint8_t c = rawData[6];
         if(!(c & 0x08)) { // Check if magnetic sensor overflow bit is set
-            result.X = gauss_t((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]) * this->mRes * this->magCalibration[0]);
-            result.Y = gauss_t((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]) * this->mRes * this->magCalibration[1]);
-            result.Z = gauss_t((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]) * this->mRes * this->magCalibration[2]);
+
+            result = static_cast<point3<gauss_t>>(bufferToRaw(rawData) * this->mRes);
+
+            result.X *= this->magCalibration.X;
+            result.Y *= this->magCalibration.Y;
+            result.Z *= this->magCalibration.Z;
         }
     }
     return result;
@@ -396,9 +391,9 @@ void MPU9250_Gyroscope::initAK8963(void)
 
     uint8_t rawData[3];
     this->readBytes(AK8963_ADDRESS, AK8963_ASAX, 3, &rawData[0]); // Read the x-, y-, and z-axis calibration values
-    this->magCalibration[0] = (float)(rawData[0] - 128)/256.0f + 1.0f;
-    this->magCalibration[1] = (float)(rawData[1] - 128)/256.0f + 1.0f;
-    this->magCalibration[2] = (float)(rawData[2] - 128)/256.0f + 1.0f;
+    this->magCalibration.X = (float)(rawData[0] - 128)/256.0f + 1.0f;
+    this->magCalibration.Y = (float)(rawData[1] - 128)/256.0f + 1.0f;
+    this->magCalibration.Z = (float)(rawData[2] - 128)/256.0f + 1.0f;
 
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
     os_delay(10);
@@ -416,6 +411,10 @@ void MPU9250_Gyroscope::initMPU9250()
     // wake up device
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x00); // Clear sleep mode bit (6), enable all sensors
     os_delay(100); // Delay 100 ms for PLL to get established on x-axis gyro; should check for PLL ready interrupt
+
+    if (this->handle.hspi) {
+        this->writeByte(MPU9250_ADDRESS, USER_CTRL, 0x10); // sets I2C_IF_DIS flag (disables I2C, puts serial interface in SPI mode only)
+    }
 
     // get stable time source
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
@@ -466,34 +465,44 @@ void MPU9250_Gyroscope::initMPU9250()
 void MPU9250_Gyroscope::calibrateGyro(void) {
     static constexpr uint32_t NUM_SAMPLES = 50;
 
-    float bias[3] = { 0, 0, 0 }, sigma[3] = { 0, 0, 0 };
+    point3f bias = { 0, 0, 0 }, sigma = { 0, 0, 0 };
 
     for (uint32_t i = 0; i < NUM_SAMPLES; ++i) {
-        uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
-        this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);
+        point3f rawData;
+        if (this->readRawGyroData(rawData)) {
+            bias += rawData;
 
-        const float x = (((int16_t)rawData[0] << 8) | rawData[1]) * this->gRes;
-        const float y = (((int16_t)rawData[2] << 8) | rawData[3]) * this->gRes;
-        const float z = (((int16_t)rawData[4] << 8) | rawData[5]) * this->gRes;
-
-        bias[0] += x;
-        bias[1] += y;
-        bias[2] += z;
-
-        sigma[0] += x * x;
-        sigma[1] += y * y;
-        sigma[2] += z * z;
-
+            sigma.X += rawData.X * rawData.X;
+            sigma.Y += rawData.Y * rawData.Y;
+            sigma.Z += rawData.Z * rawData.Z;
+        }
         os_delay(10);
     }
 
-    this->gyroBias[0] = bias[0] / NUM_SAMPLES;
-    this->gyroBias[1] = bias[1] / NUM_SAMPLES;
-    this->gyroBias[2] = bias[2] / NUM_SAMPLES;
+    this->gyroBias = bias / NUM_SAMPLES;
 
-    this->gyroThreshold[0] = sqrt((sigma[0] / NUM_SAMPLES) - (this->gyroBias[0] * this->gyroBias[0]));
-    this->gyroThreshold[1] = sqrt((sigma[1] / NUM_SAMPLES) - (this->gyroBias[1] * this->gyroBias[1]));
-    this->gyroThreshold[2] = sqrt((sigma[2] / NUM_SAMPLES) - (this->gyroBias[2] * this->gyroBias[2]));
+    this->gyroThreshold.X = sqrt((sigma.X / NUM_SAMPLES) - (this->gyroBias.X * this->gyroBias.X));
+    this->gyroThreshold.Y = sqrt((sigma.Y / NUM_SAMPLES) - (this->gyroBias.Y * this->gyroBias.Y));
+    this->gyroThreshold.Z = sqrt((sigma.Z / NUM_SAMPLES) - (this->gyroBias.Z * this->gyroBias.Z));
+}
+
+bool MPU9250_Gyroscope::readRawGyroData(point3f& result) {
+
+    bool success = false;
+    uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
+
+    if ((success = this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]))) {
+        result = bufferToRaw(rawData) * this->gRes;
+    }
+    return success;
+}
+
+point3<int16_t> MPU9250_Gyroscope::bufferToRaw(const uint8_t rawData[6]) {
+    return {
+        static_cast<int16_t>((static_cast<uint16_t>(rawData[0]) << 8) | rawData[1]),
+        static_cast<int16_t>((static_cast<uint16_t>(rawData[2]) << 8) | rawData[3]),
+        static_cast<int16_t>((static_cast<uint16_t>(rawData[4]) << 8) | rawData[5])
+    };
 }
 
 void MPU9250_Gyroscope::initialize(void) {
@@ -508,7 +517,7 @@ void MPU9250_Gyroscope::initialize(void) {
         this->initMPU9250();
         os_delay(10);
         this->calibrateGyro();
-        LOG_DEBUG("Gyro initialized. Bias:  %f, %f, %f", this->gyroBias[0], this->gyroBias[1], this->gyroBias[2]);
+        LOG_DEBUG("Gyro initialized. Bias:  %f, %f, %f", this->gyroBias.X, this->gyroBias.Y, this->gyroBias.Z);
 
     } else {
        LOG_ERROR("Could not connect to MPU9250: %u", (uint32_t)whoAmI);

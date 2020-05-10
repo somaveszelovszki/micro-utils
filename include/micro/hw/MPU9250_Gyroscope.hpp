@@ -69,6 +69,10 @@ private:
 
     void calibrateGyro(void);
 
+    bool readRawGyroData(point3f& result);
+
+    static point3<int16_t> bufferToRaw(const uint8_t rawData[6]);
+
     struct handle_t {
         I2C_HandleTypeDef *hi2c;
 #ifdef STM32F4
@@ -89,10 +93,10 @@ private:
     const float mRes;
     const uint8_t Mmode;
 
-    float magCalibration[3];
-    float gyroBias[3];
-    float gyroThreshold[3];
-    float accelBias[3];
+    point3f magCalibration;
+    point3f gyroBias;
+    point3f gyroThreshold;
+    point3f accelBias;
 
     volatile bool isCommActive;
 };
