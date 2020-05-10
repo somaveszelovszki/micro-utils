@@ -24,69 +24,81 @@ inline bool isInterrupt()
 #include <task.h>
 #include <semphr.h>
 
+#include <string.h>
+
 namespace micro {
 
 template <typename T, uint32_t size>
 class queue_t {
 public:
-    queue_t() : queue_(xQueueCreateStatic(size, sizeof(T), this->queueStorageBuffer_, &this->queueBuffer_)) {}
+    queue_t() {
+        xQueueCreateStatic(size, sizeof(T), this->queueStorageBuffer_, &this->queueBuffer_);
+    }
 
     bool receive(T& value) {
-        return xQueueReceive(this->queue_, &value, 0);
+        return xQueueReceive(this->handle(), &value, 0);
     }
 
     void overwrite(const T& value) {
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xQueueOverwriteFromISR(this->queue_, &value, &xHigherPriorityTaskWoken);
+            xQueueOverwriteFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xQueueOverwrite(this->queue_, &value);
+            xQueueOverwrite(this->handle(), &value);
         }
     }
 
     void send(const T& value) {
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xQueueSendFromISR(this->queue_, &value, &xHigherPriorityTaskWoken);
+            xQueueSendFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xQueueSend(this->queue_, &value, 0);
+            xQueueSend(this->handle(), &value, 0);
         }
     }
 
 private:
-    QueueHandle_t queue_;
+    QueueHandle_t handle() {
+        return &this->queueBuffer_;
+    }
+
     uint8_t queueStorageBuffer_[size * sizeof(T)];
     StaticQueue_t queueBuffer_;
 };
 
 class mutex_t {
 public:
-    mutex_t() : semphr_(xSemaphoreCreateMutexStatic(&this->semphrBuffer_)) {}
+    mutex_t() {
+        xSemaphoreCreateMutexStatic(&this->semphrBuffer_);
+    }
 
     void lock() {
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xSemaphoreTakeFromISR(this->semphr_, &xHigherPriorityTaskWoken);
+            xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xSemaphoreTake(this->semphr_, portMAX_DELAY);
+            xSemaphoreTake(this->handle(), portMAX_DELAY);
         }
     }
 
     void release() {
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xSemaphoreGiveFromISR(this->semphr_, &xHigherPriorityTaskWoken);
+            xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xSemaphoreGive(this->semphr_);
+            xSemaphoreGive(this->handle());
         }
     }
 
 private:
-    SemaphoreHandle_t semphr_;
+    SemaphoreHandle_t handle() {
+        return &this->semphrBuffer_;
+    }
+
     StaticSemaphore_t semphrBuffer_;
 };
 
