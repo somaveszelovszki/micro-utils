@@ -40,14 +40,16 @@ template <typename T> struct line2 {
     }
 
     float normFactor() const {
-        return std::sqrt(valueOf(a) * valueOf(a) + valueOf(b) * valueOf(b));
+        const float a_ = micro::raw_type<T>::get(a);
+        const float b_ = micro::raw_type<T>::get(b);
+        return micro::invSqrt(a_ * a_ + b_ * b_);
     }
 
     void normalize() {
         const float factor = this->normFactor();
-        a /= factor;
-        b /= factor;
-        c /= factor;
+        a *= factor;
+        b *= factor;
+        c *= factor;
     }
 
     T getY(const T& x) const {
@@ -61,7 +63,7 @@ template <typename T> struct line2 {
     void fromPoints(const point2<T>& p1, const point2<T>& p2) {
         a = p1.Y - p2.Y;
         b = p2.X - p1.X;
-        c = T(valueOf(p1.X) * valueOf(p2.Y) - valueOf(p2.X) * valueOf(p1.Y));
+        c = T(micro::raw_type<T>::get(p1.X) * micro::raw_type<T>::get(p2.Y) - micro::raw_type<T>::get(p2.X) * micro::raw_type<T>::get(p1.Y));
 
         this->normalize();
     }

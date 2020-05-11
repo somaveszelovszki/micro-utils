@@ -1,5 +1,7 @@
 #pragma once
 
+#include <micro/utils/point3.hpp>
+
 #include "line2.hpp"
 #include "eq_solver.hpp"
 
@@ -8,22 +10,29 @@
 
 namespace micro {
 
+radian_t roll(const quaternion_t& q);
+radian_t pitch(const quaternion_t& q);
+radian_t yaw(const quaternion_t& q);
+
+point3<radian_t> toEuler(const quaternion_t& q);
+quaternion_t toQuaternion(const point3<radian_t>& euler);
+
 template <typename T>
 T distance(const line2<T>& line, const point2<T>& point) {
-    return T(abs(valueOf(line.a) * valueOf(point.X) + valueOf(line.b) * valueOf(point.Y) + valueOf(line.c)) / line.normFactor());
+    return T(abs(micro::raw_type<T>::get(line.a) * micro::raw_type<T>::get(point.X) + micro::raw_type<T>::get(line.b) * micro::raw_type<T>::get(point.Y) + micro::raw_type<T>::get(line.c)) * line.normFactor());
 }
 
 template <typename T>
 T distanceNorm(const line2<T>& lineNorm, const point2<T>& point) {
-    return T(abs(valueOf(lineNorm.a) * valueOf(point.X) + valueOf(lineNorm.b) * valueOf(point.Y) + valueOf(lineNorm.c)));
+    return T(abs(micro::raw_type<T>::get(lineNorm.a) * micro::raw_type<T>::get(point.X) + micro::raw_type<T>::get(lineNorm.b) * micro::raw_type<T>::get(point.Y) + micro::raw_type<T>::get(lineNorm.c)));
 }
 
 template <typename T>
 std::pair<point2<T>, point2<T>> lineCircle_intersection(const line2<T>& line, const point2<T>& circleCenter, const T& circleRadius) {
     float x_2 = 0, x_1 = 0, x_0 = 0;
 
-    const point2<float> circleCenterRaw = { valueOf(circleCenter.X), valueOf(circleCenter.Y) };
-    const float circleRadiusRaw = valueOf(circleRadius);
+    const point2<float> circleCenterRaw = { micro::raw_type<T>::get(circleCenter.X), micro::raw_type<T>::get(circleCenter.Y) };
+    const float circleRadiusRaw = micro::raw_type<T>::get(circleRadius);
 
     if (isZero(line.b)) { // vertical line
         x_2 = 1;
@@ -61,8 +70,8 @@ template <typename T>
 point2<T> lineLine_intersection(const line2<T>& line1, const line2<T>& line2) {
     point2<T> intersection = { micro::numeric_limits<T>::infinity(), micro::numeric_limits<T>::infinity() };
 
-    const line2f line1Raw(valueOf(line1.a), valueOf(line1.b), valueOf(line1.c));
-    const line2f line2Raw(valueOf(line2.a), valueOf(line2.b), valueOf(line2.c));
+    const line2f line1Raw(micro::raw_type<T>::get(line1.a), micro::raw_type<T>::get(line1.b), micro::raw_type<T>::get(line1.c));
+    const line2f line2Raw(micro::raw_type<T>::get(line2.a), micro::raw_type<T>::get(line2.b), micro::raw_type<T>::get(line2.c));
     const float det = line2Raw.a * line1Raw.b - line1Raw.a * line2Raw.b;
 
     if (!isZero(det)) {
