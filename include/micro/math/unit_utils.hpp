@@ -5,9 +5,6 @@
 
 namespace micro {
 
-static constexpr float SQRT_2 = std::sqrt(2.0f);
-static constexpr float SQRT_3 = std::sqrt(3.0f);
-
 constexpr radian_t PI = radian_t(3.14159265358979323846);
 constexpr radian_t PI_2 = PI / 2;
 constexpr radian_t PI_4 = PI / 4;
@@ -23,15 +20,10 @@ struct numeric_limits<T, typename std::enable_if<T::is_dim_class, void>::type> {
     static constexpr T epsilon()   { return { micro::numeric_limits<typename T::value_type>::epsilon()   }; }
 };
 
-/**
- * @brief Gets value.
- * @param value The value.
- * @returns The value.
- */
-template <typename T>
-inline constexpr typename std::enable_if<T::is_dim_class, float>::type valueOf(const T& value) {
-    return value.template get<true>();
-}
+template <typename T> struct raw_type<T, typename std::enable_if<T::is_dim_class, void>::type> {
+    typedef typename T::value_type type;
+    static constexpr type get(const T& value) { return value.template get<true>(); }
+};
 
 /**
  * @brief Calculates the hypotenuse of a triangle using the Pythagorean theory.

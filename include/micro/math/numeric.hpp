@@ -20,6 +20,11 @@ struct numeric_limits<T, typename std::enable_if<std::is_arithmetic<T>::value, v
     static constexpr T epsilon()   { return std::numeric_limits<T>::epsilon();   }
 };
 
+template <typename T, typename partial = void> struct raw_type {
+    typedef T type;
+    static constexpr type get(const T& value) { return value; }
+};
+
 // ---------------------------------------- Type-independent functions (same implementation for unit classes) ----------------------------------------
 
 /**
@@ -202,15 +207,10 @@ inline constexpr auto pythag_square(const T& a, const T& b, const T& c) -> declt
 
 // ---------------------------------------- Type-dependent functions (different implementations for unit classes) ----------------------------------------
 
-/**
- * @brief Gets value.
- * @param value The value.
- * @returns The value.
- */
-template <typename T>
-inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type valueOf(const T& value) {
-    return value;
-}
+union quaternion_t {
+    struct { float w,  x,  y,  z;  };
+    struct { float q0, q1, q2, q3; };
+};
 
 /**
  * @brief Gets absolute of the value.
@@ -235,12 +235,12 @@ inline constexpr Sign sgn(const T& value) {
 
 template <typename T>
 inline constexpr bool isinf(const T& value) {
-    return std::isinf(valueOf(value));
+    return std::isinf(raw_type<T>::get(value));
 }
 
 template <typename T>
 inline constexpr bool isnan(const T& value) {
-    return std::isnan(valueOf(value));
+    return std::isnan(raw_type<T>::get(value));
 }
 
 /**
@@ -269,8 +269,6 @@ template <typename T>
 inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type pythag(const T& a, const T& b, const T& c) {
     return static_cast<T>(std::sqrt(a * a + b * b + c * c));
 }
-
-// ---------------------------------------- Specific type functions ----------------------------------------
 
 inline constexpr int32_t round(const float value) {
     return static_cast<int32_t>(value + 0.5f);
@@ -315,6 +313,40 @@ inline uint32_t incr_overflow(uint32_t value, uint32_t exclusive_max) {
 
 inline uint32_t decr_underflow(uint32_t value, uint32_t exclusive_max) {
     return value-- == 0 ? exclusive_max - 1 : value;
+}
+
+// Fast inverse square-root
+// See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
+inline float invSqrt(float x) {
+    if (x != 0.0f) {
+        float halfx = 0.5f * x;
+        long i = *(long*)&x;
+        i = 0x5f3759df - (i >> 1);
+        x = *(float*)&i;
+        x = x * (1.5f - (halfx * x * x));
+    }
+    return x;
+}
+
+inline void normalize(float& a, float& b) {
+    const float norm = invSqrt(a * a + b * b);
+    a *= norm;
+    b *= norm;
+}
+
+inline void normalize(float& a, float& b, float& c) {
+    const float norm = invSqrt(a * a + b * b + c * c);
+    a *= norm;
+    b *= norm;
+    c *= norm;
+}
+
+inline void normalize(float& a, float& b, float& c, float& d) {
+    const float norm = invSqrt(a * a + b * b + c * c + d * d);
+    a *= norm;
+    b *= norm;
+    c *= norm;
+    d *= norm;
 }
 
 } // namespace micro
