@@ -22,7 +22,7 @@ enum class Dimension : uint8_t {
     dimension_name(acceleration),           // [m/sec^2, mm/sec^2]
     dimension_name(angular_velocity),       // [rad/sec]
     dimension_name(temperature),            // [°C]
-
+    dimension_name(frequency),              // [Hz]
     dimension_name(magnetic_flux),          // [Maxwell]
     dimension_name(magnetic_flux_density)   // [Gauss]
 };
@@ -465,6 +465,7 @@ create_unit_instances(angle, radian);
 create_unit_instance_without_unit_prefix(angle, deg_to_rad, degree);
 
 create_unit_instances(temperature, celsius);
+create_unit_instances(frequency, hertz);
 create_unit_instances(magnetic_flux, maxwell);
 create_unit_instances(magnetic_flux_density, gauss);
 
