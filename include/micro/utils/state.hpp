@@ -8,14 +8,23 @@ namespace micro {
 template <typename T>
 class state_t {
 public:
-    state_t(const T& val)
-        : value_(val)
-        , timestamp_(getTime()) {}
+    state_t() {}
+
+    state_t(const T& value, const millisecond_t timestamp)
+        : value_(value)
+        , timestamp_(timestamp) {}
+
+    state_t(const T& value) : state_t(value, getExactTime()) {}
 
     state_t& operator=(const T& val) {
         this->value_     = val;
-        this->timestamp_ = getTime();
+        this->timestamp_ = getExactTime();
         return *this;
+    }
+
+    void set(const T& value, const millisecond_t timestamp) {
+        this->value_ = value;
+        this->timestamp_ = timestamp;
     }
 
     const T& value() const {
