@@ -17,19 +17,16 @@ constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
 constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
 constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
 
-QueueHandle_t queue = nullptr;
+queue_t<char[LOG_MSG_MAX_SIZE], LOG_QUEUE_MAX_SIZE> *queue = nullptr;
 logLevel_t minLevel = logLevel_t::Debug;
 
-void log_init(QueueHandle_t logQueue, const logLevel_t minLogLevel) {
-    queue    = logQueue;
+void log_init(queue_t<char[LOG_MSG_MAX_SIZE], LOG_QUEUE_MAX_SIZE>& logQueue, const logLevel_t minLogLevel) {
+    queue    = &logQueue;
     minLevel = minLogLevel;
 }
 
 void vprintlog(logLevel_t level, const char *format, va_list args) {
-
-    micro::waitReady(queue);
-
-    if (level >= minLevel)
+    if (queue && level >= minLevel)
     {
         char msg[LOG_MSG_MAX_SIZE];
         const char *levelStr = to_string(level);
@@ -42,7 +39,7 @@ void vprintlog(logLevel_t level, const char *format, va_list args) {
             msg[len++] = '\n';
             msg[len++] = '\0';
         }
-        xQueueSend(queue, msg, 1);
+        queue->send(msg, millisecond_t(0));
     }
 }
 

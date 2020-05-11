@@ -2,18 +2,17 @@
 
 #if defined OS_FREERTOS // logging is only supported if FreeRTOS is available
 
+#include <micro/port/task.hpp>
 #include <micro/utils/types.hpp>
-
-#include <FreeRTOS.h>
-#include <queue.h>
 
 #include <cstdarg>
 
 namespace micro {
 
-constexpr uint8_t LOG_MSG_MAX_SIZE = 128;
+constexpr uint8_t LOG_MSG_MAX_SIZE   = 128;
+constexpr uint8_t LOG_QUEUE_MAX_SIZE = 16;
 
-void log_init(QueueHandle_t logQueue, const logLevel_t minLogLevel = logLevel_t::Debug);
+void log_init(queue_t<char[LOG_MSG_MAX_SIZE], LOG_QUEUE_MAX_SIZE>& logQueue, const logLevel_t minLogLevel = logLevel_t::Debug);
 
 /* @brief Prints a debug code and a string to the console through USART.
  * Supported modifiers : %s, %c, %d, %f

@@ -38,7 +38,7 @@ CanManager::subscriberId_t CanManager::registerSubscriber(const filters_t& rxFil
 }
 
 bool CanManager::read(const subscriberId_t subscriberId, canFrame_t& frame) {
-    return this->subscribers_[subscriberId].rxFrames_.receive(frame);
+    return this->subscribers_[subscriberId].rxFrames_.receive(frame, millisecond_t(0));
 }
 
 void CanManager::onFrameReceived() {
@@ -49,7 +49,7 @@ void CanManager::onFrameReceived() {
         for (subscriber_t& sub : this->subscribers_) {
             filters_t::const_iterator filter = micro::find_sorted(sub.rxFilters_.begin(), sub.rxFilters_.end(), rxFrame.header.rx.StdId);
             if (filter != sub.rxFilters_.end()) {
-                sub.rxFrames_.send(rxFrame);
+                sub.rxFrames_.send(rxFrame, millisecond_t(0));
             }
         }
     }
