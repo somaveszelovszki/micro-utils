@@ -37,8 +37,12 @@ public:
         xQueueCreateStatic(size, sizeof(T), this->queueStorageBuffer_, &this->queueBuffer_);
     }
 
-    bool receive(T& value) {
-        return xQueueReceive(this->handle(), &value, 0);
+    bool receive(T& value, const millisecond_t timeout) {
+        return xQueueReceive(this->handle(), &value, micro::round(timeout.get()));
+    }
+
+    bool peek(T& value, const millisecond_t timeout) {
+        return xQueuePeek(this->handle(), &value, micro::round(timeout.get()));
     }
 
     void overwrite(const T& value) {
@@ -51,13 +55,13 @@ public:
         }
     }
 
-    void send(const T& value) {
+    void send(const T& value, const millisecond_t timeout) {
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             xQueueSendFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xQueueSend(this->handle(), &value, 0);
+            xQueueSend(this->handle(), &value, micro::round(timeout.get()));
         }
     }
 
@@ -76,14 +80,14 @@ public:
         xSemaphoreCreateMutexStatic(&this->semphrBuffer_);
     }
 
-    bool lock(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
+    bool lock(const millisecond_t timeout) {
         bool success = false;
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             success = xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : static_cast<uint32_t>(timeout.get()));
+            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
         }
         return success;
     }
@@ -113,14 +117,14 @@ public:
         this->give();
     }
 
-    bool take(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
+    bool take(const millisecond_t timeout) {
         bool success = false;
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             success = xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : static_cast<uint32_t>(timeout.get()));
+            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
         }
         return success;
     }
@@ -158,22 +162,23 @@ private:
 namespace micro {
 class mutex_t {
 public:
-    bool lock(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
+    bool lock(const millisecond_t) { return true; }
     void release() {}
 };
 
 class semaphore_t {
 public:
-    bool take(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
+    bool take(const millisecond_t) { return true; }
     void give() {}
 };
 
 template <typename T, uint32_t>
 class queue_t {
 public:
-    bool receive(T&);
+    bool receive(T&, const millisecond_t);
+    bool peek(T&, const millisecond_t);
     void overwrite(const T&);
-    void send(const T& );
+    void send(const T&, const millisecond_t);
 };
 } // namespace micro
 
@@ -210,7 +215,7 @@ namespace micro {
 class lock_guard_t {
 public:
     explicit lock_guard_t(mutex_t& mtx) : mtx_(mtx) {
-        this->mtx_.lock();
+        this->mtx_.lock(micro::numeric_limits<millisecond_t>::infinity());
     }
 
     ~lock_guard_t() {
@@ -219,12 +224,5 @@ public:
 private:
     mutex_t& mtx_;
 };
-
-template <typename ptr>
-void waitReady(const volatile ptr& item) {
-    while (!item) {
-        os_delay(1);
-    }
-}
 
 } // namespace micro
