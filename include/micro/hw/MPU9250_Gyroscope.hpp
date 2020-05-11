@@ -3,6 +3,7 @@
 #ifdef STM32F4
 
 #include <micro/port/hal.h>
+#include <micro/port/task.hpp>
 #include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
 
@@ -43,6 +44,10 @@ public:
     MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
 #endif
 
+    point3<rad_per_sec_t> gyroMeanError() const {
+        return this->gyroMeanError_;
+    }
+
     point3<m_per_sec2_t> readAccelData();
     point3<rad_per_sec_t> readGyroData();
     point3<gauss_t> readMagData();
@@ -53,6 +58,8 @@ public:
     void onCommFinished();
 
 private:
+    MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
+
     bool waitComm();
 
     bool writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
@@ -63,11 +70,11 @@ private:
     float getGres(Gscale scale);
     float getAres(Ascale scale);
 
-    void reset(void);
-    void initMPU9250(void);
-    void initAK8963(void);
+    void reset();
+    void initMPU9250();
+    void initAK8963();
 
-    void calibrateGyro(void);
+    void calibrateGyro();
 
     bool readRawGyroData(point3f& result);
 
@@ -97,8 +104,9 @@ private:
     point3f gyroBias;
     point3f gyroThreshold;
     point3f accelBias;
+    point3<rad_per_sec_t> gyroMeanError_;
 
-    volatile bool isCommActive;
+    semaphore_t commSemaphore;
 };
 
 } // namespace hw

@@ -171,19 +171,15 @@ namespace hw {
 #endif
 
 MPU9250_Gyroscope::MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
-    : handle{ hi2c, nullptr, nullptr, 0 }
-    , aScale(aScale)
-    , gScale(gScale)
-    , mScale(mScale)
-    , aRes(getAres(aScale))
-    , gRes(getGres(gScale))
-    , mRes(getMres(mScale))
-    , Mmode(Mmode)
-    , isCommActive(false) {}
+    : MPU9250_Gyroscope(hi2c, nullptr, nullptr, 0, aScale, gScale, mScale, Mmode) {}
 
 #ifdef STM32F4
 MPU9250_Gyroscope::MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
-    : handle{ nullptr, hspi, csGpio, csGpioPin }
+    : MPU9250_Gyroscope(nullptr, hspi, csGpio, csGpioPin, aScale, gScale, mScale, Mmode) {}
+#endif // STM32F4
+
+MPU9250_Gyroscope::MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
+    : handle{ hi2c, hspi, csGpio, csGpioPin }
     , aScale(aScale)
     , gScale(gScale)
     , mScale(mScale)
@@ -191,40 +187,32 @@ MPU9250_Gyroscope::MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGp
     , gRes(getGres(gScale))
     , mRes(getMres(mScale))
     , Mmode(Mmode)
-    , isCommActive(false) {}
-#endif // STM32F4
+    , magCalibration{ 0.0f, 0.0f, 0.0f }
+    , gyroBias{ 0.0f, 0.0f, 0.0f }
+    , gyroThreshold{ 0.0f, 0.0f, 0.0f }
+    , accelBias{ 0.0f, 0.0f, 0.0f } {}
 
 bool MPU9250_Gyroscope::waitComm() {
-    static constexpr millisecond_t MAX_TIMEOUT = { 10 };
-    const millisecond_t startTime = getTime();
-    bool timeout = false;
-    while (this->isCommActive && !(timeout = getTime() - startTime > MAX_TIMEOUT)) {
-        os_delay(1);
-    }
-    return !timeout;
+    return this->commSemaphore.take(millisecond_t(2));
 }
 
 
 bool MPU9250_Gyroscope::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
-    bool isOk = this->waitComm();
-    if (isOk) {
-        if (this->handle.hi2c) {
-            //HAL_I2C_Master_Transmit_DMA(this->handle.hi2c, address, data_write, 2);
-            this->isCommActive = true;
-            HAL_I2C_Mem_Write_DMA(this->handle.hi2c, address, subAddress, 1, &data, 1);
-            isOk = this->waitComm();
+    bool isOk = false;
+    if (this->handle.hi2c) {
+        //HAL_I2C_Master_Transmit_DMA(this->handle.hi2c, address, data_write, 2);
+        HAL_I2C_Mem_Write_DMA(this->handle.hi2c, address, subAddress, 1, &data, 1);
+        isOk = this->waitComm();
 
-        } else if (this->handle.hspi) {
-            HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
-            this->isCommActive = true;
-            HAL_SPI_Transmit_DMA(this->handle.hspi, &subAddress, 1);
+    } else if (this->handle.hspi) {
+        HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
+        HAL_SPI_Transmit_DMA(this->handle.hspi, &subAddress, 1);
+        isOk = this->waitComm();
+        if (isOk) {
+            HAL_SPI_Transmit_DMA(this->handle.hspi, &data, 1);
             isOk = this->waitComm();
-            if (isOk) {
-                HAL_SPI_Transmit_DMA(this->handle.hspi, &data, 1);
-                isOk = this->waitComm();
-            }
-            HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
         }
+        HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
     }
     return isOk;
 }
@@ -237,30 +225,26 @@ char MPU9250_Gyroscope::readByte(uint8_t address, uint8_t subAddress)
 
 bool MPU9250_Gyroscope::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
-    bool isOk = this->waitComm();
-    if (isOk) {
-        if (this->handle.hi2c) {
-            this->isCommActive = true;
-            HAL_I2C_Mem_Read_DMA(this->handle.hi2c, address, subAddress, 1, dest, count);
+    bool isOk = false;
+    if (this->handle.hi2c) {
+        HAL_I2C_Mem_Read_DMA(this->handle.hi2c, address, subAddress, 1, dest, count);
+        isOk = this->waitComm();
+
+    } else if (this->handle.hspi) {
+        static constexpr uint8_t MAX_COUNT = 8;
+        static uint8_t txRxData[MAX_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+        if (count <= MAX_COUNT) {
+            txRxData[0] = subAddress | 0x80;
+            HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
+            HAL_SPI_TransmitReceive_DMA(this->handle.hspi, txRxData, txRxData, 1 + count);
             isOk = this->waitComm();
-
-        } else if (this->handle.hspi) {
-            static constexpr uint8_t MAX_COUNT = 32;
-            static uint8_t txRxData[MAX_COUNT];
-
-            if (count <= MAX_COUNT) {
-                txRxData[0] = subAddress | 0x80;
-                HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_RESET);
-                this->isCommActive = true;
-                HAL_SPI_TransmitReceive_DMA(this->handle.hspi, txRxData, txRxData, 1 + count);
-                isOk = this->waitComm();
-                memcpy(dest, &txRxData[1], count);
-                HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
-            } else {
-                isOk = false;
-            }
-
+            memcpy(dest, &txRxData[1], count);
+            HAL_GPIO_WritePin(this->handle.csGpio, this->handle.csGpioPin, GPIO_PIN_SET);
+        } else {
+            isOk = false;
         }
+
     }
     return isOk;
 }
@@ -325,14 +309,20 @@ float MPU9250_Gyroscope::getAres(Ascale scale) {
     return aRes;
 }
 
-point3<m_per_sec2_t> MPU9250_Gyroscope::readAccelData(void) {
+point3<m_per_sec2_t> MPU9250_Gyroscope::readAccelData() {
 
-    uint8_t rawData[6];
-    this->readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);
-    return static_cast<point3<m_per_sec2_t>>(bufferToRaw(rawData) * this->aRes * micro::G.get());
+    point3<m_per_sec2_t> result;
+    uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
+
+    if (this->readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0])) {
+        result = static_cast<point3<m_per_sec2_t>>(bufferToRaw(rawData)) * this->aRes * micro::G.get();
+    } else {
+        result.X = result.Y = result.Z = micro::numeric_limits<m_per_sec2_t>::infinity();
+    }
+    return result;
 }
 
-point3<rad_per_sec_t> MPU9250_Gyroscope::readGyroData(void) {
+point3<rad_per_sec_t> MPU9250_Gyroscope::readGyroData() {
 
     point3<rad_per_sec_t> result;
     point3f gyroData;
@@ -352,7 +342,7 @@ point3<rad_per_sec_t> MPU9250_Gyroscope::readGyroData(void) {
     return result;
 }
 
-point3<gauss_t> MPU9250_Gyroscope::readMagData(void) {
+point3<gauss_t> MPU9250_Gyroscope::readMagData() {
     point3<gauss_t> result;
     uint8_t rawData[7];
     if(this->readByte(AK8963_ADDRESS, AK8963_ST1) & 0x01) { // wait for magnetometer data ready bit to be set
@@ -360,7 +350,7 @@ point3<gauss_t> MPU9250_Gyroscope::readMagData(void) {
         uint8_t c = rawData[6];
         if(!(c & 0x08)) { // Check if magnetic sensor overflow bit is set
 
-            result = static_cast<point3<gauss_t>>(bufferToRaw(rawData) * this->mRes);
+            result = static_cast<point3<gauss_t>>(bufferToRaw(rawData)) * this->mRes;
 
             result.X *= this->magCalibration.X;
             result.Y *= this->magCalibration.Y;
@@ -370,18 +360,18 @@ point3<gauss_t> MPU9250_Gyroscope::readMagData(void) {
     return result;
 }
 
-celsius_t MPU9250_Gyroscope::readTempData(void)
+celsius_t MPU9250_Gyroscope::readTempData()
 {
   uint8_t rawData[2];
   this->readBytes(MPU9250_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);
   return celsius_t((((int16_t)rawData[0]) << 8 | rawData[1]) / 333.87f + 21.0f);
 }
 
-void MPU9250_Gyroscope::reset(void) {
+void MPU9250_Gyroscope::reset() {
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit - toggle reset device
 }
 
-void MPU9250_Gyroscope::initAK8963(void)
+void MPU9250_Gyroscope::initAK8963()
 {
     this->writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
     os_delay(10);
@@ -419,23 +409,20 @@ void MPU9250_Gyroscope::initMPU9250()
     // get stable time source
     this->writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
 
-    // Configure Gyro and Accelerometer
-    // Disable FSYNC and set gyro bandwidth to 92Hz;
-    // DLPF_CFG = 010; this sets the sample rate at 1 kHz for both
-    // Maximum delay is 3.9 ms which is just over a 250 Hz maximum rate
-    this->writeByte(MPU9250_ADDRESS, CONFIG, 0x02);
+    this->writeByte(MPU9250_ADDRESS, PWR_MGMT_2, 0x00);  // Enables accelerometer and gyroscope
+
+    this->writeByte(MPU9250_ADDRESS, CONFIG, 0x01); // Gyro bandwidth: 184Hz, delay: 2.9ms, fs: 1kHz
 
     // Set sample rate = gyroscope output rate/(1 + SMPLRT_DIV)
-    this->writeByte(MPU9250_ADDRESS, SMPLRT_DIV, 0x03);  // Use a 250 Hz rate; the same rate set in CONFIG above
+    this->writeByte(MPU9250_ADDRESS, SMPLRT_DIV, 0x02); // Data ready interrupt in every 3ms
 
     // Set gyroscope full scale range
     // Range selects FS_SEL and AFS_SEL are 0 - 3, so 2-bit values are left-shifted into positions 4:3
     uint8_t c = this->readByte(MPU9250_ADDRESS, GYRO_CONFIG); // get current GYRO_CONFIG register value
     // c = c & ~0xE0; // Clear self-test bits [7:5]
-    c = c & ~0x02; // Clear Fchoice bits [1:0]
-    c = c & ~0x18; // Clear AFS bits [4:3]
-    c = c | ((uint8_t)this->gScale << 3); // Set full scale range for the gyro
-    // c =| 0x00; // Set Fchoice for the gyro to 11 by writing its inverse to bits 1:0 of GYRO_CONFIG
+    c &= ~0x03; // Clear Fchoice_b bits [1:0] -> Fchoice = 2b'11
+    c &= ~0x18; // Clear AFS bits [4:3]
+    c |= ((uint8_t)this->gScale << 3); // Set full scale range for the gyro
     this->writeByte(MPU9250_ADDRESS, GYRO_CONFIG, c); // Write new GYRO_CONFIG value to register
 
     // Set accelerometer full-scale range configuration
@@ -450,7 +437,7 @@ void MPU9250_Gyroscope::initMPU9250()
     // accel_fchoice_b bit [3]; in this case the bandwidth is 1.13 kHz
     c = this->readByte(MPU9250_ADDRESS, ACCEL_CONFIG2); // get current ACCEL_CONFIG2 register value
     c = c & ~0x0F; // Clear accel_fchoice_b (bit 3) and A_DLPFG (bits [2:0])
-    c = c | 0x03;  // Set accelerometer rate to 1 kHz and bandwidth to 41 Hz
+    c = c | 0x02;  // Set accelerometer rate to 1kHz and bandwidth to 99Hz
     this->writeByte(MPU9250_ADDRESS, ACCEL_CONFIG2, c); // Write new ACCEL_CONFIG2 register value
 
     // The accelerometer, gyro, and thermometer are set to 1 kHz sample rates,
@@ -458,12 +445,12 @@ void MPU9250_Gyroscope::initMPU9250()
 
     // Configure Interrupts and Bypass Enable
     // Set interrupt pin active high, push-pull, and clear on any read operations
-    this->writeByte(MPU9250_ADDRESS, INT_PIN_CFG, 0x30);
+    this->writeByte(MPU9250_ADDRESS, INT_PIN_CFG, 0x10);
     this->writeByte(MPU9250_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
 }
 
-void MPU9250_Gyroscope::calibrateGyro(void) {
-    static constexpr uint32_t NUM_SAMPLES = 50;
+void MPU9250_Gyroscope::calibrateGyro() {
+    static constexpr uint32_t NUM_SAMPLES = 100;
 
     point3f bias = { 0, 0, 0 }, sigma = { 0, 0, 0 };
 
@@ -484,15 +471,18 @@ void MPU9250_Gyroscope::calibrateGyro(void) {
     this->gyroThreshold.X = sqrt((sigma.X / NUM_SAMPLES) - (this->gyroBias.X * this->gyroBias.X));
     this->gyroThreshold.Y = sqrt((sigma.Y / NUM_SAMPLES) - (this->gyroBias.Y * this->gyroBias.Y));
     this->gyroThreshold.Z = sqrt((sigma.Z / NUM_SAMPLES) - (this->gyroBias.Z * this->gyroBias.Z));
+
+    this->gyroMeanError_.X = deg_per_sec_t(sqrt(sigma.X / NUM_SAMPLES));
+    this->gyroMeanError_.Y = deg_per_sec_t(sqrt(sigma.Y / NUM_SAMPLES));
+    this->gyroMeanError_.Z = deg_per_sec_t(sqrt(sigma.Z / NUM_SAMPLES));
 }
 
 bool MPU9250_Gyroscope::readRawGyroData(point3f& result) {
-
     bool success = false;
     uint8_t rawData[6] = { 0, 0, 0, 0, 0, 0 };
 
     if ((success = this->readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]))) {
-        result = bufferToRaw(rawData) * this->gRes;
+        result = static_cast<point3f>(bufferToRaw(rawData)) * this->gRes;
     }
     return success;
 }
@@ -505,28 +495,15 @@ point3<int16_t> MPU9250_Gyroscope::bufferToRaw(const uint8_t rawData[6]) {
     };
 }
 
-void MPU9250_Gyroscope::initialize(void) {
-    uint8_t whoAmI = this->readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
-
-    if (whoAmI == 0x73)
-    {
-        LOG_DEBUG("MPU9250 is online...");
-
-        this->reset();
-        os_delay(20);
-        this->initMPU9250();
-        os_delay(10);
-        this->calibrateGyro();
-        LOG_DEBUG("Gyro initialized. Bias:  %f, %f, %f", this->gyroBias.X, this->gyroBias.Y, this->gyroBias.Z);
-
-    } else {
-       LOG_ERROR("Could not connect to MPU9250: %u", (uint32_t)whoAmI);
-       return;
-    }
+void MPU9250_Gyroscope::initialize() {
+    this->reset();
+    this->initMPU9250();
+    this->calibrateGyro();
+    LOG_DEBUG("Gyro initialized. Bias:  %f, %f, %f", this->gyroBias.X, this->gyroBias.Y, this->gyroBias.Z);
 }
 
 void MPU9250_Gyroscope::onCommFinished() {
-    this->isCommActive = false;
+    this->commSemaphore.give();
 }
 
 } // namespace hw
