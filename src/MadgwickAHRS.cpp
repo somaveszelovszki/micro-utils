@@ -8,7 +8,7 @@ namespace micro {
 MadgwickAHRS::MadgwickAHRS(const float beta)
     : beta(beta)
     , prevSampleTime(getExactTime())
-    , q{ 0.0f, 0.0f, 0.0f, 0.0f } {}
+    , q{ 1.0f, 0.0f, 0.0f, 0.0f } {}
 
 void MadgwickAHRS::update(const millisecond_t sampleTime, const point3<rad_per_sec_t>& gyro, const point3<m_per_sec2_t>& accel, const point3<gauss_t>& mag) {
     float gx = gyro.X.get(),  gy = gyro.Y.get(),  gz = gyro.Z.get();
