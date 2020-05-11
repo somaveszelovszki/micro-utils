@@ -18,8 +18,6 @@ radian_t yaw(const quaternion_t& q) {
     const float siny_cosp = 2 * (q.w * q.z + q.x * q.y);
     const float cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
     return atan2(siny_cosp, cosy_cosp);
-
-    //return normalize360(atan2(2 * (q.w * q.z + q.x * q.y), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z));
 }
 
 point3<radian_t> toEuler(const quaternion_t& q) {
