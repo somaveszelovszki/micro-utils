@@ -1,5 +1,7 @@
 #pragma once
 
+#include <micro/math/unit_utils.hpp>
+
 #if defined STM32F4
 #include <stm32f446xx.h>
 #elif defined STM32F0
@@ -74,17 +76,56 @@ public:
         xSemaphoreCreateMutexStatic(&this->semphrBuffer_);
     }
 
-    void lock() {
+    bool lock(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
+        bool success = false;
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
+            success = xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xSemaphoreTake(this->handle(), portMAX_DELAY);
+            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : static_cast<uint32_t>(timeout.get()));
         }
+        return success;
     }
 
     void release() {
+        if (isInterrupt()) {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        } else {
+            xSemaphoreGive(this->handle());
+        }
+    }
+
+private:
+    SemaphoreHandle_t handle() {
+        return &this->semphrBuffer_;
+    }
+
+    StaticSemaphore_t semphrBuffer_;
+};
+
+class semaphore_t {
+public:
+    semaphore_t() {
+        xSemaphoreCreateBinaryStatic(&this->semphrBuffer_);
+        this->give();
+    }
+
+    bool take(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
+        bool success = false;
+        if (isInterrupt()) {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            success = xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        } else {
+            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : static_cast<uint32_t>(timeout.get()));
+        }
+        return success;
+    }
+
+    void give() {
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
@@ -117,8 +158,14 @@ private:
 namespace micro {
 class mutex_t {
 public:
-    void lock() {}
+    bool lock(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
     void release() {}
+};
+
+class semaphore_t {
+public:
+    bool take(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
+    void give() {}
 };
 
 template <typename T, uint32_t>
