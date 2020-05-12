@@ -1,11 +1,6 @@
 #pragma once
 
-#include "types.hpp"
-
-#ifdef OS_FREERTOS
-#include <FreeRTOS.h>
-#include <semphr.h>
-#endif // OS_FREERTOS
+#include <micro/port/task.hpp>
 
 #include <algorithm>
 
@@ -42,29 +37,22 @@ private:
     T& value_set;
 };
 
-#ifdef OS_FREERTOS
-
 template <typename T>
 class atomic {
 public:
     typedef T underlying_type;
 
     template<typename ...Args>
-    atomic(SemaphoreHandle_t hmutex_, Args&&... args)
-        : hmutex_(hmutex_)
-        , value_(std::forward<Args>(args)...) {}
+    atomic(Args&&... args) : value_(std::forward<Args>(args)...) {}
 
     T get() const {
-        xSemaphoreTake(this->hmutex_, portMAX_DELAY);
-        const T result = this->value_;
-        xSemaphoreGive(this->hmutex_);
-        return result;
+        lock_guard_t lock(this->mutex_);
+        return this->value_;
     }
 
     void set(const T& value) {
-        xSemaphoreTake(this->hmutex_, portMAX_DELAY);
+        lock_guard_t lock(this->mutex_);
         this->value_ = value;
-        xSemaphoreGive(this->hmutex_);
     }
 
     void operator=(const T& value) {
@@ -72,7 +60,7 @@ public:
     }
 
 private:
-    SemaphoreHandle_t hmutex_;
+    mutex_t mutex_;
     T value_;
 };
 
@@ -82,8 +70,6 @@ template <typename T>
 T valueOf(const atomic<T>& value) {
     return value.get();
 }
-
-#endif // OS_FREERTOS
 
 template <typename ForwardIt>
 void shift_left(ForwardIt begin, ForwardIt end) {
