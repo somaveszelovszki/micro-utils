@@ -140,13 +140,14 @@ uint32_t ftoa(float n, char * const s, uint32_t size) {
     return idx;
 }
 
-uint32_t strcpy_until(char * const dest, const char * const src, const uint32_t size, const char delimiter) {
+uint32_t strncpy_until(char * const dest, const char * const src, const uint32_t size, const char delimiter) {
     uint32_t i;
     for (i = 0; i < size; ++i) {
-        if (delimiter == src[i]) {
+        const char c = src[i];
+        if (delimiter == c || '\0' == c) {
             break;
         }
-        dest[i] = src[i];
+        dest[i] = c;
     }
     if (i < size) dest[i] = '\0';
     return i;
