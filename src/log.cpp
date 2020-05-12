@@ -30,15 +30,9 @@ void vprintlog(logLevel_t level, const char *format, va_list args) {
     {
         char msg[LOG_MSG_MAX_SIZE];
         const char *levelStr = to_string(level);
-        uint32_t len = strlen(levelStr);
-        strncpy(msg, levelStr, len);
-        len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len, format, args);
-        if (len < LOG_MSG_MAX_SIZE - 3) {
-            msg[len++] = '$';
-            msg[len++] = '\r';
-            msg[len++] = '\n';
-            msg[len++] = '\0';
-        }
+        uint32_t len = strncpy_until(msg, levelStr, strlen(levelStr));
+        len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len - 3, format, args);
+        len += strncpy_until(&msg[len], LOG_SEPARATOR_SEQ, ARRAY_SIZE(LOG_SEPARATOR_SEQ));
         queue->send(msg, millisecond_t(0));
     }
 }

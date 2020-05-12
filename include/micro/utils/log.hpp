@@ -9,6 +9,9 @@
 
 namespace micro {
 
+constexpr char LOG_SEPARATOR_CHAR  = '$';
+constexpr char LOG_SEPARATOR_SEQ[] = "$\r\n";
+
 constexpr uint8_t LOG_MSG_MAX_SIZE   = 128;
 constexpr uint8_t LOG_QUEUE_MAX_SIZE = 16;
 
