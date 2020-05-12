@@ -214,15 +214,15 @@ namespace micro {
 
 class lock_guard_t {
 public:
-    explicit lock_guard_t(mutex_t& mtx) : mtx_(mtx) {
-        this->mtx_.lock(micro::numeric_limits<millisecond_t>::infinity());
+    explicit lock_guard_t(mutex_t& mutex) : mutex_(mutex) {
+        this->mutex_.lock(micro::numeric_limits<millisecond_t>::infinity());
     }
 
     ~lock_guard_t() {
-        this->mtx_.release();
+        this->mutex_.release();
     }
 private:
-    mutex_t& mtx_;
+    mutex_t& mutex_;
 };
 
 } // namespace micro
