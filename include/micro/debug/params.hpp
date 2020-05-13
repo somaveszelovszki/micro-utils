@@ -17,42 +17,35 @@ struct Param {
 
     Param(const Param& other) = default;
 
-    Param& operator=(const Param& other);
+    Param& operator=(const Param& other) = default;
 
-    const char name[STR_MAX_LEN_PARAM_NAME];
-    uint8_t * const buf;
-    const uint8_t size;
+    char name[STR_MAX_LEN_PARAM_NAME];
+    uint8_t *buf;
+    uint8_t size;
     serialize_func serialize;
     deserialize_func deserialize;
 };
 
 class Params {
-
 public:
-
     template <typename T>
-    void registerParam(const char *name, T *value) {
-        static_assert(std::is_trivially_copyable<T>::value, "Type must be trivially copyable.");
-        this->values.push_back(this->fillParamStruct(name, value));
+    void registerParam(const char *name, T& value) {
+        this->values.push_back(Param(
+            name,
+            reinterpret_cast<uint8_t*>(&value),
+            sizeof(T),
+            micro::serialize<T>,
+            micro::deserialize<T>
+        ));
     }
 
     uint32_t serializeAll(char * const str, uint32_t size);
     uint32_t deserializeAll(const char * const str, uint32_t size);
 
 private:
+    static void skipWhiteSpaces(const char * const str, uint32_t& idx);
 
     Param* get(const char *name);
-
-    template <typename T>
-    Param fillParamStruct(const char *name, T *value) {
-        return Param(
-            name,
-            reinterpret_cast<uint8_t*>(value),
-            sizeof(T),
-            micro::serialize<T>,
-            micro::deserialize<T>
-        );
-    }
 
     vec<Param, MAX_NUM_GLOBAL_PARAMS> values;
 };

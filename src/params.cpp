@@ -8,16 +8,7 @@
 
 namespace micro {
 
-static void skipWhiteSpaces(const char * const str, uint32_t& idx) {
-    while('\r' == str[idx] || '\n' == str[idx] || ' ' == str[idx]) { ++idx; }
-}
-
-Param::Param()
-    : name("")
-    , buf(nullptr)
-    , size(0)
-    , serialize(nullptr)
-    , deserialize(nullptr) {}
+Param::Param() : Param("", nullptr, 0, nullptr, nullptr) {}
 
 Param::Param(const char *name, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
     : name("")
@@ -26,11 +17,6 @@ Param::Param(const char *name, uint8_t *buf, uint8_t size, serialize_func serial
     , serialize(serialize)
     , deserialize(deserialize) {
     strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_PARAM_NAME);
-}
-
-Param& Param::operator=(const Param& other) {
-    memcpy(this, &other, sizeof(Param));
-    return *this;
 }
 
 uint32_t Params::serializeAll(char * const str, uint32_t size) {
@@ -77,7 +63,7 @@ uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
 
     while (idx < size) {
         idx = micro::indexOf('"', str, size, idx) + 1;
-        idx += strcpy_until(name, &str[idx], min(size - idx, static_cast<uint32_t>(STR_MAX_LEN_PARAM_NAME)), '"');
+        idx += strncpy_until(name, &str[idx], min(size - idx, static_cast<uint32_t>(STR_MAX_LEN_PARAM_NAME)), '"');
         idx++; // '"'
         idx++; // ':'
 
@@ -103,6 +89,10 @@ uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
     }
 
     return idx;
+}
+
+void Params::skipWhiteSpaces(const char * const str, uint32_t& idx) {
+    while('\r' == str[idx] || '\n' == str[idx] || ' ' == str[idx]) { ++idx; }
 }
 
 Param* Params::get(const char *name) {
