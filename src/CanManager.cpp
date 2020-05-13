@@ -6,11 +6,11 @@
 namespace micro {
 
 void CanFrameHandler::registerHandler(const canFrame_t::id_t frameId, const handler_fn_t& handler) {
-    this->handlers_.put(frameId, handler);
+    this->handlers_.emplace(frameId, handler);
 }
 
 void CanFrameHandler::handleFrame(const canFrame_t& rxFrame) {
-    handler_fn_t * const handler = this->handlers_.get(rxFrame.header.rx.StdId);
+    handler_fn_t * const handler = this->handlers_.at(rxFrame.header.rx.StdId);
     if (handler) {
         (*handler)(rxFrame.data);
     }

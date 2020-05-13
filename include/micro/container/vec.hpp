@@ -10,13 +10,17 @@ namespace micro {
 
 template <typename T, uint32_t capacity_>
 class vec_base {
-
 public:
     typedef T* iterator;
     typedef const T* const_iterator;
     typedef T entry_type;
 
     vec_base() : size_(0) {}
+
+    vec_base(const vec_base& other)
+        : size_(0) {
+        this->construct(other);
+    }
 
     T& operator[](uint32_t pos) {
         return this->data_[pos];
@@ -54,7 +58,7 @@ public:
 
     iterator erase(iterator iter) {
         if (iter >= this->begin() && iter < this->end()) {
-            micro::shift_left(std::next(iter), this->back());
+            micro::shift_left(std::next(iter), this->end());
             this->back()->~T();
             this->size_--;
         }
@@ -98,15 +102,19 @@ public:
         return this->begin() + this->size_ - 1;
     }
 
-protected:
-    void construct(const vec_base<T, capacity_>& other) {
-        this->clear();
-        for (const_iterator it = other.begin(); it != other.end(); ++it) {
-            this->data_[this->size_++] = *it;
-        }
+    void pop_back() {
+        this->erase(this->back());
     }
 
 protected:
+    void construct(const vec_base& other) {
+        this->clear();
+        for (uint32_t i = 0; i < other.size_; ++i) {
+            this->data_[i] = other.data_[i];
+        }
+        this->size_ = other.size_;
+    }
+
     T data_[capacity_];
     uint32_t size_;
 };
@@ -126,26 +134,14 @@ public:
     /* @brief Copy constructor - copies elements.
      * @param other The other vector.
      **/
-    vec(const vec<T, capacity_>& other) {
-        this->construct(other);
-    }
+    vec(const vec& other) : base_type(other) {}
 
     vec(const std::initializer_list<T>& values) {
         this->push_back(values.begin(), values.end());
     }
 
-    /* @brief Copies data from the other vector.
-     * @param other The other vector.
-     * @returns This vector.
-     **/
-    vec<T, capacity_>& operator=(const vec<T, capacity_>& other) {
+    vec& operator=(const vec& other) {
         this->construct(other);
-        return *this;
-    }
-
-    vec<T, capacity_>& operator=(const std::initializer_list<T>& values) {
-        this->clear();
-        this->push_back(values.begin(), values.end());
         return *this;
     }
 
@@ -195,7 +191,7 @@ public:
     uint32_t insert(iterator iter, const T& value) {
         const uint32_t prev_size = this->size_;
         if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
-            micro::shift_right(iter, this->back());
+            micro::shift_right(iter, this->end());
             *iter = value;
             ++this->size_;
         }
@@ -210,20 +206,16 @@ public:
     template<typename ...Args>
     uint32_t emplace(iterator iter, Args&&... args) {
         const uint32_t prev_size = this->size_;
-        if (this->size() < this->capacity()) {
-            micro::shift_right(iter, this->back());
+        if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
+            micro::shift_right(iter, this->end());
             *iter = T(std::forward<Args>(args)...);
             ++this->size_;
         }
         return this->size_ - prev_size;
     }
-
-    void pop_back() {
-        this->erase(this->back());
-    }
 };
 
-template <typename T, uint32_t capacity_>
+template <typename T, uint32_t capacity_, typename Compare = std::less<T>>
 class sorted_vec : public vec_base<T, capacity_> {
 private:
     typedef vec_base<T, capacity_> base_type;
@@ -235,20 +227,28 @@ public:
 
     sorted_vec() : base_type() {}
 
-    sorted_vec(const sorted_vec<T, capacity_>& other) {
-        this->construct(other);
+    sorted_vec(const sorted_vec& other) : base_type(other) {}
+
+    sorted_vec(const std::initializer_list<T>& values) {
+        this->insert(values.begin(), values.end());
     }
 
-    sorted_vec<T, capacity_>& operator=(const sorted_vec<T, capacity_>& other) {
+    sorted_vec& operator=(const sorted_vec& other) {
         this->construct(other);
+        return *this;
+    }
+
+    vec<T, capacity_>& operator=(const std::initializer_list<T>& values) {
+        this->clear();
+        this->insert(values.begin(), values.end());
         return *this;
     }
 
     uint32_t insert(const T& value) {
         const uint32_t prev_size = this->size_;
         if (this->size() < this->capacity()) {
-            const iterator iter = std::find_if_not(this->begin(), this->end(), [value](const T& other) { return value > other; });
-            micro::shift_right(iter, this->back());
+            const iterator iter = std::upper_bound(this->begin(), this->end(), value, Compare{});
+            micro::shift_right(iter, this->end());
             *iter = value;
             ++this->size_;
         }

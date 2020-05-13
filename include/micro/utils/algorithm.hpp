@@ -3,6 +3,7 @@
 #include <micro/port/task.hpp>
 
 #include <algorithm>
+#include <iterator>
 
 namespace micro {
 
