@@ -48,6 +48,18 @@ enum class Unit : uint8_t {
     deg_to_rad      // 0.0174532925 (degrees to radians)
 };
 
+template <typename T, typename partial = void>
+struct is_unit : std::false_type {};
+
+template <typename T>
+struct is_unit<T, typename std::enable_if<T::is_dim_class, void>::type> : std::true_type {};
+
+template <typename T1, typename T2, typename partial = void>
+struct is_same_unit_dimension : std::false_type {};
+
+template <typename T1, typename T2>
+struct is_same_unit_dimension<T1, T2, typename std::enable_if<is_unit<T1>::value && is_unit<T2>::value && T1::dim == T2::dim, void>::type> : std::true_type {};
+
 namespace detail {
 
 constexpr float RAD_TO_DEG = 57.2957795f;       // Converts form radians to degrees.
@@ -234,7 +246,7 @@ public:
  * @returns The result of the addition.
  **/
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, T1>::type operator+(const T1& d1, const T2& d2) {
+inline constexpr typename std::enable_if<is_same_unit_dimension<T1, T2>::value, T1>::type operator+(const T1& d1, const T2& d2) {
     return T1(d1.template get<true>() + static_cast<T1>(d2).template get<true>(), nullptr);
 }
 
@@ -243,7 +255,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class &&
  * @returns The result of the subtraction.
  **/
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, T1>::type operator-(const T1& d1, const T2& d2) {
+inline constexpr typename std::enable_if<is_same_unit_dimension<T1, T2>::value, T1>::type operator-(const T1& d1, const T2& d2) {
     return T1(d1.template get<true>() - static_cast<T1>(d2).template get<true>(), nullptr);
 }
 
@@ -252,7 +264,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class &&
  * @returns This dimension class instance.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, void>::type operator+=(T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, void>::type operator+=(T1& d1, const T2& d2) {
     d1.template set<true>(d1.template get<true>() + static_cast<T1>(d2).template get<true>());
 }
 
@@ -261,7 +273,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns This dimension class instance.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, void>::type operator-=(T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, void>::type operator-=(T1& d1, const T2& d2) {
     d1.template set<true>(d1.template get<true>() - static_cast<T1>(d2).template get<true>());
 }
 
@@ -270,7 +282,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns Boolean value indicating if the two dimension class instances are equal.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type operator==(const T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, bool>::type operator==(const T1& d1, const T2& d2) {
     return d1.template get<true>() == static_cast<T1>(d2).template get<true>();
 }
 
@@ -279,7 +291,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns Boolean value indicating if the two dimension class instances are not equal.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type operator!=(const T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, bool>::type operator!=(const T1& d1, const T2& d2) {
     return d1.template get<true>() != static_cast<T1>(d2).template get<true>();
 }
 
@@ -288,7 +300,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns Boolean value indicating if this dimension class instances is greater than the other.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type operator>(const T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, bool>::type operator>(const T1& d1, const T2& d2) {
     return d1.template get<true>() > static_cast<T1>(d2).template get<true>();
 }
 
@@ -297,7 +309,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns Boolean value indicating if this dimension class instances is smaller than the other.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type operator<(const T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, bool>::type operator<(const T1& d1, const T2& d2) {
     return d1.template get<true>() < static_cast<T1>(d2).template get<true>();
 }
 
@@ -306,7 +318,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns Boolean value indicating if this dimension class instances is greater-or-equal than the other.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type operator>=(const T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, bool>::type operator>=(const T1& d1, const T2& d2) {
     return d1.template get<true>() >= static_cast<T1>(d2).template get<true>();
 }
 
@@ -315,7 +327,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns Boolean value indicating if this dimension class instances is smaller-or-equal than the other.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, bool>::type operator<=(const T1& d1, const T2& d2) {
+inline typename std::enable_if<is_same_unit_dimension<T1, T2>::value, bool>::type operator<=(const T1& d1, const T2& d2) {
     return d1.template get<true>() <= static_cast<T1>(d2).template get<true>();
 }
 
@@ -324,7 +336,7 @@ inline typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim =
  * @returns The ratio of the dimension class instances.
  **/
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, float>::type operator/(const T1& d1, const T2& d2) {
+inline constexpr typename std::enable_if<is_same_unit_dimension<T1, T2>::value, float>::type operator/(const T1& d1, const T2& d2) {
     return d1.template get<true>() / static_cast<T1>(d2).template get<true>();
 }
 
@@ -333,7 +345,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class &&
  * @returns The result dimension class instance.
  **/
 template <typename T1, typename T2, typename R = dim_class<mul_dim<T1::dim, T2::dim>::value, mul_unit_instance<typename T1::unit_inst_t, typename T2::unit_inst_t>>>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class, R>::type operator*(const T1& d1, const T2& d2) {
+inline constexpr typename std::enable_if<is_unit<T1>::value && is_unit<T2>::value, R>::type operator*(const T1& d1, const T2& d2) {
     return R(d1.template get<true>() * d2.template get<true>(), nullptr);
 }
 
@@ -342,7 +354,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class, R
  * @returns The result dimension class instance.
  **/
 template <typename T1, typename T2, typename R = dim_class<div_dim<T1::dim, T2::dim>::value, div_unit_instance<typename T1::unit_inst_t, typename T2::unit_inst_t>>>
-inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim != T2::dim, R>::type operator/(const T1& d1, const T2& d2) {
+inline constexpr typename std::enable_if<is_unit<T1>::value && is_unit<T2>::value && T1::dim != T2::dim, R>::type operator/(const T1& d1, const T2& d2) {
     return R(d1.template get<true>() / d2.template get<true>(), nullptr);
 }
 
@@ -353,7 +365,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && T2::is_dim_class &&
  * @returns The result dimension class instance.
  **/
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && std::is_arithmetic<T2>::value, T1>::type operator*(const T1& d, const T2& c) {
+inline constexpr typename std::enable_if<is_unit<T1>::value && std::is_arithmetic<T2>::value, T1>::type operator*(const T1& d, const T2& c) {
     return T1(d.template get<true>() * c, nullptr);
 }
 
@@ -364,7 +376,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && std::is_arithmetic<
  * @returns The result dimension class instance.
  **/
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && std::is_arithmetic<T2>::value, T1>::type operator*(const T2& c, const T1& d) {
+inline constexpr typename std::enable_if<is_unit<T1>::value && std::is_arithmetic<T2>::value, T1>::type operator*(const T2& c, const T1& d) {
     return d * c;
 }
 
@@ -374,7 +386,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && std::is_arithmetic<
  * @returns The result dimension class instance.
  **/
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<T1::is_dim_class && std::is_arithmetic<T2>::value, T1>::type operator/(const T1& d, const T2& c) {
+inline constexpr typename std::enable_if<is_unit<T1>::value && std::is_arithmetic<T2>::value, T1>::type operator/(const T1& d, const T2& c) {
     return T1(d.template get<true>() / c, nullptr);
 }
 
@@ -382,7 +394,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class && std::is_arithmetic<
  * @returns The result dimension class instance.
  **/
 template <typename T1>
-inline constexpr typename std::enable_if<T1::is_dim_class, T1>::type operator-(const T1& d) {
+inline constexpr typename std::enable_if<is_unit<T1>::value, T1>::type operator-(const T1& d) {
     return T1(-d.template get<true>(), nullptr);
 }
 
@@ -392,7 +404,7 @@ inline constexpr typename std::enable_if<T1::is_dim_class, T1>::type operator-(c
  * @returns This dimension class instance.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && std::is_arithmetic<T2>::value, T1&>::type operator*=(T1& d, const T2& c) {
+inline typename std::enable_if<is_unit<T1>::value && std::is_arithmetic<T2>::value, T1&>::type operator*=(T1& d, const T2& c) {
     d.template set<true>(d.template get<true>() * c);
     return d;
 }
@@ -403,7 +415,7 @@ inline typename std::enable_if<T1::is_dim_class && std::is_arithmetic<T2>::value
  * @returns This dimension class instance.
  **/
 template <typename T1, typename T2>
-inline typename std::enable_if<T1::is_dim_class && std::is_arithmetic<T2>::value, T1&>::type operator/=(T1& d, const T2& c) {
+inline typename std::enable_if<is_unit<T1>::value && std::is_arithmetic<T2>::value, T1&>::type operator/=(T1& d, const T2& c) {
     d.template set<true>(d.template get<true>() / c);
     return d;
 }
@@ -482,11 +494,5 @@ create_div_unit_instance(mm_per_sec, second, mm_per_sec2);
 typedef detail::dim_class<Dimension::angular_velocity> angular_velocity_t;
 create_div_unit_instance(radian, second, rad_per_sec);
 create_div_unit_instance(degree, second, deg_per_sec);
-
-template <typename T1, typename T2, typename partial = void>
-struct is_same_unit_dimension : std::false_type {};
-
-template <typename T1, typename T2>
-struct is_same_unit_dimension<T1, T2, typename std::enable_if<T1::is_dim_class && T2::is_dim_class && T1::dim == T2::dim, void>::type> : std::true_type {};
 
 } // namespace micro
