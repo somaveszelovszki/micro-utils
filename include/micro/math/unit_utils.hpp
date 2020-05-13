@@ -12,15 +12,15 @@ constexpr radian_t PI_4 = PI / 4;
 const m_per_sec2_t G = m_per_sec2_t(9.81f);  // Gravitational acceleration.
 
 template <typename T>
-struct numeric_limits<T, typename std::enable_if<T::is_dim_class, void>::type> {
+struct numeric_limits<T, typename std::enable_if<is_unit<T>::value, void>::type> {
     static constexpr T min()       { return { micro::numeric_limits<typename T::value_type>::min()       }; }
     static constexpr T max()       { return { micro::numeric_limits<typename T::value_type>::max()       }; }
-    static constexpr T quiet_Nan() { return { micro::numeric_limits<typename T::value_type>::quiet_NaN() }; }
+    static constexpr T quiet_NaN() { return { micro::numeric_limits<typename T::value_type>::quiet_NaN() }; }
     static constexpr T infinity()  { return { micro::numeric_limits<typename T::value_type>::infinity()  }; }
     static constexpr T epsilon()   { return { micro::numeric_limits<typename T::value_type>::epsilon()   }; }
 };
 
-template <typename T> struct raw_type<T, typename std::enable_if<T::is_dim_class, void>::type> {
+template <typename T> struct raw_type<T, typename std::enable_if<is_unit<T>::value, void>::type> {
     typedef typename T::value_type type;
     static constexpr type get(const T& value) { return value.template get<true>(); }
 };

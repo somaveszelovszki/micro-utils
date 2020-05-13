@@ -275,12 +275,12 @@ inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type
 }
 
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
+inline typename std::enable_if<is_unit<T>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
     return serialize<typename T::value_type>(stream, size, value);
 }
 
 template <typename T>
-inline typename std::enable_if<T::is_dim_class, uint32_t>::type deserialize(const char * const stream, void * const value) {
+inline typename std::enable_if<is_unit<T>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
     return deserialize<typename T::value_type>(stream, value);
 }
 

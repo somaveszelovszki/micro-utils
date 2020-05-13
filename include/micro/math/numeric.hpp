@@ -15,7 +15,7 @@ template <typename T>
 struct numeric_limits<T, typename std::enable_if<std::is_arithmetic<T>::value, void>::type> {
     static constexpr T min()       { return std::numeric_limits<T>::min();       }
     static constexpr T max()       { return std::numeric_limits<T>::max();       }
-    static constexpr T quiet_Nan() { return std::numeric_limits<T>::quiet_NaN(); }
+    static constexpr T quiet_NaN() { return std::numeric_limits<T>::quiet_NaN(); }
     static constexpr T infinity()  { return std::numeric_limits<T>::infinity();  }
     static constexpr T epsilon()   { return std::numeric_limits<T>::epsilon();   }
 };
@@ -99,40 +99,6 @@ inline constexpr bool isInRange(const T1& value, const T2& ref, float relErr) {
 }
 
 /**
- * @brief Maps value from from a given range to another.
- * @tparam S Numeric type of the source value and the source range boundaries.
- * @tparam R Numeric type of the result value and the result range boundaries.
- * @param value The value to map.
- * @param from1 First boundary of the source range.
- * @param from2 Second boundary of the source range.
- * @param to1 First boundary of the destination range.
- * @param to2 Second boundary of the destination range.
- * @returns The mapped value.
- */
-template <typename S, typename R>
-inline constexpr R map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
-
-    const S clamped = clamp(value, from1, from2);
-    R result = to1;
-
-    if (from2 > from1) {
-        if (to2 >= to1) {
-            result = to1 + (clamped - from1) * (to2 - to1) / (from2 - from1);
-        } else {
-            result = to1 - (clamped - from1) * (to1 - to2) / (from2 - from1);
-        }
-    } else if (from2 < from1) {
-        if (to2 >= to1) {
-            result = to1 + (from1 - clamped) * (to2 - to1) / (from1 - from2);
-        } else {
-            result = to1 - (from1 - clamped) * (to1 - to2) / (from1 - from2);
-        }
-    }
-
-    return result;
-}
-
-/**
  * @brief Checks if given value equals the reference with the given epsilon tolerance.
  * @tparam T Type of the value, the reference and the epsilon tolerance.
  * @param value The value to compare to the reference.
@@ -178,6 +144,75 @@ inline constexpr bool isZero(const T1& value, const T2& eps) {
 template <typename T>
 inline constexpr bool isZero(const T& value) {
     return eq(value, T(0));
+}
+
+/**
+ * @brief Maps value from from a given range to another.
+ * @tparam S Numeric type of the source value and the source range boundaries.
+ * @tparam R Numeric type of the result value and the result range boundaries.
+ * @param value The value to map.
+ * @param from1 First boundary of the source range.
+ * @param from2 Second boundary of the source range.
+ * @param to1 First boundary of the destination range.
+ * @param to2 Second boundary of the destination range.
+ * @returns The mapped value.
+ */
+template <typename S, typename R>
+inline constexpr typename std::enable_if<!std::is_integral<S>::value && !std::is_unsigned<S>::value && !std::is_unsigned<R>::value, R>::type
+map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
+    return to1 + (isZero(from2 - from1) ? R(0) : (clamp(value, from1, from2) - from1) / (from2 - from1) * (to2 - to1));
+}
+
+/**
+ * @brief Maps value from from a given range to another.
+ * @tparam S Numeric type of the source value and the source range boundaries.
+ * @tparam R Numeric type of the result value and the result range boundaries.
+ * @param value The value to map.
+ * @param from1 First boundary of the source range.
+ * @param from2 Second boundary of the source range.
+ * @param to1 First boundary of the destination range.
+ * @param to2 Second boundary of the destination range.
+ * @returns The mapped value.
+ */
+template <typename S, typename R>
+inline constexpr typename std::enable_if<std::is_integral<S>::value && !std::is_unsigned<S>::value && !std::is_unsigned<R>::value, R>::type
+map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
+    return to1 + (from1 == from2 ? R(0) : (clamp(value, from1, from2) - from1) * (to2 - to1) / (from2 - from1));
+}
+
+/**
+ * @brief Maps value from from a given range to another.
+ * @tparam S Numeric type of the source value and the source range boundaries.
+ * @tparam R Numeric type of the result value and the result range boundaries.
+ * @param value The value to map.
+ * @param from1 First boundary of the source range.
+ * @param from2 Second boundary of the source range.
+ * @param to1 First boundary of the destination range.
+ * @param to2 Second boundary of the destination range.
+ * @returns The mapped value.
+ */
+template <typename S, typename R>
+inline constexpr typename std::enable_if<std::is_unsigned<S>::value || std::is_unsigned<R>::value, R>::type
+map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
+
+    const S clamped = clamp(value, from1, from2);
+    R result = to1;
+
+    if (from2 > from1) {
+        if (to2 >= to1) {
+            result = to1 + (clamped - from1) * (to2 - to1) / (from2 - from1);
+        } else {
+            result = to1 - (clamped - from1) * (to1 - to2) / (from2 - from1);
+        }
+    } else if (from2 < from1) {
+        if (to2 >= to1) {
+            result = to1 + (from1 - clamped) * (to2 - to1) / (from1 - from2);
+        } else {
+            result = to1 - (from1 - clamped) * (to1 - to2) / (from1 - from2);
+        }
+    }
+
+    return result;
 }
 
 /**
