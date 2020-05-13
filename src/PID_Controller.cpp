@@ -3,24 +3,17 @@
 
 namespace micro {
 
-PID_Controller::PID_Controller(const float P, const float I, const float D, const float integralMax, const float outMin, const float outMax, const float deadband)
+PID_Controller::PID_Controller(const PID_Params& params, const float outMax, const float deadband)
     : desired(0.0f)
-    , P_(P)
-    , I_(I)
-    , D_(D)
-    , integralMax_(integralMax)
-    , outMin_(outMin)
+    , params_(params)
     , outMax_(outMax)
     , deadband_(deadband)
     , prevErr_(0.0f)
     , integral_(0.0f)
     , output_(0.0f) {}
 
-void PID_Controller::tune(const float P, const float I, const float D, const float integralMax) {
-    this->P_ = P;
-    this->I_ = I;
-    this->D_ = D;
-    this->integralMax_ = integralMax;
+void PID_Controller::tune(const PID_Params& params) {
+    this->params_ = params;
 }
 
 void PID_Controller::update(const float measured) {
@@ -33,8 +26,15 @@ void PID_Controller::update(const float measured) {
         this->output_  = 0.0f;
     } else {
         const millisecond_t d_time = now - this->prevUpdateTime_;
-        this->integral_ = clamp(this->integral_ + error, -this->integralMax_, this->integralMax_);
-        this->output_   = clamp(error * this->P_ + this->integral_ * this->I_ + (error - this->prevErr_) * d_time.get() * this->D_, this->outMin_, this->outMax_);
+        const float integral = this->integral_ + error;
+        const float output   = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) * d_time.get() * this->params_.D;
+
+        if (isBtw(output, -this->outMax_, this->outMax_)) {
+            this->output_   = output;
+            this->integral_ = integral;
+        } else {
+            this->output_ = clamp(output, -this->outMax_, this->outMax_);
+        }
     }
 
     this->prevUpdateTime_ = now;
