@@ -160,7 +160,7 @@ inline constexpr bool isZero(const T& value) {
 template <typename S, typename R>
 inline constexpr typename std::enable_if<!std::is_integral<S>::value && !std::is_unsigned<S>::value && !std::is_unsigned<R>::value, R>::type
 map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
-    return to1 + (isZero(from2 - from1) ? R(0) : (clamp(value, from1, from2) - from1) / (from2 - from1) * (to2 - to1));
+    return isZero(from2 - from1) ? to1 : to1 + (clamp(value, from1, from2) - from1) / (from2 - from1) * (to2 - to1);
 }
 
 /**
@@ -177,7 +177,7 @@ map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) 
 template <typename S, typename R>
 inline constexpr typename std::enable_if<std::is_integral<S>::value && !std::is_unsigned<S>::value && !std::is_unsigned<R>::value, R>::type
 map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
-    return to1 + (from1 == from2 ? R(0) : (clamp(value, from1, from2) - from1) * (to2 - to1) / (from2 - from1));
+    return from1 == from2 ? to1 : to1 + (clamp(value, from1, from2) - from1) * (to2 - to1) / (from2 - from1);
 }
 
 /**
