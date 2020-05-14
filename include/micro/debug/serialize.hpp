@@ -1,5 +1,6 @@
 #pragma once
 
+#include <micro/port/task.hpp>
 #include <micro/utils/types.hpp>
 #include <micro/utils/point2.hpp>
 #include <micro/utils/CarProps.hpp>
@@ -100,7 +101,10 @@ inline typename std::enable_if<std::is_same<T, int32_t>::value, uint32_t>::type 
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(static_cast<int32_t>(*static_cast<const int64_t*>(value)), stream, size);
+    os_taskSuspendAll();
+    const int32_t val = static_cast<int32_t>(*static_cast<const int64_t*>(value));
+    os_taskResumeAll();
+    return micro::itoa(val, stream, size);
 }
 
 template <typename T>
@@ -110,7 +114,9 @@ inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type 
     idx++; // '"'
     idx += micro::atoi(&stream[idx], &n);
     if (idx > 1) {
+        os_taskSuspendAll();
         *static_cast<int64_t*>(value) = static_cast<int64_t>(n);
+        os_taskResumeAll();
         idx++; // '"'
     } else {
         idx = 0;
@@ -179,7 +185,10 @@ inline typename std::enable_if<std::is_same<T, uint32_t>::value, uint32_t>::type
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, uint64_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(static_cast<int32_t>(*static_cast<const uint64_t*>(value)), stream, size);
+    os_taskSuspendAll();
+    const int32_t val = static_cast<int32_t>(*static_cast<const uint64_t*>(value));
+    os_taskResumeAll();
+    return micro::itoa(val, stream, size);
 }
 
 template <typename T>
@@ -218,7 +227,10 @@ inline typename std::enable_if<std::is_same<T, float>::value, uint32_t>::type de
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::ftoa(static_cast<float>(*static_cast<const double*>(value)), stream, size);
+    os_taskSuspendAll();
+    const float val = static_cast<float>(*static_cast<const double*>(value));
+    os_taskResumeAll();
+    return micro::ftoa(val, stream, size);
 }
 
 template <typename T>
@@ -238,38 +250,65 @@ inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type d
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    const CarProps * const car = static_cast<const CarProps*>(value);
+    os_taskSuspendAll();
+    const CarProps car = *static_cast<const CarProps*>(value);
+    os_taskResumeAll();
+
     return sprint(stream, size,
-        "{\"pose\":{\"pos_m\":{\"X\":%f,\"Y\":%f},\"angle_deg\":%f},\"speed_mps\":%f}",
-        car->pose.pos.X.get(),
-        car->pose.pos.Y.get(),
-        static_cast<degree_t>(car->pose.angle).get(),
-        car->speed.get()
+        "{"
+            "\"pose\":{"
+                "\"pos_m\":{"
+                    "\"X\":%f,"
+                    "\"Y\":%f"
+                "},"
+                "\"angle_deg\":%f"
+            "},"
+            "\"speed_mps\":%f,"
+            "\"distance_m\":%f,"
+            "\"orientedDistance_m\":%f,"
+            "\"frontWheelAngle_deg\":%f,"
+            "\"rearWheelAngle_deg\":%f,"
+            "\"yawRate_degps\":%f"
+        "}",
+        car.pose.pos.X.get(),
+        car.pose.pos.Y.get(),
+        static_cast<degree_t>(car.pose.angle).get(),
+        car.speed.get()
     );
+
+    meter_t distance;         // The distance that the car has driven since startup.
+    meter_t orientedDistance; // The distance that the has driven with no major orientation change (in a straight line).
+    radian_t frontWheelAngle;
+    radian_t rearWheelAngle;
+    rad_per_sec_t yawRate;
 }
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    CarProps * const car = static_cast<CarProps*>(value);
+    CarProps car;
     float n;
 
     uint32_t idx = strlen("{\"pose\":{\"pos_m\":{\"X\":");
     idx += micro::atof(&stream[idx], &n);
-    car->pose.pos.X = meter_t(n);
+    car.pose.pos.X = meter_t(n);
 
     idx += strlen(",\"Y\":");
     idx += micro::atof(&stream[idx], &n);
-    car->pose.pos.Y = meter_t(n);
+    car.pose.pos.Y = meter_t(n);
 
     idx += strlen("},\"angle_deg\":");
     idx += micro::atof(&stream[idx], &n);
-    car->pose.angle = degree_t(n);
+    car.pose.angle = degree_t(n);
 
     idx += strlen("},\"speed_mps\":");
     idx += micro::atof(&stream[idx], &n);
-    car->speed = m_per_sec_t(n);
+    car.speed = m_per_sec_t(n);
 
     idx += strlen("}");
+
+    os_taskSuspendAll();
+    *static_cast<CarProps*>(value) = car;
+    os_taskResumeAll();
 
     return idx;
 }
