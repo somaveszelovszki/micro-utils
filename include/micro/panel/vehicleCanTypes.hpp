@@ -38,13 +38,11 @@ struct ServoParams {
 } __attribute__((packed));
 
 struct MotorControlParams {
+    uint32_t controller_P_8p24 : 32;
+    uint32_t controller_I_8p24 : 32;
 
-    uint32_t controller_P_8p16   : 24;
-    uint32_t controller_I_8p16   : 24;
-    uint16_t controller_Imax_8p8 : 16;
-
-    MotorControlParams(const float controller_P, const float controller_I, const float controller_Imax);
-    void acquire(float& controller_P, float& controller_I, float& controller_Imax) const;
+    MotorControlParams(const float controller_P, const float controller_I);
+    void acquire(float& controller_P, float& controller_I) const;
 
 } __attribute__((packed));
 

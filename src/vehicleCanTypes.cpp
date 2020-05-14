@@ -17,6 +17,7 @@ constexpr float SHIFT_6  = 64.0f;
 constexpr float SHIFT_7  = 128.0f;
 constexpr float SHIFT_8  = 256.0f;
 constexpr float SHIFT_16 = 65536.0f;
+constexpr float SHIFT_24 = 16777216.0f;
 
 micro::can::detail::Lines convert(const micro::Lines& in) {
 
@@ -81,15 +82,13 @@ void ServoParams::acquire(radian_t& offset, radian_t& maxAngle) const {
     maxAngle = degree_t(this->maxDelta_deg_8p8 / detail::SHIFT_8);
 }
 
-MotorControlParams::MotorControlParams(const float controller_P, const float controller_I, const float controller_Imax)
-    : controller_P_8p16(static_cast<uint32_t>(controller_P * detail::SHIFT_16))
-    , controller_I_8p16(static_cast<uint32_t>(controller_I * detail::SHIFT_16))
-    , controller_Imax_8p8(static_cast<uint32_t>(controller_Imax * detail::SHIFT_8)) {}
+MotorControlParams::MotorControlParams(const float controller_P, const float controller_I)
+    : controller_P_8p24(static_cast<uint32_t>(controller_P * detail::SHIFT_24))
+    , controller_I_8p24(static_cast<uint32_t>(controller_I * detail::SHIFT_24)) {}
 
-void MotorControlParams::acquire(float& controller_P, float& controller_I, float& controller_Imax) const {
-    controller_P    = this->controller_P_8p16 / detail::SHIFT_16;
-    controller_I    = this->controller_I_8p16 / detail::SHIFT_16;
-    controller_Imax = this->controller_Imax_8p8 / detail::SHIFT_8;
+void MotorControlParams::acquire(float& controller_P, float& controller_I) const {
+    controller_P = this->controller_P_8p24 / detail::SHIFT_24;
+    controller_I = this->controller_I_8p24 / detail::SHIFT_24;
 }
 
 } // namespace detail
