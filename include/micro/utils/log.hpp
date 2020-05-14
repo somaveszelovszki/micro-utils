@@ -37,14 +37,14 @@ void printlog(logLevel_t level, const char *format, ...);
 
 #define LOG_DEBUG(format, ...)   micro::printlog(logLevel_t::Debug,   format, ##__VA_ARGS__)
 #define LOG_INFO(format, ...)    micro::printlog(logLevel_t::Info,    format, ##__VA_ARGS__)
-#define LOG_WARNING(format, ...) micro::printlog(logLevel_t::Warning, format, ##__VA_ARGS__)
+#define LOG_WARN(format, ...)    micro::printlog(logLevel_t::Warning, format, ##__VA_ARGS__)
 #define LOG_ERROR(format, ...)   micro::printlog(logLevel_t::Error,   format, ##__VA_ARGS__)
 
 #else
 
 #define LOG_DEBUG(format, ...)
 #define LOG_INFO(format, ...)
-#define LOG_WARNING(format, ...)
+#define LOG_WARN(format, ...)
 #define LOG_ERROR(format, ...)
 
 #endif // OS_FREERTOS
