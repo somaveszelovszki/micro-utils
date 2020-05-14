@@ -8,6 +8,9 @@ struct PID_Params {
     float P = 0.0f;
     float I = 0.0f;
     float D = 0.0f;
+
+    bool operator==(const PID_Params& other) const { return P == other.P && I == other.I && D == other.D; }
+    bool operator!=(const PID_Params& other) const { return !(*this == other); }
 };
 
 inline PID_Params operator+(const PID_Params& a, const PID_Params& b) { return { a.P + b.P, a.I + b.I, a.D + b.D }; }
