@@ -26,20 +26,6 @@ template <typename T> struct point3 {
      **/
     T Z;
 
-    /* @brief Constructor - does not initializes coordinates.
-     **/
-    point3() {}
-
-    /* @brief Constructor - initializes X and Y coordinates.
-     * @param _X The X coordinate.
-     * @param _Y The Y coordinate.
-     * @param _Z The Z coordinate.
-     **/
-    point3(const T& _X, const T& _Y, const T& _Z)
-        : X(_X)
-        , Y(_Y)
-        , Z(_Z) {}
-
     /* @brief Adds coordinates of this and the other point.
     * @param other The other point.
     * @returns The result of the addition.
@@ -84,7 +70,7 @@ template <typename T> struct point3 {
      **/
     template <typename T2, class = typename std::enable_if<std::is_arithmetic<T2>::value>::type>
     point3<T> operator*(const T2& c) const {
-        return point3<T>(this->X * c, this->Y * c, this->Z * c);
+        return point3<T>{ this->X * c, this->Y * c, this->Z * c };
     }
 
     /* @brief Divides coordinates of the point by the given constant.
@@ -93,7 +79,7 @@ template <typename T> struct point3 {
      **/
     template <typename T2, class = typename std::enable_if<std::is_arithmetic<T2>::value>::type>
     point3<T> operator/(const T2& c) const {
-        return point3<T>(this->X / c, this->Y / c, this->Z / c);
+        return point3<T>{ this->X / c, this->Y / c, this->Z / c };
     }
 
     /* @brief Multiplies coordinates of the point with the given constant and stores the result in the point.
@@ -135,7 +121,7 @@ template <typename T> struct point3 {
      **/
     template <typename T2>
     operator point3<T2>() const {
-        return point3<T2>(static_cast<T2>(this->X), static_cast<T2>(this->Y), static_cast<T2>(this->Z));
+        return point3<T2>{ static_cast<T2>(this->X), static_cast<T2>(this->Y), static_cast<T2>(this->Z) };
     }
 
     /* @brief Checks if two points are equal.
