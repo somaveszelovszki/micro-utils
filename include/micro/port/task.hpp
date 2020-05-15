@@ -80,7 +80,7 @@ public:
         xSemaphoreCreateMutexStatic(&this->semphrBuffer_);
     }
 
-    bool lock(const millisecond_t timeout) {
+    bool lock(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
         bool success = false;
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -92,7 +92,7 @@ public:
         return success;
     }
 
-    void release() {
+    void unlock() {
         if (isInterrupt()) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
@@ -162,8 +162,8 @@ private:
 namespace micro {
 class mutex_t {
 public:
-    bool lock(const millisecond_t) { return true; }
-    void release() {}
+    bool lock(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
+    void unlock() {}
 };
 
 class semaphore_t {
@@ -209,20 +209,3 @@ public:
 
 #endif // !BSP_LIB_HAL
 #endif // !OS_FREERTOS
-
-namespace micro {
-
-class lock_guard_t {
-public:
-    explicit lock_guard_t(mutex_t& mutex) : mutex_(mutex) {
-        this->mutex_.lock(micro::numeric_limits<millisecond_t>::infinity());
-    }
-
-    ~lock_guard_t() {
-        this->mutex_.release();
-    }
-private:
-    mutex_t& mutex_;
-};
-
-} // namespace micro

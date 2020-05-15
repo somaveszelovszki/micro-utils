@@ -54,10 +54,10 @@ private:
         queue_t<canFrame_t, 16> rxFrames_;
     };
 
+    mutable mutex_t mutex_;
     CAN_HandleTypeDef * const hcan_;
     const uint32_t rxFifo_;
     WatchdogTimer rxWatchdog_;
-    mutex_t registerMutex_;
     vec<subscriber_t, 4> subscribers_;
 };
 

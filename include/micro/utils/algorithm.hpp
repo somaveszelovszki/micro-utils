@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <mutex>
 
 namespace micro {
 
@@ -47,12 +48,12 @@ public:
     atomic(Args&&... args) : value_(std::forward<Args>(args)...) {}
 
     T get() const {
-        lock_guard_t lock(this->mutex_);
+        std::lock_guard<mutex_t> lock(this->mutex_);
         return this->value_;
     }
 
     void set(const T& value) {
-        lock_guard_t lock(this->mutex_);
+        std::lock_guard<mutex_t> lock(this->mutex_);
         this->value_ = value;
     }
 
@@ -61,7 +62,7 @@ public:
     }
 
 private:
-    mutex_t mutex_;
+    mutable mutex_t mutex_;
     T value_;
 };
 
@@ -111,12 +112,6 @@ void bubble_sort(Iter begin, Iter end) {
             }
         }
     }
-}
-
-template <typename Iter, typename T>
-Iter find_sorted(Iter begin, Iter end, const T& value) {
-    Iter it = std::lower_bound(begin, end, value);
-    return it != end && *it == value ? it : end;
 }
 
 } // namespace micro
