@@ -14,11 +14,11 @@ public:
         : value_(value)
         , timestamp_(timestamp) {}
 
-    state_t(const T& value) : state_t(value, getExactTime()) {}
+    state_t(const T& value) : state_t(value, getTime()) {}
 
     state_t& operator=(const T& val) {
         this->value_     = val;
-        this->timestamp_ = getExactTime();
+        this->timestamp_ = getTime();
         return *this;
     }
 
