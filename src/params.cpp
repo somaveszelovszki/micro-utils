@@ -10,8 +10,6 @@
 
 #include <cstring>
 
-micro::Params params;
-
 namespace micro {
 
 constexpr char PARAMS_START_SEQ[] = "[P]";
@@ -40,11 +38,14 @@ constexpr bool ParamNameComparator::operator()(const char * const name, const Pa
     return strncmp(name, param.name, STR_MAX_LEN_PARAM_NAME) < 0;
 }
 
-void Params::registerParam(const Param& param) {
-    this->values_.insert(param);
+Params Params::instance() {
+    static Params instance_;
+    return instance_;
 }
 
 void Params::serializeAll(char * const str, uint32_t size) {
+
+    std::lock_guard<mutex_t> lock(this->mutex_);
 
     uint32_t idx = strncpy_until(str, PARAMS_START_SEQ, ARRAY_SIZE(PARAMS_START_SEQ));
     str[idx++] = '{';
@@ -75,6 +76,8 @@ void Params::serializeAll(char * const str, uint32_t size) {
 }
 
 void Params::deserializeAll(const char * const str, uint32_t size) {
+
+    std::lock_guard<mutex_t> lock(this->mutex_);
 
     if (!strncmp(str, PARAMS_START_SEQ, ARRAY_SIZE(PARAMS_START_SEQ))) {
         const char *msgEnd = std::find(str, str + size, '$');
@@ -146,13 +149,6 @@ void Params::skipParam(const char * const str, uint32_t& idx) {
     } while (!end);
 }
 
-namespace detail {
-
-void registerParam(const Param& param) {
-    params.registerParam(param);
-}
-
-} // namespace detail
 } // namespace micro
 
 #endif // OS_FREERTOS
