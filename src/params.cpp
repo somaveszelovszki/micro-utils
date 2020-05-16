@@ -80,7 +80,7 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
     std::lock_guard<mutex_t> lock(this->mutex_);
 
     if (!strncmp(str, PARAMS_START_SEQ, ARRAY_SIZE(PARAMS_START_SEQ))) {
-        const char *msgEnd = std::find(str, str + size, '$');
+        const char *msgEnd = std::find(str, str + size, LOG_SEPARATOR_CHAR);
         if (msgEnd != str + size) {
             uint32_t idx = ARRAY_SIZE(PARAMS_START_SEQ);
             idx++; // '{'

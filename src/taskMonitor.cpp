@@ -1,6 +1,7 @@
 #if defined OS_FREERTOS // task monitor interface is only supported if FreeRTOS is available
 
 #include <micro/debug/taskMonitor.hpp>
+#include <micro/utils/log.hpp>
 
 #include <FreeRTOS.h>
 #include <task.h>
