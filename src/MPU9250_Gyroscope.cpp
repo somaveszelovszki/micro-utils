@@ -174,7 +174,7 @@ MPU9250_Gyroscope::MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, Ascale aScale, Gsc
     : MPU9250_Gyroscope(hi2c, nullptr, nullptr, 0, aScale, gScale, mScale, Mmode) {}
 
 #ifdef STM32F4
-MPU9250_Gyroscope::MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
+MPU9250_Gyroscope::MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef *csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
     : MPU9250_Gyroscope(nullptr, hspi, csGpio, csGpioPin, aScale, gScale, mScale, Mmode) {}
 #endif // STM32F4
 

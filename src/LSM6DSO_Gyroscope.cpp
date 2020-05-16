@@ -53,7 +53,7 @@ LSM6DSO_Gyroscope::LSM6DSO_Gyroscope(I2C_HandleTypeDef *hi2c)
     , dev_ctx{ write, read, &this->handle } {}
 
 #ifdef STM32F4
-LSM6DSO_Gyroscope::LSM6DSO_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin)
+LSM6DSO_Gyroscope::LSM6DSO_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef *csGpio, uint16_t csGpioPin)
     : handle{ nullptr, hspi, csGpio, csGpioPin }
     , dev_ctx{ write, read, &this->handle } {}
 #endif // STM32F4
