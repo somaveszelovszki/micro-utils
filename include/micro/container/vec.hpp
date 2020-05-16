@@ -147,71 +147,74 @@ public:
 
     /* @brief Appends one element to the end of the vector.
      * @param value The element to append.
-     * @returns The number of elements that have been appended successfully.
+     * @returns An iterator pointing to the inserted element, or end() if the insertion was unsuccessful.
      **/
-    uint32_t push_back(const T& value) {
-        const uint32_t prev_size = this->size_;
+    iterator push_back(const T& value) {
+        iterator result = this->end();
         if (this->size() < this->capacity()) {
             this->data_[this->size_++] = value;
+            // the insertion causes the result iterator to point to back()
         }
-        return this->size_ - prev_size;
+        return result;
     }
 
     /* @brief Emplaces one element to the end of the vector.
      * @params args The constructor arguments.
-     * @returns The number of elements that have been emplaced successfully.
+     * @returns An iterator pointing to the emplaced element, or end() if the emplacement was unsuccessful.
      **/
     template<typename ...Args>
-    uint32_t emplace_back(Args&&... args) {
-        const uint32_t prev_size = this->size_;
+    iterator emplace_back(Args&&... args) {
+        iterator result = this->end();
         if (this->size() < this->capacity()) {
             this->data_[this->size_++] = T(std::forward<Args>(args)...);
+            // the emplacement causes the result iterator to point to back()
         }
-        return this->size_ - prev_size;
+        return result;
     }
 
     /* @brief Appends elements to the end of the vector.
      * @param _data The elements to append.
      * @param _size Number of elements to append.
-     * @returns The number of elements that have been appended successfully.
+     * @returns True if the elements have been inserted successfully, false otherwise.
      **/
     template <typename Iter>
-    uint32_t push_back(Iter begin_, Iter end_) {
-        const uint32_t prev_size = this->size_;
-        for (Iter it = begin_; it != end_; ++it) {
-            if (this->size() < this->capacity()) {
+    bool push_back(Iter begin_, Iter end_) {
+        bool success = false;
+        if (this->size() + std::distance(begin_, end_) <= this->capacity()) {
+            for (Iter it = begin_; it != end_; ++it) {
                 this->data_[this->size_++] = *it;
-            } else {
-                break;
             }
+            success = true;
         }
-        return this->size_ - prev_size;
+        return success;
     }
 
-    uint32_t insert(iterator iter, const T& value) {
-        const uint32_t prev_size = this->size_;
+    iterator insert(iterator iter, const T& value) {
+        iterator result = this->end();
         if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
             micro::shift_right(iter, this->end());
             *iter = value;
             ++this->size_;
+            result = iter;
         }
-        return this->size_ - prev_size;
+        return result;
     }
 
     /* @brief Emplaces one element at a given position of the vector.
      * @param iter The iterator.
      * @params args The constructor arguments.
-     * @returns The number of elements that have been emplaced successfully.
+     * @returns An iterator pointing to the emplaced element, or end() if the emplacement was unsuccessful.
      **/
     template<typename ...Args>
-    uint32_t emplace(iterator iter, Args&&... args) {
-        const uint32_t prev_size = this->size_;
+    iterator emplace(iterator iter, Args&&... args) {
+        iterator result = this->end();
         if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
             micro::shift_right(iter, this->end());
             *iter = T(std::forward<Args>(args)...);
             ++this->size_;
+            result = iter;
         }
-        return this->size_ - prev_size;
+        return result;
     }
 };
 
@@ -244,28 +247,27 @@ public:
         return *this;
     }
 
-    uint32_t insert(const T& value) {
-        const uint32_t prev_size = this->size_;
+    iterator insert(const T& value) {
+        iterator result = this->end();
         if (this->size() < this->capacity()) {
-            const iterator iter = std::upper_bound(this->begin(), this->end(), value, Compare{});
-            micro::shift_right(iter, this->end());
-            *iter = value;
+            result = std::upper_bound(this->begin(), this->end(), value, Compare{});
+            micro::shift_right(result, this->end());
+            *result = value;
             ++this->size_;
         }
-        return this->size_ - prev_size;
+        return result;
     }
 
     template <typename Iter>
-    uint32_t insert(Iter begin_, Iter end_) {
-        const uint32_t prev_size = this->size_;
-        for (Iter it = begin_; it != end_; ++it) {
-            if (this->size() < this->capacity()) {
+    bool insert(Iter begin_, Iter end_) {
+        const bool success = false;
+        if (this->size() + std::distance(begin_, end_) <= this->capacity()) {
+            for (Iter it = begin_; it != end_; ++it) {
                 this->insert(*it);
-            } else {
-                break;
             }
+            success = true;
         }
-        return this->size_ - prev_size;
+        return success;
     }
 };
 
