@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined OS_FREERTOS // task monitor interface is only supported if FreeRTOS is available
+#if defined OS_FREERTOS // system manager is only supported if FreeRTOS is available
 
 #include <micro/container/vec.hpp>
 #include <micro/port/task.hpp>
@@ -19,11 +19,12 @@ struct TaskStateComparator {
     constexpr bool operator()(const TaskHandle_t& handle, const taskState_t& state) const { return handle < state.details.xHandle; };
 };
 
-class TaskMonitor {
+class SystemManager {
 public:
+    typedef uint8_t systemState_t;
     typedef sorted_vec<taskState_t, 16, TaskStateComparator> taskStates_t;
 
-    static TaskMonitor& instance();
+    static SystemManager& instance();
 
     void registerTask();
 
@@ -32,13 +33,13 @@ public:
     taskStates_t failingTasks() const;
 
 private:
-    TaskMonitor() {}
+    SystemManager() {}
 
     mutable mutex_t mutex_;
     taskStates_t taskStates_;
 };
 
-void taskMonitor_notify(const bool state);
+void SystemManager_notify(const bool state);
 
 } // namespace micro
 
