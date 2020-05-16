@@ -15,30 +15,54 @@ constexpr char LOG_SEPARATOR_SEQ[] = "$\r\n";
 constexpr uint8_t LOG_MSG_MAX_SIZE   = 128;
 constexpr uint8_t LOG_QUEUE_MAX_SIZE = 16;
 
-void log_init(queue_t<char[LOG_MSG_MAX_SIZE], LOG_QUEUE_MAX_SIZE>& logQueue, const logLevel_t minLogLevel = logLevel_t::Debug);
+class Log {
+public:
+    typedef char message_t[LOG_MSG_MAX_SIZE];
 
-/* @brief Prints a debug code and a string to the console through USART.
- * Supported modifiers : %s, %c, %d, %f
- * @param level The log level.
- * @param format The string format.
- * @param args Additional parameters.
- **/
-void vprintlog(logLevel_t level, const char *format, va_list args);
+    enum class level_t : uint8_t {
+        Debug   = 0x01,
+        Info    = 0x02,
+        Warning = 0x03,
+        Error   = 0x04
+    };
 
-/* @brief Prints a debug code and a string to the console through USART.
- * Supported modifiers : %s, %c, %d, %f
- * @param level The log level.
- * @param format The string format.
- * @params Additional parameters.
- **/
-void printlog(logLevel_t level, const char *format, ...);
+    static Log instance();
+
+    void setMinLevel(const level_t minLevel);
+
+    /* @brief Prints a debug code and a string to the console through USART.
+     * Supported modifiers : %s, %c, %d, %f
+     * @param level The log level.
+     * @param format The string format.
+     * @param args Additional parameters.
+     **/
+    void vprint(level_t level, const char *format, va_list args);
+
+    /* @brief Prints a debug code and a string to the console through USART.
+     * Supported modifiers : %s, %c, %d, %f
+     * @param level The log level.
+     * @param format The string format.
+     * @params Additional parameters.
+     **/
+    void print(level_t level, const char *format, ...);
+
+    bool receive(message_t& msg);
+
+private:
+    Log() : minLevel_(level_t::Debug) {}
+
+    queue_t<message_t, LOG_QUEUE_MAX_SIZE> queue_;
+    level_t minLevel_;
+};
+
+const char* to_string(const Log::level_t& level);
 
 } // namespace micro
 
-#define LOG_DEBUG(format, ...)   micro::printlog(logLevel_t::Debug,   format, ##__VA_ARGS__)
-#define LOG_INFO(format, ...)    micro::printlog(logLevel_t::Info,    format, ##__VA_ARGS__)
-#define LOG_WARN(format, ...)    micro::printlog(logLevel_t::Warning, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...)   micro::printlog(logLevel_t::Error,   format, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...)   micro::Log::instance().print(Log::level_t::Debug,   format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)    micro::Log::instance().print(Log::level_t::Info,    format, ##__VA_ARGS__)
+#define LOG_WARN(format, ...)    micro::Log::instance().print(Log::level_t::Warning, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...)   micro::Log::instance().print(Log::level_t::Error,   format, ##__VA_ARGS__)
 
 #else
 
