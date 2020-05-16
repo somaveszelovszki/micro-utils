@@ -16,11 +16,15 @@ public:
 
     state_t(const T& value) : state_t(value, getTime()) {}
 
+    state_t(const state_t&) = default;
+
     state_t& operator=(const T& val) {
         this->value_     = val;
         this->timestamp_ = getTime();
         return *this;
     }
+
+    state_t& operator=(const state_t&) = default;
 
     void set(const T& value, const millisecond_t timestamp) {
         this->value_ = value;
