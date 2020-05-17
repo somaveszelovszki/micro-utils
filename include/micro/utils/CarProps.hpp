@@ -14,6 +14,9 @@ struct Pose {
     @note Orientation is relative to the X axis!
      **/
     radian_t angle;
+
+    bool operator==(const Pose& other) { return this->pos == other.pos && this->angle == other.angle; }
+    bool operator!=(const Pose& other) { return !(*this == other); };
 };
 
 /* @brief Car properties.
@@ -22,6 +25,18 @@ struct CarProps  {
     /* @brief Default constructor - initializes fields.
      **/
     CarProps() {}
+
+    bool operator==(const CarProps& other) {
+        return this->pose == other.pose &&
+            this->speed == other.speed &&
+            this->distance == other.distance &&
+            this->orientedDistance == other.distance &&
+            this->frontWheelAngle == other.frontWheelAngle &&
+            this->rearWheelAngle == other.rearWheelAngle &&
+            this->yawRate == other.yawRate;
+    }
+
+    bool operator!=(const CarProps& other) { return !(*this == other); }
 
     Pose pose;                // The current pose (position and orientation) of the car.
     m_per_sec_t speed;        // The current speed of the car.
