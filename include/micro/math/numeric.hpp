@@ -25,6 +25,11 @@ template <typename T, typename partial = void> struct raw_type {
     static constexpr type get(const T& value) { return value; }
 };
 
+template <typename T, typename std::enable_if<std::is_enum<T>::value, void>::type* = nullptr>
+typename std::underlying_type<T>::type enum_cast(const T& value) {
+    return static_cast<typename std::underlying_type<T>::type>(value);
+}
+
 // ---------------------------------------- Type-independent functions (same implementation for unit classes) ----------------------------------------
 
 /**
