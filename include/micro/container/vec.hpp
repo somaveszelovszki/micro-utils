@@ -260,7 +260,7 @@ public:
 
     template <typename Iter>
     bool insert(Iter begin_, Iter end_) {
-        const bool success = false;
+        bool success = false;
         if (this->size() + std::distance(begin_, end_) <= this->capacity()) {
             for (Iter it = begin_; it != end_; ++it) {
                 this->insert(*it);
