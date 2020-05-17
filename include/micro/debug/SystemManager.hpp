@@ -21,10 +21,13 @@ struct TaskStateComparator {
 
 class SystemManager {
 public:
-    typedef uint8_t systemState_t;
+    typedef uint8_t programState_t;
     typedef sorted_vec<taskState_t, 16, TaskStateComparator> taskStates_t;
 
     static SystemManager& instance();
+
+    programState_t programState() const { return this->programState_; }
+    void setProgramState(const programState_t programState) { this->programState_ = programState; }
 
     void registerTask();
 
@@ -33,13 +36,12 @@ public:
     taskStates_t failingTasks() const;
 
 private:
-    SystemManager() {}
+    SystemManager() : programState_(0) {}
 
     mutable mutex_t mutex_;
     taskStates_t taskStates_;
+    programState_t programState_;
 };
-
-void SystemManager_notify(const bool state);
 
 } // namespace micro
 
