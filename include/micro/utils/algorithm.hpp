@@ -68,11 +68,6 @@ private:
 
 template <typename T> struct is_atomic { enum { value = micro::is_base_of_template<atomic, T>::value }; };
 
-template <typename T>
-T valueOf(const atomic<T>& value) {
-    return value.get();
-}
-
 template <typename ForwardIt>
 void shift_left(ForwardIt begin, ForwardIt end) {
     for (ForwardIt it = begin; it < end; ++it) {
@@ -85,22 +80,6 @@ void shift_right(ForwardIt begin, ForwardIt end) {
     for (ForwardIt it = end; it > begin; --it) {
         *it = *std::prev(it);
     }
-}
-
-template< class Iter, class T>
-T accumulate(Iter begin, Iter end, T init) {
-    for (Iter it = begin; it < end; ++it) {
-        init += *it;
-    }
-    return init;
-}
-
-template< class Iter, class T, class Operation>
-T accumulate(Iter begin, Iter end, T init, Operation op) {
-    for (Iter it = begin; it < end; ++it) {
-        init = op(init, *it);
-    }
-    return init;
 }
 
 template <typename Iter>
