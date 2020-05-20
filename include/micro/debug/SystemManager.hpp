@@ -3,6 +3,7 @@
 #if defined OS_FREERTOS // system manager is only supported if FreeRTOS is available
 
 #include <micro/container/vec.hpp>
+#include <micro/port/mutex.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/state.hpp>
 

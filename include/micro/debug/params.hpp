@@ -3,7 +3,7 @@
 #if defined OS_FREERTOS // params interface is only supported if FreeRTOS is available
 
 #include <micro/container/vec.hpp>
-#include <micro/port/task.hpp>
+#include <micro/port/mutex.hpp>
 
 #include "serialize.hpp"
 

@@ -2,7 +2,7 @@
 
 #if defined OS_FREERTOS // logging is only supported if FreeRTOS is available
 
-#include <micro/port/task.hpp>
+#include <micro/port/queue.hpp>
 #include <micro/utils/types.hpp>
 
 #include <cstdarg>

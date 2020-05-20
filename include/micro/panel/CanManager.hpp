@@ -3,6 +3,8 @@
 #if defined STM32F4
 
 #include <micro/container/map.hpp>
+#include <micro/port/mutex.hpp>
+#include <micro/port/queue.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/timer.hpp>
 

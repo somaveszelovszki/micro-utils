@@ -3,7 +3,7 @@
 #ifdef STM32F4
 
 #include <micro/port/hal.h>
-#include <micro/port/task.hpp>
+#include <micro/port/semaphore.hpp>
 #include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
 

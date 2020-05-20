@@ -8,6 +8,7 @@
 #include <micro/utils/str_utils.hpp>
 
 #include <cstdarg>
+#include <cstring>
 
 namespace micro {
 
