@@ -20,7 +20,7 @@ public:
 
     bool lock(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
         bool success = false;
-        if (isInterrupt()) {
+        if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             success = xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -31,7 +31,7 @@ public:
     }
 
     void unlock() {
-        if (isInterrupt()) {
+        if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

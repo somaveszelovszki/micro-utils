@@ -1,13 +1,6 @@
 #pragma once
 
-#include <micro/port/hal.h>
-#include <micro/utils/units.hpp>
-
-#if defined STM32F0
-#include <stm32f0xx_hal_tim.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal_tim.h>
-#endif
+#include <micro/port/timer.hpp>
 
 namespace micro {
 namespace hw {
@@ -16,7 +9,7 @@ namespace hw {
 class Encoder {
 
 public:
-    Encoder(TIM_HandleTypeDef *htim);
+    explicit Encoder(const timer_t& timer);
 
     void update();
 
@@ -33,7 +26,7 @@ public:
     }
 
 private:
-    TIM_HandleTypeDef *htim_;
+    const timer_t timer_;
     int64_t absPos_;
     uint64_t numIncr_;
     uint32_t prevPos_;

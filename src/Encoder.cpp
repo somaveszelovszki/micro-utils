@@ -4,15 +4,17 @@
 namespace micro {
 namespace hw {
 
-Encoder::Encoder(TIM_HandleTypeDef *htim)
-    : htim_(htim)
+Encoder::Encoder(const timer_t& timer)
+    : timer_(timer)
     , absPos_(0)
     , numIncr_(0)
     , prevPos_(0)
     , lastDiff_(0) {}
 
 void Encoder::update() {
-    const uint32_t pos = __HAL_TIM_GET_COUNTER(this->htim_);
+    uint32_t pos;
+    timer_getCounter(this->timer_, pos);
+
     const uint32_t diffP = pos - this->prevPos_;
     const uint32_t diffN = this->prevPos_ - pos;
 

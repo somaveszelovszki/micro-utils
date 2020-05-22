@@ -1,36 +1,40 @@
 #pragma once
 
-#include <micro/port/hal.h>
+#include <micro/port/i2c.hpp>
 #include <micro/utils/units.hpp>
-
-#if defined STM32F0
-#include <stm32f0xx_hal_i2c.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal_i2c.h>
-#endif
 
 namespace micro {
 namespace hw {
 class VL53L1X_DistanceSensor {
-
 public:
-    VL53L1X_DistanceSensor(I2C_HandleTypeDef *hi2c, uint16_t deviceId)
-        : hi2c(hi2c)
-        , deviceId(deviceId) {}
+    VL53L1X_DistanceSensor(const i2c_t& i2c, uint16_t deviceId);
 
     void initialize();
 
-    /**
-     * Reads measured distance.
-     * @param distance [out] The measured distance
-     * @return Status::OK          if the distance has been read successfully
-     *         Status::NO_NEW_DATA if the measurement has not finished yet
-     */
-    Status readDistance(meter_t& distance);
+    meter_t readDistance();
 
 private:
-    I2C_HandleTypeDef *hi2c;
-    const uint16_t deviceId;
+    enum class distanceMode_t {
+        Unknown = 0,
+        Short   = 1,
+        Long    = 2
+    };
+
+    uint16_t readTimingBudgetMs();
+    void setTimingBudgetMs(const uint16_t budget);
+
+    distanceMode_t readDistanceMode();
+    void setDistanceMode(const distanceMode_t mode);
+
+    bool checkDataReady();
+    Status waitComm();
+    Status writeByte(const uint16_t reg, const uint8_t txData);
+    Status readByte(const uint16_t reg, uint8_t& rxData);
+    Status writeWord(const uint16_t reg, const uint16_t txData);
+    Status readWord(const uint16_t reg, uint16_t& rxData);
+
+    const i2c_t i2c_;
+    const uint16_t deviceId_;
 };
 } // namespace hw
 } // namespace micro

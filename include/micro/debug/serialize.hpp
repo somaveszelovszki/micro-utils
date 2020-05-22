@@ -101,9 +101,9 @@ inline typename std::enable_if<std::is_same<T, int32_t>::value, uint32_t>::type 
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    os_taskSuspendAll();
+    const interruptStatus_t interruptStatus = os_enterCritical();
     const int32_t val = static_cast<int32_t>(*static_cast<const int64_t*>(value));
-    os_taskResumeAll();
+    os_exitCritical(interruptStatus);
     return micro::itoa(val, stream, size);
 }
 
@@ -114,9 +114,9 @@ inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type 
     idx++; // '"'
     idx += micro::atoi(&stream[idx], &n);
     if (idx > 1) {
-        os_taskSuspendAll();
+        const interruptStatus_t interruptStatus = os_enterCritical();
         *static_cast<int64_t*>(value) = static_cast<int64_t>(n);
-        os_taskResumeAll();
+        os_exitCritical(interruptStatus);
         idx++; // '"'
     } else {
         idx = 0;
@@ -185,9 +185,9 @@ inline typename std::enable_if<std::is_same<T, uint32_t>::value, uint32_t>::type
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, uint64_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    os_taskSuspendAll();
+    const interruptStatus_t interruptStatus = os_enterCritical();
     const int32_t val = static_cast<int32_t>(*static_cast<const uint64_t*>(value));
-    os_taskResumeAll();
+    os_exitCritical(interruptStatus);
     return micro::itoa(val, stream, size);
 }
 
@@ -227,9 +227,9 @@ inline typename std::enable_if<std::is_same<T, float>::value, uint32_t>::type de
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    os_taskSuspendAll();
+    const interruptStatus_t interruptStatus = os_enterCritical();
     const float val = static_cast<float>(*static_cast<const double*>(value));
-    os_taskResumeAll();
+    os_exitCritical(interruptStatus);
     return micro::ftoa(val, stream, size);
 }
 
@@ -250,9 +250,9 @@ inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type d
 
 template <typename T>
 inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    os_taskSuspendAll();
+    const interruptStatus_t interruptStatus = os_enterCritical();
     const CarProps car = *static_cast<const CarProps*>(value);
-    os_taskResumeAll();
+    os_exitCritical(interruptStatus);
 
     return sprint(stream, size,
         "{"
@@ -306,9 +306,9 @@ inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type
 
     idx += strlen("}");
 
-    os_taskSuspendAll();
+    const interruptStatus_t interruptStatus = os_enterCritical();
     *static_cast<CarProps*>(value) = car;
-    os_taskResumeAll();
+    os_exitCritical(interruptStatus);
 
     return idx;
 }

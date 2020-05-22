@@ -1,8 +1,7 @@
 #pragma once
 
+#include <micro/utils/traits.hpp>
 #include <micro/utils/types.hpp>
-
-#include <limits>
 
 namespace micro {
 

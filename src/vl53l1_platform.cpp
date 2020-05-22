@@ -35,75 +35,78 @@
 
 
 #include <micro/hw/vl53l1_platform.h>
+#include <micro/hw/vl53l1_platform.hpp>
 #include <micro/hw/vl53l1_error_codes.h>
-#include <micro/port/hal.h>
-//#include "cfg_board.h"
+#include <micro/port/task.hpp>
+#include <micro/port/timer.hpp>
 
-#if defined STM32F0
-#include <stm32f0xx_hal_i2c.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal_i2c.h>
-#endif
+#include <cstring>
 
-#include <stdbool.h>
-#include <string.h>
-#include <time.h>
-#include <math.h>
+using namespace micro;
 
-//#include <FreeRTOS.h>
-//#include <task.h>
-
-#define I2C_TIMEOUT_MS 5
-
-static uint8_t _I2CBuffer[256];
+namespace {
 
 #define VL53L1_GetI2cBus() ((void)0)
 #define VL53L1_PutI2cBus() ((void)0)
 
-static HAL_StatusTypeDef _waitI2C(void) {
-    static const uint8_t MAX_TIMEOUT_MS = 10;
-    uint8_t msCntr = 0;
-//    while (i2c_Dist->State != HAL_I2C_STATE_READY && msCntr++ < MAX_TIMEOUT_MS) {
-//        vTaskDelay(1);
-//    }
-    return msCntr < MAX_TIMEOUT_MS ? HAL_OK : HAL_BUSY;
+#if defined STM32
+i2c_t i2c_dist = { nullptr };
+#else // !STM32
+i2c_t i2c_dist = {};
+#endif // !STM32
+
+uint8_t _I2CBuffer[256];
+
+int _waitI2C(void) {
+    static constexpr millisecond_t MAX_TIMEOUT = millisecond_t(10);
+
+    const millisecond_t waitStartTime = getTime();
+    bool timeout = false;
+    while (i2c_dist.handle->State != HAL_I2C_STATE_READY && !(timeout = getTime() - waitStartTime >= MAX_TIMEOUT)) {
+        os_sleep(1);
+    }
+    return timeout ? -1 : 0;
 }
 
-static int _I2CWrite(uint16_t Dev, uint8_t *pdata, uint32_t count) {
+int _I2CWrite(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     int status;
 
     status = _waitI2C();
     if (HAL_OK == status) {
-//        status = HAL_I2C_Master_Transmit_IT(i2c_Dist, Dev, pdata, count);
-        if (status) {
-            //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
-            //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
-        } else {
-            _waitI2C();
+        status = isOk(i2c_masterTransmit(i2c_dist, Dev, pdata, count)) ? 0 : -1;
+        if (!status) {
+            status = _waitI2C();
         }
     }
     return status;
 }
 
-static int _I2CRead(uint16_t Dev, uint8_t *pdata, uint32_t count) {
+int _I2CRead(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     int status;
 
     status = _waitI2C();
     if (HAL_OK == status) {
-//        status = HAL_I2C_Master_Receive_IT(i2c_Dist, Dev|1, pdata, count);
-        if (status) {
-            //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
-            //XNUCLEO6180XA1_I2C1_Init(&hi2c1);
-        } else {
-            _waitI2C();
+        status = isOk(i2c_masterReceive(i2c_dist, Dev | 0x0001, pdata, count)) ? 0 : -1;
+        if (!status) {
+            status = _waitI2C();
         }
     }
     return status;
 }
 
-void VL53L1_I2C_RxCpltCallback(void) {}
+} // namespace
 
-int8_t VL53L1_WriteMulti(uint16_t Dev, uint16_t index, uint8_t *pdata, uint32_t count) {
+namespace micro {
+namespace hw {
+
+void VL53L1_setI2C(const i2c_t& i2c) {
+    i2c_dist = i2c;
+}
+
+} // namespace hw
+} // namespace micro
+
+extern "C" int8_t VL53L1_WriteMulti(uint16_t Dev, uint16_t index, uint8_t *pdata, uint32_t count) {
     int status_int;
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     if (count > sizeof(_I2CBuffer) - 1) {
@@ -122,7 +125,7 @@ int8_t VL53L1_WriteMulti(uint16_t Dev, uint16_t index, uint8_t *pdata, uint32_t 
 }
 
 // the ranging_sensor_comms.dll will take care of the page selection
-int8_t VL53L1_ReadMulti(uint16_t Dev, uint16_t index, uint8_t *pdata, uint32_t count) {
+extern "C" int8_t VL53L1_ReadMulti(uint16_t Dev, uint16_t index, uint8_t *pdata, uint32_t count) {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     int32_t status_int;
 
@@ -143,7 +146,7 @@ done:
     return Status;
 }
 
-VL53L1_Error VL53L1_WrByte(uint16_t Dev, uint16_t index, uint8_t data) {
+extern "C" VL53L1_Error VL53L1_WrByte(uint16_t Dev, uint16_t index, uint8_t data) {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     int32_t status_int;
 
@@ -160,7 +163,7 @@ VL53L1_Error VL53L1_WrByte(uint16_t Dev, uint16_t index, uint8_t data) {
     return Status;
 }
 
-VL53L1_Error VL53L1_WrWord(uint16_t Dev, uint16_t index, uint16_t data) {
+extern "C" VL53L1_Error VL53L1_WrWord(uint16_t Dev, uint16_t index, uint16_t data) {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     int32_t status_int;
 
@@ -178,7 +181,7 @@ VL53L1_Error VL53L1_WrWord(uint16_t Dev, uint16_t index, uint16_t data) {
     return Status;
 }
 
-VL53L1_Error VL53L1_WrDWord(uint16_t Dev, uint16_t index, uint32_t data) {
+extern "C" VL53L1_Error VL53L1_WrDWord(uint16_t Dev, uint16_t index, uint32_t data) {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     int32_t status_int;
     _I2CBuffer[0] = index>>8;
@@ -196,7 +199,7 @@ VL53L1_Error VL53L1_WrDWord(uint16_t Dev, uint16_t index, uint32_t data) {
     return Status;
 }
 
-VL53L1_Error VL53L1_RdByte(uint16_t Dev, uint16_t index, uint8_t *data) {
+extern "C" VL53L1_Error VL53L1_RdByte(uint16_t Dev, uint16_t index, uint8_t *data) {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     int32_t status_int;
 
@@ -218,7 +221,7 @@ done:
     return Status;
 }
 
-VL53L1_Error VL53L1_RdWord(uint16_t Dev, uint16_t index, uint16_t *data) {
+extern "C" VL53L1_Error VL53L1_RdWord(uint16_t Dev, uint16_t index, uint16_t *data) {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     int32_t status_int;
 
@@ -243,7 +246,7 @@ done:
     return Status;
 }
 
-VL53L1_Error VL53L1_RdDWord(uint16_t Dev, uint16_t index, uint32_t *data) {
+extern "C" VL53L1_Error VL53L1_RdDWord(uint16_t Dev, uint16_t index, uint32_t *data) {
     VL53L1_Error Status = VL53L1_ERROR_NONE;
     int32_t status_int;
 
@@ -268,8 +271,8 @@ done:
     return Status;
 }
 
-VL53L1_Error VL53L1_WaitMs(uint16_t dev, int32_t wait_ms){
+extern "C" VL53L1_Error VL53L1_WaitMs(uint16_t dev, int32_t wait_ms){
 	(void)dev;
-//	os_delay(wait_ms);
+ 	os_sleep(wait_ms);
     return VL53L1_ERROR_NONE;
 }

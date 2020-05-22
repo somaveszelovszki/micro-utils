@@ -7,6 +7,9 @@
 #include <micro/port/task.hpp>
 #include <micro/utils/state.hpp>
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 namespace micro {
 
 struct taskState_t {

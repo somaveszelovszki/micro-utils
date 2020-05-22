@@ -26,9 +26,8 @@ CanManager::filters_t CanFrameHandler::identifiers() const {
     return ids;
 }
 
-CanManager::CanManager(CAN_HandleTypeDef * const hcan, const uint32_t rxFifo, const millisecond_t rxTimeout)
-    : hcan_(hcan)
-    , rxFifo_(rxFifo)
+CanManager::CanManager(const can_t& can, const millisecond_t rxTimeout)
+    : can_(can)
     , rxWatchdog_(rxTimeout) {}
 
 CanManager::subscriberId_t CanManager::registerSubscriber(const filters_t& rxFilters) {
@@ -47,7 +46,7 @@ bool CanManager::read(const subscriberId_t subscriberId, canFrame_t& frame) {
 void CanManager::onFrameReceived() {
     std::lock_guard<mutex_t> lock(this->mutex_);
     canFrame_t rxFrame;
-    if (HAL_OK == HAL_CAN_GetRxMessage(this->hcan_, this->rxFifo_, &rxFrame.header.rx, rxFrame.data)) {
+    if (isOk(can_receive(this->can_, rxFrame))) {
         this->rxWatchdog_.reset();
 
         for (subscriber_t& sub : this->subscribers_) {

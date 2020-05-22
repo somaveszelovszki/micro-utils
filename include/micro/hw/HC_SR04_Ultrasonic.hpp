@@ -1,13 +1,8 @@
 #pragma once
 
-#include <micro/port/hal.h>
+#include <micro/port/gpio.hpp>
+#include <micro/port/semaphore.hpp>
 #include <micro/utils/units.hpp>
-
-#if defined STM32F0
-#include <stm32f0xx_hal_gpio.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal_gpio.h>
-#endif
 
 namespace micro {
 namespace hw {
@@ -15,27 +10,20 @@ namespace hw {
 class HC_SR04_Ultrasonic {
 
 public:
-    HC_SR04_Ultrasonic(GPIO_TypeDef *gpio_trigger, uint16_t gpioPin_trigger, GPIO_TypeDef *gpio_echo, uint16_t gpioPin_echo);
+    HC_SR04_Ultrasonic(const gpio_t& gpio_trigger, const gpio_t& gpio_echo);
 
     void initialize();
 
-    void startMeasurement();
+    meter_t readDistance();
 
     void onEchoReceived();
 
-    centimeter_t getDistance() const {
-        return this->distance;
-    }
-
 private:
-    GPIO_TypeDef *gpio_trigger;
-    uint16_t gpioPin_trigger;
-    GPIO_TypeDef *gpio_echo;
-    uint16_t gpioPin_echo;
+    const gpio_t gpio_trigger_;
+    const gpio_t gpio_echo_;
 
-    microsecond_t lastStartTime;
-    bool busy;
-    centimeter_t distance;
+    semaphore_t echoSemaphore_;
+    microsecond_t echoTime_;
 };
 
 } // namespace hw

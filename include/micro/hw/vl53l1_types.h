@@ -45,9 +45,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdint.h>
 #include <stddef.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #ifndef NULL
 #error "Error NULL definition should be done. Please add required include "
@@ -104,11 +101,5 @@ typedef signed char int8_t;
 
 /** @}  */
 #endif /* _STDINT_H */
-
-
-/** use where fractional values are expected
- *
- * Given a floating point value f it's .16 bit point is (int)(f*(1<<16))*/
-typedef uint32_t FixPoint1616_t;
 
 #endif /* VL53L1_TYPES_H_ */

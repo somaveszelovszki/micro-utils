@@ -1,13 +1,7 @@
 #pragma once
 
-#include <micro/port/hal.h>
+#include <micro/port/timer.hpp>
 #include <micro/utils/units.hpp>
-
-#if defined STM32F0
-#include <stm32f0xx_hal_tim.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal_tim.h>
-#endif
 
 namespace micro {
 namespace hw {
@@ -16,12 +10,12 @@ namespace hw {
 class DC_Motor {
 
 public:
-    DC_Motor(TIM_HandleTypeDef *htim, const uint32_t chnl1, const uint32_t chnl2, const float maxDuty);
+    DC_Motor(const timer_t& timer, const uint32_t chnl1, const uint32_t chnl2, const float maxDuty);
 
-    void write(float duty);
+    void write(const float duty);
 
 private:
-    TIM_HandleTypeDef *htim_;
+    const timer_t timer_;
     const uint32_t chnl1_;
     const uint32_t chnl2_;
     const float maxDuty_;

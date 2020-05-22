@@ -28,7 +28,7 @@ public:
     }
 
     void overwrite(const T& value) {
-        if (isInterrupt()) {
+        if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             xQueueOverwriteFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -38,7 +38,7 @@ public:
     }
 
     void send(const T& value, const millisecond_t timeout) {
-        if (isInterrupt()) {
+        if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             xQueueSendFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

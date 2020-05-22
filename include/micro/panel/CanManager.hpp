@@ -3,6 +3,7 @@
 #if defined STM32F4
 
 #include <micro/container/map.hpp>
+#include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/queue.hpp>
 #include <micro/port/task.hpp>
@@ -10,28 +11,17 @@
 
 #include "vehicleCanTypes.hpp"
 
-#include <stm32f4xx_hal.h>
-#include <stm32f4xx_hal_can.h>
-
+#include <cstring>
 #include <functional>
 
 namespace micro {
-
-struct canFrame_t {
-    typedef uint16_t id_t;
-    union {
-        CAN_RxHeaderTypeDef rx;
-        CAN_TxHeaderTypeDef tx;
-    } header;
-    alignas(8) uint8_t data[8];
-};
 
 class CanManager {
 public:
     typedef sorted_vec<uint16_t, 16> filters_t;
     typedef uint8_t subscriberId_t;
 
-    explicit CanManager(CAN_HandleTypeDef * const hcan, const uint32_t rxFifo, const millisecond_t rxTimeout);
+    CanManager(const can_t& can, const millisecond_t rxTimeout);
 
     subscriberId_t registerSubscriber(const filters_t& rxFilters);
 
@@ -39,9 +29,10 @@ public:
 
     template <typename T>
     void send(const T& data) {
-        CAN_TxHeaderTypeDef txHeader = can::buildHeader<T>();
-        uint32_t txMailbox = 0;
-        HAL_CAN_AddTxMessage(this->hcan_, &txHeader, const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(&data)), &txMailbox);
+        canFrame_t frame;
+        frame.header.tx = can::buildHeader<T>();
+        memcpy(frame.data, reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+        can_transmit(this->can_, frame);
     }
 
     bool hasRxTimedOut() const {
@@ -57,8 +48,7 @@ private:
     };
 
     mutable mutex_t mutex_;
-    CAN_HandleTypeDef * const hcan_;
-    const uint32_t rxFifo_;
+    can_t can_;
     WatchdogTimer rxWatchdog_;
     vec<subscriber_t, 4> subscribers_;
 };

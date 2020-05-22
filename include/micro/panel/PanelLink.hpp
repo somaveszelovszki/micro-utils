@@ -1,14 +1,8 @@
 #pragma once
 
-#include <micro/port/hal.h>
 #include <micro/utils/timer.hpp>
 #include <micro/port/task.hpp>
-
-#if defined STM32F0
-#include <stm32f0xx_hal_uart.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal_uart.h>
-#endif
+#include <micro/port/uart.hpp>
 
 namespace micro {
 
@@ -45,7 +39,7 @@ public:
     static_assert(std::is_base_of<PanelLinkData, T_rx>::value, "T_rx must be a descendant of PanelLinkData");
     static_assert(std::is_base_of<PanelLinkData, T_tx>::value, "T_tx must be a descendant of PanelLinkData");
 
-    PanelLink(panelLinkRole_t role, UART_HandleTypeDef *huart);
+    PanelLink(panelLinkRole_t role, const uart_t& uart);
 
     bool isConnected() const;
 
@@ -68,21 +62,21 @@ private:
 
     state_t state_;
     panelLinkRole_t role_;
-    UART_HandleTypeDef *huart_;
+    const uart_t uart_;
     T_rx rxData_;
     T_rx rxAccessibleData_;
-    microsecond_t lastRxTime_;
+    millisecond_t lastRxTime_;
     T_tx txData_;
-    microsecond_t lastTxTime_;
+    millisecond_t lastTxTime_;
     bool isAvailable_;
     PanelLinkData startData_;
 };
 
 template <typename T_rx, typename T_tx>
-PanelLink<T_rx, T_tx>::PanelLink(panelLinkRole_t role, UART_HandleTypeDef *huart)
+PanelLink<T_rx, T_tx>::PanelLink(panelLinkRole_t role, const uart_t& uart)
     : state_(state_t::Disconnected)
     , role_(role)
-    , huart_(huart)
+    , uart_(uart)
     , isAvailable_(false) {}
 
 template <typename T_rx, typename T_tx>
@@ -100,17 +94,17 @@ void PanelLink<T_rx, T_tx>::send(const T_tx& txData) {
     if (this->isConnected()) {
         this->txData_ = txData;
         calcChecksum(this->txData_);
-        HAL_UART_Transmit_DMA(this->huart_, (uint8_t*)&this->txData_, sizeof(this->txData_));
-        this->lastTxTime_ = getExactTime();
+        uart_transmit(this->uart_, (uint8_t*)&this->txData_, sizeof(this->txData_));
+        this->lastTxTime_ = getTime();
     }
 }
 
 template <typename T_rx, typename T_tx>
 void PanelLink<T_rx, T_tx>::onNewRxData() {
-    if (reinterpret_cast<uint8_t*>(&this->startData_) == this->huart_->pRxBuffPtr ? isChecksumOk(this->startData_) : isChecksumOk(this->rxData_)) {
+    if (reinterpret_cast<uint8_t*>(&this->startData_) == this->uart_.handle->pRxBuffPtr ? isChecksumOk(this->startData_) : isChecksumOk(this->rxData_)) {
         this->rxAccessibleData_ = this->rxData_;
         this->isAvailable_ = true;
-        this->lastRxTime_ = getExactTime();
+        this->lastRxTime_ = getTime();
     }
 }
 
@@ -118,10 +112,10 @@ template <typename T_rx, typename T_tx>
 bool PanelLink<T_rx, T_tx>::readAvailable(T_rx& rxData) {
     bool available = false;
     if (this->isConnected() && this->isAvailable_) {
-        os_enterCritical();
+        const interruptStatus_t interruptStatus = os_enterCritical();
         rxData = this->rxAccessibleData_;
         this->isAvailable_ = false;
-        os_exitCritical();
+        os_exitCritical(interruptStatus);
         available = true;
     }
     return available;
@@ -133,15 +127,15 @@ void PanelLink<T_rx, T_tx>::update() {
 
     case state_t::Disconnected:
         this->isAvailable_ = false;
-        this->lastRxTime_ = this->lastTxTime_ = getExactTime();
+        this->lastRxTime_ = this->lastTxTime_ = getTime();
 
         if (panelLinkRole_t::Master == this->role_) {
-            HAL_UART_Receive_DMA(this->huart_, reinterpret_cast<uint8_t*>(&this->rxData_), sizeof(T_rx));
+            uart_receive(this->uart_, reinterpret_cast<uint8_t*>(&this->rxData_), sizeof(T_rx));
             calcChecksum(this->startData_);
-            HAL_UART_Transmit_DMA(this->huart_, reinterpret_cast<uint8_t*>(&this->startData_), sizeof(PanelLinkData));
+            uart_transmit(this->uart_, reinterpret_cast<uint8_t*>(&this->startData_), sizeof(PanelLinkData));
         } else { // Slave
             this->startData_.checksum = 0;
-            HAL_UART_Receive_DMA(this->huart_, reinterpret_cast<uint8_t*>(&this->startData_), sizeof(PanelLinkData));
+            uart_receive(this->uart_, reinterpret_cast<uint8_t*>(&this->startData_), sizeof(PanelLinkData));
         }
         this->state_ = state_t::WaitingData;
         break;
@@ -152,20 +146,20 @@ void PanelLink<T_rx, T_tx>::update() {
                 this->state_ = state_t::Connected;
             } else { // Slave
                 this->isAvailable_ = false;
-                HAL_UART_AbortReceive_IT(this->huart_);
-                HAL_UART_Receive_DMA(this->huart_, reinterpret_cast<uint8_t*>(&this->rxData_), sizeof(T_rx));
-                this->lastTxTime_ = microsecond_t(0); // forces response to be sent as soon as possible
+                uart_stopReceive(this->uart_);
+                uart_receive(this->uart_, reinterpret_cast<uint8_t*>(&this->rxData_), sizeof(T_rx));
+                this->lastTxTime_ = millisecond_t(0); // forces response to be sent as soon as possible
                 this->state_ = state_t::Connected;
             }
-        } else if (getExactTime() - this->lastRxTime_ > T_rx::timeout()) {
-            HAL_UART_AbortReceive_IT(this->huart_);
+        } else if (getTime() - this->lastRxTime_ > T_rx::timeout()) {
+            uart_stopReceive(this->uart_);
             this->state_ = state_t::Disconnected;
         }
         break;
 
     case state_t::Connected:
-        if (getExactTime() - this->lastRxTime_ > T_rx::timeout()) {
-            HAL_UART_AbortReceive_IT(this->huart_);
+        if (getTime() - this->lastRxTime_ > T_rx::timeout()) {
+            uart_stopReceive(this->uart_);
             this->state_ = state_t::Disconnected;
         }
         break;

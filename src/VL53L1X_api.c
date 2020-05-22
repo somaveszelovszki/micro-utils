@@ -68,8 +68,6 @@
 extern "C" {
 #endif // __cplusplus
 
-#include <string.h>
-
 const uint8_t VL51L1X_DEFAULT_CONFIGURATION[] = {
 0x00, /* 0x2d : set bit 2 and 5 to 1 for fast plus mode (1MHz I2C), else don't touch */
 0x00, /* 0x2e : bit 0 if I2C pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
@@ -199,7 +197,7 @@ VL53L1X_ERROR VL53L1X_SensorInit(uint16_t dev)
 	status = VL53L1X_StartRanging(dev);
 	tmp  = 0;
 	while(tmp==0){
-			status = VL53L1X_CheckForDataReady(dev, &tmp);
+        status = VL53L1X_CheckForDataReady(dev, &tmp);
 	}
 	status = VL53L1X_ClearInterrupt(dev);
 	status = VL53L1X_StopRanging(dev);

@@ -1,18 +1,12 @@
 #pragma once
 
 #include <micro/hw/lsm6dso_reg.h>
-#include <micro/port/hal.h>
+#include <micro/port/gpio.hpp>
+#include <micro/port/i2c.hpp>
+#include <micro/port/semaphore.hpp>
+#include <micro/port/spi.hpp>
 #include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
-
-#if defined STM32F0
-#include <stm32f0xx_hal_gpio.h>
-#include <stm32f0xx_hal_i2c.h>
-#elif defined STM32F4
-#include <stm32f4xx_hal_gpio.h>
-#include <stm32f4xx_hal_i2c.h>
-#include <stm32f4xx_hal_spi.h>
-#endif
 
 namespace micro {
 namespace hw {
@@ -20,30 +14,27 @@ class LSM6DSO_Gyroscope {
 
 public:
     struct handle_t {
-        I2C_HandleTypeDef *hi2c;
-#ifdef STM32F4
-        SPI_HandleTypeDef *hspi;
-#else
-        void *hspi;
-#endif
-        GPIO_TypeDef* csGpio;
-        uint16_t csGpioPin;
+        const i2c_t i2c;
+        const spi_t spi;
+        const gpio_t cs;
+        semaphore_t commSemaphore;
     };
 
-    LSM6DSO_Gyroscope(I2C_HandleTypeDef *hi2c);
+    explicit LSM6DSO_Gyroscope(const i2c_t& i2c);
 
-#ifdef STM32F4
-    LSM6DSO_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef *csGpio, uint16_t csGpioPin);
-#endif
+    LSM6DSO_Gyroscope(const spi_t& spi, const gpio_t& cs);
 
     Status initialize();
 
     point3<rad_per_sec_t> readGyroData();
 
-private:
+    void onCommFinished();
 
-    handle_t handle;
-    stmdev_ctx_t dev_ctx;
+private:
+    LSM6DSO_Gyroscope(const i2c_t& i2c, const spi_t& spi, const gpio_t& cs);
+
+    handle_t handle_;
+    stmdev_ctx_t dev_ctx_;
 };
 } // namespace hw
 } // namespace micro

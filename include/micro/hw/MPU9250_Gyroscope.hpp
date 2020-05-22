@@ -2,8 +2,10 @@
 
 #ifdef STM32F4
 
-#include <micro/port/hal.h>
+#include <micro/port/gpio.hpp>
+#include <micro/port/i2c.hpp>
 #include <micro/port/semaphore.hpp>
+#include <micro/port/spi.hpp>
 #include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
 
@@ -35,14 +37,22 @@ enum class Mscale : uint8_t {
 #define MMODE_ODR_8Hz   0x02
 #define MMODE_ODR_100Hz 0x06
 
+#if defined STM32
+#define I2C_DEFAULT  { nullptr }
+#define SPI_DEFAULT  { nullptr }
+#define GPIO_DEFAULT { nullptr, 0 }
+#else // !STM32
+#define I2C_DEFAULT  {}
+#define SPI_DEFAULT  {}
+#define GPIO_DEFAULT {}
+#endif // !STM32
+
 class MPU9250_Gyroscope {
 public:
 
-    MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
+    MPU9250_Gyroscope(const i2c_t& i2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
 
-#ifdef STM32F4
-    MPU9250_Gyroscope(SPI_HandleTypeDef *hspi, GPIO_TypeDef *csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
-#endif
+    MPU9250_Gyroscope(const spi_t& spi, const gpio_t& gpio, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
 
     point3<rad_per_sec_t> gyroMeanError() const {
         return this->gyroMeanError_;
@@ -58,7 +68,7 @@ public:
     void onCommFinished();
 
 private:
-    MPU9250_Gyroscope(I2C_HandleTypeDef *hi2c, SPI_HandleTypeDef *hspi, GPIO_TypeDef* csGpio, uint16_t csGpioPin, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
+    MPU9250_Gyroscope(const i2c_t& i2c, const spi_t& spi, const gpio_t& cs, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
 
     bool waitComm();
 
@@ -81,14 +91,10 @@ private:
     static point3<int16_t> bufferToRaw(const uint8_t rawData[6]);
 
     struct handle_t {
-        I2C_HandleTypeDef *hi2c;
-#ifdef STM32F4
-        SPI_HandleTypeDef *hspi;
-#else
-        void *hspi;
-#endif
-        GPIO_TypeDef* csGpio;
-        uint16_t csGpioPin;
+        const i2c_t i2c;
+        const spi_t spi;
+        const gpio_t cs;
+        semaphore_t commSemaphore;
     };
 
     handle_t handle;
@@ -105,8 +111,6 @@ private:
     point3f gyroThreshold;
     point3f accelBias;
     point3<rad_per_sec_t> gyroMeanError_;
-
-    semaphore_t commSemaphore;
 };
 
 } // namespace hw

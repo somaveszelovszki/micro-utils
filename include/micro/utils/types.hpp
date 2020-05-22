@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
-#include <type_traits>
 
 namespace micro {
 
@@ -87,22 +85,5 @@ inline T operator*(Sign sign, const T& value) {
 }
 
 const char* to_string(const Sign& sign);
-
-template < template <typename...> class base,typename derived>
-struct is_base_of_template_impl
-{
-    template<typename... Ts>
-    static constexpr std::true_type  test(const base<Ts...> *);
-    static constexpr std::false_type test(...);
-    using type = decltype(test(std::declval<derived*>()));
-};
-
-template < template <typename...> class base,typename derived>
-using is_base_of_template = typename is_base_of_template_impl<base,derived>::type;
-
-template <typename T>
-T getValue(const T& value) {
-    return value;
-}
 
 } // namespace micro
