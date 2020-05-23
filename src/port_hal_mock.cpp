@@ -24,9 +24,8 @@ Status gpio_toggle(const gpio_t&) { return Status::OK; }
 
 Status i2c_masterReceive(const i2c_t&, const uint16_t, uint8_t * const, const uint32_t) { return Status::OK; }
 Status i2c_masterTransmit(const i2c_t&, const uint16_t, const uint8_t * const, const uint32_t) { return Status::OK; }
-Status i2c_memoryRead(const i2c_t&, const uint16_t, const uint16_t, const uint8_t, uint8_t * const, const uint32_t) { return Status::OK; }
-Status i2c_memoryWrite(const i2c_t&, const uint16_t, const uint16_t, const uint8_t, const uint8_t * const, const uint32_t) { return Status::OK; }
-
+Status i2c_memoryRead(const i2c_t&, const uint16_t, const uint8_t, const uint16_t, uint8_t * const, const uint32_t) { return Status::OK; }
+Status i2c_memoryWrite(const i2c_t&, const uint16_t, const uint8_t, const uint16_t, const uint8_t * const, const uint32_t) { return Status::OK; }
 // SPI
 
 Status spi_exchange(const spi_t&, const uint8_t * const, uint8_t * const, const uint32_t) { return Status::OK; }

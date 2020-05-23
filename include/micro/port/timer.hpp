@@ -20,7 +20,7 @@ struct timer_t {
 
 #else // !STM32
 
-struct uart_t {};
+struct timer_t {};
 
 #endif // !STM32
 

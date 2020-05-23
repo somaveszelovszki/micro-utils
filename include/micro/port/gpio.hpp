@@ -12,10 +12,18 @@
 
 namespace micro {
 
+#if defined STM32
+
 struct gpio_t {
-    GPIO_TypeDef *instance; // TODO GPIO_TypeDef*
+    GPIO_TypeDef *instance;
     uint16_t pin;
 };
+
+#else // !STM32
+
+struct gpio_t {};
+
+#endif // !STM32
 
 enum class gpioPinState_t : uint8_t {
     RESET = 0,

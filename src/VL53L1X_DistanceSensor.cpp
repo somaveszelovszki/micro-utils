@@ -344,11 +344,15 @@ bool VL53L1X_DistanceSensor::checkDataReady() {
 Status VL53L1X_DistanceSensor::waitComm() {
     static constexpr millisecond_t MAX_TIMEOUT = millisecond_t(10);
 
-    const millisecond_t waitStartTime = getTime();
     bool timeout = false;
+
+#if defined STM32
+    const millisecond_t waitStartTime = getTime();
     while (this->i2c_.handle->State != HAL_I2C_STATE_READY && !(timeout = getTime() - waitStartTime >= MAX_TIMEOUT)) {
         os_sleep(1);
     }
+#endif // STM32
+
     return timeout ? Status::TIMEOUT : Status::OK;
 }
 
