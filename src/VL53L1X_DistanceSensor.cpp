@@ -184,10 +184,7 @@ void VL53L1X_DistanceSensor::initialize() {
 
 meter_t VL53L1X_DistanceSensor::readDistance() {
 
-    static constexpr meter_t MAX_DIST = meter_t(2);
-
     meter_t distance = micro::numeric_limits<meter_t>::infinity();
-
     if (this->checkDataReady()) {
         uint16_t dist_mm = 0;
         this->readWord(VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0, dist_mm);
