@@ -17,7 +17,7 @@ constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
 constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
 constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
 
-Log Log::instance() {
+Log& Log::instance() {
     static Log instance_;
     return instance_;
 }

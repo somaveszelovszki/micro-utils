@@ -38,7 +38,7 @@ constexpr bool ParamNameComparator::operator()(const char * const name, const Pa
     return strncmp(name, param.name, STR_MAX_LEN_PARAM_NAME) < 0;
 }
 
-Params Params::instance() {
+Params& Params::instance() {
     static Params instance_;
     return instance_;
 }

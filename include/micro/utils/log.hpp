@@ -26,7 +26,7 @@ public:
         Error   = 0x04
     };
 
-    static Log instance();
+    static Log& instance();
 
     void setMinLevel(const level_t minLevel);
 

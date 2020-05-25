@@ -44,7 +44,7 @@ struct ParamNameComparator {
 
 class Params {
 public:
-    static Params instance();
+    static Params& instance();
 
     template <typename T>
     void registerParam(const char *name, T& value, const Param::permission_t permission) {
