@@ -3,9 +3,6 @@
 #include <micro/debug/SystemManager.hpp>
 #include <micro/utils/log.hpp>
 
-#include <FreeRTOS.h>
-#include <task.h>
-
 #include <mutex>
 
 extern void *pxCurrentTCB;
