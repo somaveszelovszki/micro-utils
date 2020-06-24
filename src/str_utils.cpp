@@ -19,7 +19,7 @@ uint32_t atoi(const char * const s, int32_t *pResult) {
 
     if (len > 0) {
         bool neg = s[0] == '-';
-        if (neg) {
+        if (neg || s[0] == '+') {
             idx = 1;
         }
         *pResult = 0;
@@ -47,7 +47,7 @@ uint32_t atof(const char * const s, float *pResult) {
 
     uint32_t idx = 0;
     bool neg = s[0] == '-';
-    if (neg) {
+    if (neg || s[0] == '+') {
         idx = 1;
     }
 
