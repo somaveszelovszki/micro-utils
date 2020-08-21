@@ -26,16 +26,20 @@ Param::Param(const char *name, const permission_t permission, uint8_t *buf, uint
     strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_PARAM_NAME);
 }
 
-constexpr bool ParamNameComparator::operator()(const Param& a, const Param& b) const {
-    return strncmp(a.name, b.name, STR_MAX_LEN_PARAM_NAME) < 0;
+bool ParamNameComparator::operator()(const char * const a, const char * const b) const {
+    return strncmp(a, b, STR_MAX_LEN_PARAM_NAME) < 0;
 }
 
-constexpr bool ParamNameComparator::operator()(const Param& param, const char * const name) const {
-    return strncmp(param.name, name, STR_MAX_LEN_PARAM_NAME) < 0;
+bool ParamNameComparator::operator()(const Param& a, const Param& b) const {
+    return (*this)(a.name, b.name);
 }
 
-constexpr bool ParamNameComparator::operator()(const char * const name, const Param& param) const {
-    return strncmp(name, param.name, STR_MAX_LEN_PARAM_NAME) < 0;
+bool ParamNameComparator::operator()(const Param& param, const char * const name) const {
+    return (*this)(param.name, name);
+}
+
+bool ParamNameComparator::operator()(const char * const name, const Param& param) const {
+    return (*this)(name, param.name);
 }
 
 Params& Params::instance() {

@@ -37,9 +37,10 @@ struct Param {
 };
 
 struct ParamNameComparator {
-    constexpr bool operator()(const Param& a, const Param& b) const;
-    constexpr bool operator()(const Param& param, const char * const name) const;
-    constexpr bool operator()(const char * const name, const Param& param) const;
+    bool operator()(const char * const a, const char * const b) const;
+    bool operator()(const Param& a, const Param& b) const;
+    bool operator()(const Param& param, const char * const name) const;
+    bool operator()(const char * const name, const Param& param) const;
 };
 
 class Params {
@@ -54,8 +55,8 @@ public:
             permission,
             reinterpret_cast<uint8_t*>(&value),
             sizeof(T),
-            micro::serialize<T>,
-            micro::deserialize<T>
+            micro::Serializer<T>::serialize,
+            micro::Serializer<T>::deserialize
         ));
     }
 

@@ -13,314 +13,177 @@ namespace micro {
 typedef uint32_t (*serialize_func)(char * const, const uint32_t size, const void * const);
 typedef uint32_t (*deserialize_func)(const char * const, void * const);
 
-template <typename T>
-inline typename std::enable_if<std::is_same<T, bool>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    uint32_t result = 0;
-    if (value) {
-        strncpy(stream, "true", size);
-        result = 4;
-    } else {
-        strncpy(stream, "false", size);
-        result = 5;
+template <typename T, typename partial = void> struct Serializer {};
+
+template <>
+struct Serializer<bool> {
+    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
+        uint32_t result = 0;
+        if (value) {
+            strncpy(stream, "true", size);
+            result = 4;
+        } else {
+            strncpy(stream, "false", size);
+            result = 5;
+        }
+        return result;
     }
-    return result;
-}
 
-template <typename T>
-inline typename std::enable_if<std::is_same<T, bool>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    uint32_t result = 0;
-    if (!strncmp(stream, "true", 4)) {
-        *static_cast<bool*>(value) = true;
-        result = 4;
-    } else if (!strncmp(stream, "false", 5)) {
-        *static_cast<bool*>(value) = false;
-        result = 5;
+    static uint32_t deserialize(const char * const stream, void * const value) {
+        uint32_t result = 0;
+        if (!strncmp(stream, "true", 4)) {
+            *static_cast<bool*>(value) = true;
+            result = 4;
+        } else if (!strncmp(stream, "false", 5)) {
+            *static_cast<bool*>(value) = false;
+            result = 5;
+        }
+        return result;
     }
-    return result;
-}
+};
 
 template <typename T>
-inline typename std::enable_if<std::is_same<T, int8_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(static_cast<int32_t>(*static_cast<const int8_t*>(value)), stream, size);
-}
+struct Serializer<T, typename std::enable_if<std::is_enum<T>::value>::type> {
+    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
+        return Serializer<typename std::underlying_type<T>::type>::serialize(stream, size, value);
+    }
+
+    static uint32_t deserialize(const char * const stream, void * const value) {
+        return Serializer<typename std::underlying_type<T>::type>::deserialize(stream, value);
+    }
+};
 
 template <typename T>
-inline typename std::enable_if<std::is_same<T, int8_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<int8_t*>(value) = static_cast<int8_t>(n);
+struct Serializer<T, typename std::enable_if<std::is_integral<T>::value>::type> {
+    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
+        return micro::itoa(static_cast<int32_t>(*static_cast<const T*>(value)), stream, size);
+    }
+
+    static uint32_t deserialize(const char * const stream, void * const value) {
+        int32_t n;
+        uint32_t idx = 0;
         idx++; // '"'
-    } else {
-        idx = 0;
+        idx += micro::atoi(&stream[idx], &n);
+        if (idx > 1) {
+            *static_cast<T*>(value) = static_cast<T>(n);
+            idx++; // '"'
+        } else {
+            idx = 0;
+        }
+        return idx;
     }
-    return idx;
-}
+};
 
 template <typename T>
-inline typename std::enable_if<std::is_same<T, int16_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(static_cast<int32_t>(*static_cast<const int16_t*>(value)), stream, size);
-}
+struct Serializer<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
+    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
+        return micro::ftoa(*static_cast<const float*>(value), stream, size);
+    }
 
-template <typename T>
-inline typename std::enable_if<std::is_same<T, int16_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<int16_t*>(value) = static_cast<int16_t>(n);
+    static uint32_t deserialize(const char * const stream, void * const value) {
+        float n;
+        uint32_t idx = 0;
         idx++; // '"'
-    } else {
-        idx = 0;
+        idx += micro::atof(&stream[idx], &n);
+        if (idx > 1) {
+            *static_cast<T*>(value) = static_cast<T>(n);
+            idx++; // '"'
+        } else {
+            idx = 0;
+        }
+        return idx;
     }
-    return idx;
-}
+};
 
 template <typename T>
-inline typename std::enable_if<std::is_same<T, int32_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(*static_cast<const int32_t*>(value), stream, size);
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, int32_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<int32_t*>(value) = n;
-        idx++; // '"'
-    } else {
-        idx = 0;
+struct Serializer<T, typename std::enable_if<is_unit<T>::value>::type> {
+    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
+        return Serializer<typename T::value_type>::serialize(stream, size, value);
     }
-    return idx;
-}
 
-template <typename T>
-inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    const interruptStatus_t interruptStatus = os_enterCritical();
-    const int32_t val = static_cast<int32_t>(*static_cast<const int64_t*>(value));
-    os_exitCritical(interruptStatus);
-    return micro::itoa(val, stream, size);
-}
+    static uint32_t deserialize(const char * const stream, void * const value) {
+        return Serializer<typename T::value_type>::deserialize(stream, value);
+    }
+};
 
-template <typename T>
-inline typename std::enable_if<std::is_same<T, int64_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
+template <>
+struct Serializer<CarProps> {
+    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
         const interruptStatus_t interruptStatus = os_enterCritical();
-        *static_cast<int64_t*>(value) = static_cast<int64_t>(n);
+        const CarProps car = *static_cast<const CarProps*>(value);
         os_exitCritical(interruptStatus);
-        idx++; // '"'
-    } else {
-        idx = 0;
-    }
-    return idx;
-}
 
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint8_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(static_cast<int32_t>(*static_cast<const uint8_t*>(value)), stream, size);
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint8_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<uint8_t*>(value) = static_cast<uint8_t>(n);
-        idx++; // '"'
-    } else {
-        idx = 0;
-    }
-    return idx;
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint16_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(static_cast<int32_t>(*static_cast<const uint16_t*>(value)), stream, size);
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint16_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<uint16_t*>(value) = static_cast<uint16_t>(n);
-        idx++; // '"'
-    } else {
-        idx = 0;
-    }
-    return idx;
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint32_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::itoa(static_cast<int32_t>(*static_cast<const uint32_t*>(value)), stream, size);
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint32_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<uint32_t*>(value) = static_cast<uint32_t>(n);
-        idx++; // '"'
-    } else {
-        idx = 0;
-    }
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint64_t>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    const interruptStatus_t interruptStatus = os_enterCritical();
-    const int32_t val = static_cast<int32_t>(*static_cast<const uint64_t*>(value));
-    os_exitCritical(interruptStatus);
-    return micro::itoa(val, stream, size);
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, uint64_t>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    int32_t n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atoi(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<uint64_t*>(value) = static_cast<uint64_t>(n);
-        idx++; // '"'
-    } else {
-        idx = 0;
-    }
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, float>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return micro::ftoa(*static_cast<const float*>(value), stream, size);
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, float>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    float n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atof(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<float*>(value) = n;
-        idx++; // '"'
-    } else {
-        idx = 0;
-    }
-    return idx;
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    const interruptStatus_t interruptStatus = os_enterCritical();
-    const float val = static_cast<float>(*static_cast<const double*>(value));
-    os_exitCritical(interruptStatus);
-    return micro::ftoa(val, stream, size);
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, double>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    float n;
-    uint32_t idx = 0;
-    idx++; // '"'
-    idx += micro::atof(&stream[idx], &n);
-    if (idx > 1) {
-        *static_cast<double*>(value) = static_cast<double>(n);
-        idx++; // '"'
-    } else {
-        idx = 0;
-    }
-    return idx;
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    const interruptStatus_t interruptStatus = os_enterCritical();
-    const CarProps car = *static_cast<const CarProps*>(value);
-    os_exitCritical(interruptStatus);
-
-    return sprint(stream, size,
-        "{"
-            "\"pose\":{"
-                "\"pos_m\":{"
-                    "\"X\":%f,"
-                    "\"Y\":%f"
+        return sprint(stream, size,
+            "{"
+                "\"pose\":{"
+                    "\"pos_m\":{"
+                        "\"X\":%f,"
+                        "\"Y\":%f"
+                    "},"
+                    "\"angle_deg\":%f"
                 "},"
-                "\"angle_deg\":%f"
-            "},"
-            "\"speed_mps\":%f,"
-            "\"distance_m\":%f,"
-            "\"orientedDistance_m\":%f,"
-            "\"frontWheelAngle_deg\":%f,"
-            "\"rearWheelAngle_deg\":%f,"
-            "\"yawRate_degps\":%f"
-        "}",
-        car.pose.pos.X.get(),
-        car.pose.pos.Y.get(),
-        static_cast<degree_t>(car.pose.angle).get(),
-        car.speed.get()
-    );
+                "\"speed_mps\":%f,"
+                "\"distance_m\":%f,"
+                "\"orientedDistance_m\":%f,"
+                "\"frontWheelAngle_deg\":%f,"
+                "\"rearWheelAngle_deg\":%f,"
+                "\"yawRate_degps\":%f"
+            "}",
+            car.pose.pos.X.get(),
+            car.pose.pos.Y.get(),
+            static_cast<degree_t>(car.pose.angle).get(),
+            car.speed.get()
+        );
+    }
 
-    meter_t distance;         // The distance that the car has driven since startup.
-    meter_t orientedDistance; // The distance that the has driven with no major orientation change (in a straight line).
-    radian_t frontWheelAngle;
-    radian_t rearWheelAngle;
-    rad_per_sec_t yawRate;
-}
+    static uint32_t deserialize(const char * const stream, void * const value) {
+        CarProps car;
+        float n;
 
-template <typename T>
-inline typename std::enable_if<std::is_same<T, CarProps>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    CarProps car;
-    float n;
+        uint32_t idx = strlen("{\"pose\":{\"pos_m\":{\"X\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.pose.pos.X = meter_t(n);
 
-    uint32_t idx = strlen("{\"pose\":{\"pos_m\":{\"X\":");
-    idx += micro::atof(&stream[idx], &n);
-    car.pose.pos.X = meter_t(n);
+        idx += strlen(",\"Y\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.pose.pos.Y = meter_t(n);
 
-    idx += strlen(",\"Y\":");
-    idx += micro::atof(&stream[idx], &n);
-    car.pose.pos.Y = meter_t(n);
+        idx += strlen("},\"angle_deg\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.pose.angle = degree_t(n);
 
-    idx += strlen("},\"angle_deg\":");
-    idx += micro::atof(&stream[idx], &n);
-    car.pose.angle = degree_t(n);
+        idx += strlen("},\"speed_mps\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.speed = m_per_sec_t(n);
 
-    idx += strlen("},\"speed_mps\":");
-    idx += micro::atof(&stream[idx], &n);
-    car.speed = m_per_sec_t(n);
+        idx += strlen(",\"distance_m\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.distance = meter_t(n);
 
-    idx += strlen("}");
+        idx += strlen(",\"orientedDistance_m\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.orientedDistance = meter_t(n);
 
-    const interruptStatus_t interruptStatus = os_enterCritical();
-    *static_cast<CarProps*>(value) = car;
-    os_exitCritical(interruptStatus);
+        idx += strlen(",\"frontWheelAngle_deg\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.frontWheelAngle = degree_t(n);
 
-    return idx;
-}
+        idx += strlen(",\"rearWheelAngle_deg\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.rearWheelAngle = degree_t(n);
 
-template <typename T>
-inline typename std::enable_if<is_unit<T>::value, uint32_t>::type serialize(char * const stream, const uint32_t size, const void * const value) {
-    return serialize<typename T::value_type>(stream, size, value);
-}
+        idx += strlen(",\"yawRate_degps\":");
+        idx += micro::atof(&stream[idx], &n);
+        car.yawRate = deg_per_sec_t(n);
 
-template <typename T>
-inline typename std::enable_if<is_unit<T>::value, uint32_t>::type deserialize(const char * const stream, void * const value) {
-    return deserialize<typename T::value_type>(stream, value);
-}
+        idx += strlen("}");
+
+        const interruptStatus_t interruptStatus = os_enterCritical();
+        *static_cast<CarProps*>(value) = car;
+        os_exitCritical(interruptStatus);
+
+        return idx;
+    }
+};
 
 } // namespace micro
