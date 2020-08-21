@@ -27,13 +27,13 @@ struct CarProps  {
     CarProps() {}
 
     bool operator==(const CarProps& other) {
-        return this->pose == other.pose &&
-            this->speed == other.speed &&
-            this->distance == other.distance &&
-            this->orientedDistance == other.distance &&
-            this->frontWheelAngle == other.frontWheelAngle &&
-            this->rearWheelAngle == other.rearWheelAngle &&
-            this->yawRate == other.yawRate;
+        return this->pose          == other.pose            &&
+            this->speed            == other.speed           &&
+            this->distance         == other.distance        &&
+            this->orientedDistance == other.distance        &&
+            this->frontWheelAngle  == other.frontWheelAngle &&
+            this->rearWheelAngle   == other.rearWheelAngle  &&
+            this->yawRate          == other.yawRate;
     }
 
     bool operator!=(const CarProps& other) { return !(*this == other); }
