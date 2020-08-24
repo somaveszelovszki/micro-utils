@@ -44,17 +44,20 @@ HD44780_Lcd::HD44780_Lcd(const wireMode_t wireMode, const displayType_t displayT
     , data_(data) {}
 
 Status HD44780_Lcd::initialize() {
+    HAL_Delay(50);
+
+    gpio_write(this->rw_, gpioPinState_t::RESET);
+    HAL_Delay(50);
+
     if(wireMode_t::Wire4 == this->wireMode_) {
             this->write(0x33, dataType_t::Command);
             this->write(0x32, dataType_t::Command);
             this->write(FUNCTION_SET | OPT_N, dataType_t::Command); // 4-bit mode
-    }
-    else { // Wire8
+    } else { // Wire8
         this->write(FUNCTION_SET | OPT_DL | OPT_N, dataType_t::Command);
     }
 
-
-    this->write(CLEAR_DISPLAY, dataType_t::Command);                      // Clear screen
+    this->clear();
     this->write(DISPLAY_ON_OFF_CONTROL | OPT_D, dataType_t::Command);     // LCD on, cursor off, cursor-blink off
     this->write(ENTRY_MODE_SET | OPT_INC, dataType_t::Command);           // Increment cursor
 
@@ -77,10 +80,7 @@ void HD44780_Lcd::setCursor(const uint8_t row, const uint8_t col) {
 }
 
 void HD44780_Lcd::write(const uint8_t data, const dataType_t dataType) {
-    static constexpr gpioPinState_t RS_PIN_STATE_CMD  = gpioPinState_t::SET;
-    static constexpr gpioPinState_t RS_PIN_STATE_DATA = gpioPinState_t::RESET;
-
-    gpio_write(this->rs_, dataType_t::Command == dataType ? RS_PIN_STATE_CMD : RS_PIN_STATE_DATA); // selects command/data register
+    gpio_write(this->rs_, dataType_t::Command == dataType ? gpioPinState_t::RESET : gpioPinState_t::SET); // selects command/data register
 
     if(wireMode_t::Wire4 == this->wireMode_)
     {
@@ -94,7 +94,27 @@ void HD44780_Lcd::write(const uint8_t data, const dataType_t dataType) {
 
 void HD44780_Lcd::write(const char * const str) {
     for(uint8_t i = 0; i < strlen(str); i++) {
-        this->write(str[i], dataType_t::Data);
+        uint8_t c = static_cast<uint8_t>(str[i]);
+
+        if (c >= 'a' && c <= 'z') {
+            c = 0b01100001 + (c - 'a');
+        } else if (c >= 'A' && c <= 'Z') {
+            c = 0b01000001 + (c - 'A');
+        } else if (c >= '0' && c <= '9') {
+            c = 0b00110000 + (c - '0');
+        } else if (c == '+') {
+            c = 0b00101011;
+        } else if (c == '-') {
+            c = 0b00101101;
+        } else if (c == '*') {
+            c = 0b00101010;
+        } else if (c == '/') {
+            c = 0b00101111;
+        } else if (c == '=') {
+            c = 0b00111101;
+        }
+
+        this->write(c, dataType_t::Data);
     }
 }
 
@@ -103,13 +123,18 @@ void HD44780_Lcd::clear() {
 }
 
 void HD44780_Lcd::writeByte(const uint8_t data) {
+    static constexpr uint32_t delay = 3;
+
     gpio_write(this->en_, gpioPinState_t::SET);
+    HAL_Delay(delay);
 
     for(uint8_t i = 0; i < this->data_.size(); ++i) {
         gpio_write(this->data_[i], ((data >> i) & 0x01) ? gpioPinState_t::SET : gpioPinState_t::RESET);
     }
 
+    HAL_Delay(delay);
     gpio_write(this->en_, gpioPinState_t::RESET); // data is received on falling edge
+    HAL_Delay(delay);
 }
 
 }  // namespace hw
