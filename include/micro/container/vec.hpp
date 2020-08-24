@@ -69,6 +69,10 @@ public:
         return this->erase(const_cast<iterator>(iter));
     }
 
+    iterator erase(const T& elem) {
+        return this->erase(std::find(this->begin(), this->end(), elem));
+    }
+
     /* @brief Clears vector.
      **/
     void clear() {
