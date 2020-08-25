@@ -62,20 +62,4 @@ void normalize(float& a, float& b, float& c, float& d) {
     d *= norm;
 }
 
-random_generator_t::random_generator_t(const microsecond_t seedTime) : lfsr_(0) {
-    this->seed(seedTime);
-}
-
-void random_generator_t::seed(const microsecond_t seedTime) {
-    this->lfsr_ = 0xACE1u + static_cast<uint16_t>(static_cast<uint64_t>(seedTime.get()));
-}
-
-float random_generator_t::get() {
-    // Uses Fibonacci LFSRs @see https://en.wikipedia.org/wiki/Linear-feedback_shift_register
-    // taps: 16 14 13 11; feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1
-    const uint16_t bit = ((lfsr_ >> 0) ^ (lfsr_ >> 2) ^ (lfsr_ >> 3) ^ (lfsr_ >> 5)) & 1u;
-    lfsr_ = (lfsr_ >> 1) | (bit << 15);
-    return map<uint32_t, float>(lfsr_, 0u, 65536u, 0.0f, 1.0f);
-}
-
 } // namespace micro

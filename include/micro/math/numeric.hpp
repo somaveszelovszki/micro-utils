@@ -312,7 +312,7 @@ inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type 
 }
 
 inline constexpr int32_t round(const float value) {
-    return static_cast<int32_t>(value + 0.5f);
+    return static_cast<int32_t>(value >= 0.0f ? value + 0.5f : value - 0.5f);
 }
 
 /**
@@ -347,18 +347,6 @@ void normalize(float& a, float& b);
 void normalize(float& a, float& b, float& c);
 
 void normalize(float& a, float& b, float& c, float& d);
-
-class random_generator_t {
-public:
-    explicit random_generator_t(const microsecond_t seedTime = microsecond_t(0));
-
-    void seed(const microsecond_t seedTime);
-
-    float get();
-
-private:
-    uint16_t lfsr_;
-};
 
 } // namespace micro
 
