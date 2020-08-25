@@ -93,29 +93,41 @@ void HD44780_Lcd::write(const uint8_t data, const dataType_t dataType) {
 }
 
 void HD44780_Lcd::write(const char * const str) {
-    for(uint8_t i = 0; i < strlen(str); i++) {
-        uint8_t c = static_cast<uint8_t>(str[i]);
 
-        if (c >= 'a' && c <= 'z') {
-            c = 0b01100001 + (c - 'a');
-        } else if (c >= 'A' && c <= 'Z') {
-            c = 0b01000001 + (c - 'A');
-        } else if (c >= '0' && c <= '9') {
-            c = 0b00110000 + (c - '0');
-        } else if (c == '+') {
-            c = 0b00101011;
-        } else if (c == '-') {
-            c = 0b00101101;
-        } else if (c == '*') {
-            c = 0b00101010;
-        } else if (c == '/') {
-            c = 0b00101111;
-        } else if (c == '=') {
-            c = 0b00111101;
-        }
+    const uint32_t displayWidth = displayType_t::Lcd16xN == this->displayType_ ? 16 : 20;
+    const uint32_t len          = micro::min<uint32_t>(strlen(str), displayWidth);
 
-        this->write(c, dataType_t::Data);
+    for(uint8_t i = 0; i < len; ++i) {
+        this->write(str[i]);
     }
+
+    for (uint32_t i = len; i < displayWidth; ++i) {
+        this->write(' ');
+    }
+}
+
+void HD44780_Lcd::write(char c) {
+    if (c >= 'a' && c <= 'z') {
+        c = 0b01100001 + (c - 'a');
+    } else if (c >= 'A' && c <= 'Z') {
+        c = 0b01000001 + (c - 'A');
+    } else if (c >= '0' && c <= '9') {
+        c = 0b00110000 + (c - '0');
+    } else if (c == '+') {
+        c = 0b00101011;
+    } else if (c == '-') {
+        c = 0b00101101;
+    } else if (c == '*') {
+        c = 0b00101010;
+    } else if (c == '/') {
+        c = 0b00101111;
+    } else if (c == '=') {
+        c = 0b00111101;
+    } else if (c == ' ') {
+        c = 0b00100000;
+    }
+
+    this->write(static_cast<uint8_t>(c), dataType_t::Data);
 }
 
 void HD44780_Lcd::clear() {
@@ -123,18 +135,14 @@ void HD44780_Lcd::clear() {
 }
 
 void HD44780_Lcd::writeByte(const uint8_t data) {
-    static constexpr uint32_t delay = 3;
 
     gpio_write(this->en_, gpioPinState_t::SET);
-    HAL_Delay(delay);
 
     for(uint8_t i = 0; i < this->data_.size(); ++i) {
         gpio_write(this->data_[i], ((data >> i) & 0x01) ? gpioPinState_t::SET : gpioPinState_t::RESET);
     }
 
-    HAL_Delay(delay);
     gpio_write(this->en_, gpioPinState_t::RESET); // data is received on falling edge
-    HAL_Delay(delay);
 }
 
 }  // namespace hw

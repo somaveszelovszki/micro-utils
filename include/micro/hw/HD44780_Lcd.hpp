@@ -28,6 +28,8 @@ public:
 
     void write(const char * const str);
 
+    void write(char c);
+
     void clear();
 
 private:
