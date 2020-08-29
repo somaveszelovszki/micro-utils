@@ -2,12 +2,12 @@
 
 namespace micro {
 
-random_generator::random_generator(const microsecond_t seedTime) : lfsr_(0) {
-    this->seed(seedTime);
+random_generator::random_generator(const uint16_t seed) : lfsr_(0) {
+    this->seed(seed);
 }
 
-void random_generator::seed(const microsecond_t seedTime) {
-    this->lfsr_ = 0xACE1u + static_cast<uint16_t>(static_cast<uint64_t>(seedTime.get()));
+void random_generator::seed(const uint16_t seed) {
+    this->lfsr_ = 0xACE1u + seed;
 }
 
 float random_generator::get() {

@@ -1,15 +1,14 @@
 #pragma once
 
 #include <micro/utils/types.hpp>
-#include <micro/utils/units.hpp>
 
 namespace micro {
 
 class random_generator {
 public:
-    explicit random_generator(const microsecond_t seedTime = microsecond_t(0));
+    explicit random_generator(const uint16_t seed = 0);
 
-    void seed(const microsecond_t seedTime);
+    void seed(const uint16_t seed);
 
     float get();
 
