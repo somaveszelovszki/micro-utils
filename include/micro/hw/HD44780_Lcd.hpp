@@ -1,7 +1,8 @@
 #pragma once
 
-#include <micro/container/vec.hpp>
 #include <micro/port/gpio.hpp>
+
+#include <initializer_list>
 
 namespace micro {
 namespace hw {
@@ -18,7 +19,7 @@ public:
         Lcd20xN
     };
 
-    HD44780_Lcd(const wireMode_t wireMode, const displayType_t displayType, const gpio_t& rs, const gpio_t& rw, const gpio_t& en, const vec<gpio_t, 8>& data);
+    HD44780_Lcd(const wireMode_t wireMode, const displayType_t displayType, const gpio_t& rs, const gpio_t& rw, const gpio_t& en, const std::initializer_list<gpio_t>& data);
 
     Status initialize();
 
@@ -38,6 +39,10 @@ private:
         Data
     };
 
+    uint8_t numWires() const;
+
+    uint8_t width() const;
+
     void writeByte(const uint8_t data);
 
     void write(const uint8_t data, const dataType_t dataType);
@@ -49,7 +54,7 @@ private:
     gpio_t rs_;
     gpio_t rw_;
     gpio_t en_;
-    vec<gpio_t, 8> data_;
+    gpio_t data_[8];
 };
 
 }  // namespace hw

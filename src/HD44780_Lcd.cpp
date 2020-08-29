@@ -1,4 +1,5 @@
 #include <micro/hw/HD44780_Lcd.hpp>
+#include <micro/math/numeric.hpp>
 
 #include <string.h>
 
@@ -35,13 +36,18 @@ namespace hw {
 constexpr uint8_t ROW_16[] = {0x00, 0x40, 0x10, 0x50};
 constexpr uint8_t ROW_20[] = {0x00, 0x40, 0x14, 0x54};
 
-HD44780_Lcd::HD44780_Lcd(const wireMode_t wireMode, const displayType_t displayType, const gpio_t& rs, const gpio_t& rw, const gpio_t& en, const vec<gpio_t, 8>& data)
+HD44780_Lcd::HD44780_Lcd(const wireMode_t wireMode, const displayType_t displayType, const gpio_t& rs, const gpio_t& rw, const gpio_t& en, const std::initializer_list<gpio_t>& data)
     : wireMode_(wireMode)
     , displayType_(displayType)
     , rs_(rs)
     , rw_(rw)
-    , en_(en)
-    , data_(data) {}
+    , en_(en) {
+
+    uint32_t i = 0;
+    for (const gpio_t gpio : data) {
+        this->data_[i++] = gpio;
+    }
+}
 
 Status HD44780_Lcd::initialize() {
     HAL_Delay(50);
@@ -94,14 +100,13 @@ void HD44780_Lcd::write(const uint8_t data, const dataType_t dataType) {
 
 void HD44780_Lcd::write(const char * const str) {
 
-    const uint32_t displayWidth = displayType_t::Lcd16xN == this->displayType_ ? 16 : 20;
-    const uint32_t len          = micro::min<uint32_t>(strlen(str), displayWidth);
+    const uint32_t len = micro::min<uint32_t>(strlen(str), this->width());
 
     for(uint8_t i = 0; i < len; ++i) {
         this->write(str[i]);
     }
 
-    for (uint32_t i = len; i < displayWidth; ++i) {
+    for (uint32_t i = len; i < this->width(); ++i) {
         this->write(' ');
     }
 }
@@ -134,10 +139,18 @@ void HD44780_Lcd::clear() {
     this->write(CLEAR_DISPLAY, dataType_t::Command);
 }
 
+uint8_t HD44780_Lcd::numWires() const {
+    return wireMode_t::Wire4 == this->wireMode_ ? 4 : 8;
+}
+
+uint8_t HD44780_Lcd::width() const {
+    return displayType_t::Lcd16xN == this->displayType_ ? 16 : 20;
+}
+
 void HD44780_Lcd::writeByte(const uint8_t data) {
     gpio_write(this->en_, gpioPinState_t::SET);
 
-    for(uint8_t i = 0; i < this->data_.size(); ++i) {
+    for(uint8_t i = 0; i < this->numWires(); ++i) {
         gpio_write(this->data_[i], ((data >> i) & 0x01) ? gpioPinState_t::SET : gpioPinState_t::RESET);
     }
 
