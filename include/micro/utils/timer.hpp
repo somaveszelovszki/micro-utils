@@ -26,6 +26,10 @@ public:
         this->isRunning_ = true;
     }
 
+    void restart() {
+        this->start(this->period_);
+    }
+
     void stop(void) {
         this->isRunning_ = false;
     }
@@ -49,6 +53,7 @@ class WatchdogTimer : private Timer {
 public:
     using Timer::Timer;
     using Timer::start;
+    using Timer::restart;
     using Timer::stop;
 
     void setTimeout(const millisecond_t timeout) {
