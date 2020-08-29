@@ -135,13 +135,13 @@ void HD44780_Lcd::clear() {
 }
 
 void HD44780_Lcd::writeByte(const uint8_t data) {
-
     gpio_write(this->en_, gpioPinState_t::SET);
 
     for(uint8_t i = 0; i < this->data_.size(); ++i) {
         gpio_write(this->data_[i], ((data >> i) & 0x01) ? gpioPinState_t::SET : gpioPinState_t::RESET);
     }
 
+    HAL_Delay(1);
     gpio_write(this->en_, gpioPinState_t::RESET); // data is received on falling edge
 }
 
