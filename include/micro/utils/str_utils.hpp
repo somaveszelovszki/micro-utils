@@ -6,6 +6,8 @@
 
 namespace micro {
 
+uint32_t strnlen(const char * const s, uint32_t size);
+
 uint32_t atoi(const char * const s, int32_t *pResult);
 
 uint32_t atof(const char * const s, float *pResult);
