@@ -4,7 +4,6 @@
 #include <micro/math/numeric.hpp>
 
 #include <initializer_list>
-#include <functional>
 
 namespace micro {
 
