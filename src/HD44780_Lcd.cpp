@@ -24,7 +24,7 @@
 #define OPT_DL                  0x10    // Set interface data length
 #define OPT_N                   0x08    // Set number of display lines
 #define OPT_F                   0x04    // Set alternate font
-#define SETCGRAM_ADDR           0x040
+#define SETCGRAM_ADDR           0x40
 #define SET_DDRAM_ADDR          0x80    // Set DDRAM address
 
 #define LCD_DATA_REG            1
