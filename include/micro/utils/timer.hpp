@@ -12,6 +12,10 @@ public:
         this->start(period);
     }
 
+    bool isRunning() const {
+        return this->isRunning_;
+    }
+
     void setPeriod(const millisecond_t period) {
         this->period_ = period;
     }
@@ -55,6 +59,7 @@ public:
     using Timer::start;
     using Timer::restart;
     using Timer::stop;
+    using Timer::isRunning;
 
     void setTimeout(const millisecond_t timeout) {
         this->setPeriod(timeout);
