@@ -22,19 +22,20 @@ void PID_Controller::update(const float measured) {
     const float error = this->desired - measured;
 
     if (0.0f == this->desired && abs(error) < this->deadband_) {
-        this->prevErr_ = 0.0f;
-        this->output_  = 0.0f;
+        this->prevErr_  = 0.0f;
+        this->output_   = 0.0f;
+        this->integral_ = 0.0f;
     } else {
         const millisecond_t d_time = now - this->prevUpdateTime_;
-        const float integral = this->integral_ + error;
-        const float output   = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) * d_time.get() * this->params_.D;
+        this->integral_ += error;
+        const float output = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) * d_time.get() * this->params_.D;
 
-        if (isBtw(output, -this->outMax_, this->outMax_)) {
-            this->output_   = output;
-            this->integral_ = integral;
-        } else {
-            this->output_ = clamp(output, -this->outMax_, this->outMax_);
+        // resets integral on zero-crossings
+        if (sgn(error) != sgn(this->prevErr_)) {
+            this->integral_ = 0.0f;
         }
+
+        this->output_ = clamp(output, -this->outMax_, this->outMax_);
     }
 
     this->prevUpdateTime_ = now;
