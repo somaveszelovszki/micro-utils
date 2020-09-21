@@ -178,18 +178,18 @@ public:
     /* @brief Appends elements to the end of the vector.
      * @param _data The elements to append.
      * @param _size Number of elements to append.
-     * @returns True if the elements have been inserted successfully, false otherwise.
+     * @returns An iterator pointing to the first inserted element, or end() if the insertion was unsuccessful.
      **/
     template <typename Iter>
-    bool push_back(Iter begin_, Iter end_) {
-        bool success = false;
+    iterator push_back(Iter begin_, Iter end_) {
+        iterator result = this->end();
         if (this->size() + std::distance(begin_, end_) <= this->capacity()) {
             for (Iter it = begin_; it != end_; ++it) {
                 this->data_[this->size_++] = *it;
+                // the insertion causes the result iterator to point to the first inserted element
             }
-            success = true;
         }
-        return success;
+        return result;
     }
 
     iterator insert(iterator iter, const T& value) {
