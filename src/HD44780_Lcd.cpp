@@ -1,5 +1,6 @@
 #include <micro/hw/HD44780_Lcd.hpp>
 #include <micro/math/numeric.hpp>
+#include <micro/port/task.hpp>
 
 #include <string.h>
 
@@ -50,10 +51,10 @@ HD44780_Lcd::HD44780_Lcd(const wireMode_t wireMode, const displayType_t displayT
 }
 
 Status HD44780_Lcd::initialize() {
-    HAL_Delay(50);
+    os_sleep(millisecond_t(50));
 
     gpio_write(this->rw_, gpioPinState_t::RESET);
-    HAL_Delay(50);
+    os_sleep(millisecond_t(50));
 
     if(wireMode_t::Wire4 == this->wireMode_) {
             this->write(0x33, dataType_t::Command);
@@ -154,7 +155,7 @@ void HD44780_Lcd::writeByte(const uint8_t data) {
         gpio_write(this->data_[i], ((data >> i) & 0x01) ? gpioPinState_t::SET : gpioPinState_t::RESET);
     }
 
-    HAL_Delay(1);
+    os_sleep(millisecond_t(1));
     gpio_write(this->en_, gpioPinState_t::RESET); // data is received on falling edge
 }
 
