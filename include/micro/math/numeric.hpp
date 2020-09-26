@@ -62,8 +62,8 @@ inline constexpr T max(const T& a, const T& b) {
  * @returns The average of the two values.
  */
 template <typename T1, typename T2>
-inline constexpr auto avg(const T1& a, const T2& b) -> decltype((a + b) / 2.0f) {
-    return (a + b) / 2.0f;
+inline constexpr auto avg(const T1& a, const T2& b) -> decltype(b + (a - b) / 2) {
+    return a > b ? b + (a - b) / 2 : a + (b - a) / 2;
 }
 
 /**
