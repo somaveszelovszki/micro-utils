@@ -148,17 +148,20 @@ public:
         return *this;
     }
 
-    /* @brief Appends one element to the end of the vector.
-     * @param value The element to append.
+    /* @brief Inserts one element to the beginning of the vector.
+     * @param value The element to insert.
+     * @returns An iterator pointing to the inserted element, or end() if the insertion was unsuccessful.
+     **/
+    iterator push_front(const T& value) {
+        return this->insert(this->begin(), value);
+    }
+
+    /* @brief Inserts one element to the end of the vector.
+     * @param value The element to insert.
      * @returns An iterator pointing to the inserted element, or end() if the insertion was unsuccessful.
      **/
     iterator push_back(const T& value) {
-        iterator result = this->end();
-        if (this->size() < this->capacity()) {
-            this->data_[this->size_++] = value;
-            // the insertion causes the result iterator to point to back()
-        }
-        return result;
+        return this->insert(this->end(), value);
     }
 
     /* @brief Emplaces one element to the end of the vector.
