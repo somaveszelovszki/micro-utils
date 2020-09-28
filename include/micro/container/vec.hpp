@@ -197,7 +197,7 @@ public:
 
     iterator insert(iterator iter, const T& value) {
         iterator result = this->end();
-        if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
+        if (iter >= this->begin() && iter <= this->end() && this->size() < this->capacity()) {
             micro::shift_right(iter, this->end());
             *iter = value;
             ++this->size_;
@@ -214,7 +214,7 @@ public:
     template<typename ...Args>
     iterator emplace(iterator iter, Args&&... args) {
         iterator result = this->end();
-        if (iter > this->begin() && iter <= this->end() && this->size() < this->capacity()) {
+        if (iter >= this->begin() && iter <= this->end() && this->size() < this->capacity()) {
             micro::shift_right(iter, this->end());
             *iter = T(std::forward<Args>(args)...);
             ++this->size_;
