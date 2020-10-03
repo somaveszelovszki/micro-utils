@@ -26,7 +26,7 @@ struct i2c_t {};
 
 Status i2c_masterReceive(const i2c_t& i2c, const uint16_t devAddr, uint8_t * const rxBuf, const uint32_t size);
 Status i2c_masterTransmit(const i2c_t& i2c, const uint16_t devAddr, const uint8_t * const txBuf, const uint32_t size);
-Status i2c_memoryRead(const i2c_t& i2c, const uint16_t devAddr, const uint8_t memAddr, const uint16_t memAddrSize, uint8_t * const rxBuf, const uint32_t size);
-Status i2c_memoryWrite(const i2c_t& i2c, const uint16_t devAddr, const uint8_t memAddr, const uint16_t memAddrSize, const uint8_t * const txBuf, const uint32_t size);
+Status i2c_memoryRead(const i2c_t& i2c, const uint16_t devAddr, const uint16_t memAddr, const uint16_t memAddrSize, uint8_t * const rxBuf, const uint32_t size);
+Status i2c_memoryWrite(const i2c_t& i2c, const uint16_t devAddr, const uint16_t memAddr, const uint16_t memAddrSize, const uint8_t * const txBuf, const uint32_t size);
 
 } // namespace micro
