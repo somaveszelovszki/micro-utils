@@ -48,7 +48,7 @@ panelVersion_t getPanelVersion(void) {
             HAL_GPIO_Init(reinterpret_cast<GPIO_TypeDef*>(PINS[i].instance), &GPIO_InitStruct);
         }
 
-        uint8_t version = 0;
+        version = 0;
         for (uint8_t i = 0; i < NUM_VERSION_BITS; ++i) {
             gpioPinState_t pinState;
             gpio_read(PINS[i], pinState);
