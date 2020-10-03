@@ -87,11 +87,11 @@ Status gpio_toggle(const gpio_t& gpio) {
 // I2C
 
 Status i2c_masterReceive(const i2c_t& i2c, const uint16_t devAddr, uint8_t * const rxBuf, const uint32_t size) {
-    return toStatus(HAL_I2C_Master_Receive_IT(i2c.handle, devAddr, rxBuf, size));
+    return toStatus(HAL_I2C_Master_Receive_DMA(i2c.handle, devAddr, rxBuf, size));
 }
 
 Status i2c_masterTransmit(const i2c_t& i2c, const uint16_t devAddr, const uint8_t * const txBuf, const uint32_t size) {
-    return toStatus(HAL_I2C_Master_Transmit_IT(i2c.handle, devAddr, const_cast<uint8_t*>(txBuf), size));
+    return toStatus(HAL_I2C_Master_Transmit_DMA(i2c.handle, devAddr, const_cast<uint8_t*>(txBuf), size));
 
 }
 
