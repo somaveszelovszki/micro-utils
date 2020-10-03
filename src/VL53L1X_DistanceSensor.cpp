@@ -1,6 +1,4 @@
 #include <micro/hw/VL53L1X_DistanceSensor.hpp>
-//#include <micro/hw/VL53L1X_api.h>
-//#include <micro/hw/vl53l1_platform.hpp>
 #include <micro/math/unit_utils.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/log.hpp>
@@ -150,6 +148,16 @@ VL53L1X_DistanceSensor::VL53L1X_DistanceSensor(const i2c_t& i2c, uint16_t device
     , deviceId_(deviceId) {}
 
 void VL53L1X_DistanceSensor::initialize() {
+
+    static constexpr uint16_t TIMING_BUDGET_MS = 20;
+
+    uint8_t byteData = 0;
+    uint16_t wordData = 0;
+
+    this->readByte(0x010f, byteData);
+    this->readByte(0x0110, byteData);
+    this->readWord(0x010f, wordData);
+
     uint8_t sensorState = 0;
     while(!sensorState){
         os_sleep(millisecond_t(10));
@@ -157,7 +165,7 @@ void VL53L1X_DistanceSensor::initialize() {
     }
 
     for (uint16_t i = 0; i < ARRAY_SIZE(DEFAULT_CONFIG); ++i){
-        this->writeByte(0x2D + i, DEFAULT_CONFIG[i]);
+        this->writeByte(0x2d + i, DEFAULT_CONFIG[i]);
     }
 
     this->writeByte(SYSTEM__MODE_START, 0x40); // enables VL53L1X
@@ -172,12 +180,12 @@ void VL53L1X_DistanceSensor::initialize() {
     this->writeByte(0x0B, 0); // starts VHV from the previous temperature
 
     this->setDistanceMode(distanceMode_t::Long);
-    this->setTimingBudgetMs(20);
+    this->setTimingBudgetMs(TIMING_BUDGET_MS);
 
     uint16_t clockPLL = 0;
     this->readWord(VL53L1_RESULT__OSC_CALIBRATE_VAL, clockPLL);
-    clockPLL &= 0x03FF;
-    this->writeWord(VL53L1_SYSTEM__INTERMEASUREMENT_PERIOD, static_cast<uint16_t>(1.075f * clockPLL * this->readTimingBudgetMs())); // sets inter-measurement time
+    clockPLL &= 0x03ff;
+    this->writeDWord(VL53L1_SYSTEM__INTERMEASUREMENT_PERIOD, static_cast<uint32_t>(1.075f * clockPLL * TIMING_BUDGET_MS)); // sets inter-measurement time
 
     this->writeByte(SYSTEM__MODE_START, 0x40); // enables VL53L1X
 }
@@ -300,7 +308,7 @@ VL53L1X_DistanceSensor::distanceMode_t VL53L1X_DistanceSensor::readDistanceMode(
 void VL53L1X_DistanceSensor::setDistanceMode(const distanceMode_t mode) {
     const uint16_t budget = this->readTimingBudgetMs();
 
-    switch (this->readDistanceMode()) {
+    switch (mode) {
     case distanceMode_t::Short:
         this->writeByte(PHASECAL_CONFIG__TIMEOUT_MACROP, 0x14);
         this->writeByte(RANGE_CONFIG__VCSEL_PERIOD_A,    0x07);
@@ -353,43 +361,80 @@ Status VL53L1X_DistanceSensor::waitComm() {
     return timeout ? Status::TIMEOUT : Status::OK;
 }
 
-//Status VL53L1X_DistanceSensor::writeBytes(const uint8_t * const txBuf, const uint32_t size) {
-//    Status status = this->waitComm();
-//    if (isOk(status)) {
-//        status = i2c_masterTransmit(this->i2c_, this->deviceId_, txBuf, size);
-//        if (isOk(status)) {
-//            status = this->waitComm();
-//        }
-//    }
-//    return status;
-//}
-//
-//Status VL53L1X_DistanceSensor::readBytes(uint8_t * const rxBuf, const uint32_t size) {
-//    Status status = this->waitComm();
-//    if (isOk(status)) {
-//        status = i2c_masterReceive(this->i2c_, this->deviceId_ | 0x0001, rxBuf, size);
-//        if (isOk(status)) {
-//            status = this->waitComm();
-//        }
-//    }
-//    return status;
-//}
-
-
 Status VL53L1X_DistanceSensor::writeByte(const uint16_t reg, const uint8_t txData) {
-    return i2c_memoryWrite(this->i2c_, this->deviceId_, reg, 2, &txData, 1);
+    return this->writeBytes(reg, &txData, 1);
 }
 
 Status VL53L1X_DistanceSensor::readByte(const uint16_t reg, uint8_t& rxData) {
-    return i2c_memoryRead(this->i2c_, this->deviceId_, reg, 2, &rxData, 1);
+    return this->readBytes(reg, &rxData, 1);
 }
 
 Status VL53L1X_DistanceSensor::writeWord(const uint16_t reg, const uint16_t txData) {
-    return i2c_memoryWrite(this->i2c_, this->deviceId_, reg, 2, reinterpret_cast<const uint8_t*>(&txData), 2);
+    const uint8_t txBuf[2] = {
+        static_cast<uint8_t>(txData >> 8),
+        static_cast<uint8_t>(txData)
+    };
+
+    return this->writeBytes(reg, txBuf, 2);
+}
+
+Status VL53L1X_DistanceSensor::writeDWord(const uint16_t reg, const uint32_t txData) {
+    const uint8_t txBuf[4] = {
+        static_cast<uint8_t>(txData >> 24),
+        static_cast<uint8_t>(txData >> 16),
+        static_cast<uint8_t>(txData >> 8),
+        static_cast<uint8_t>(txData)
+    };
+
+    return this->writeBytes(reg, txBuf, 2);
 }
 
 Status VL53L1X_DistanceSensor::readWord(const uint16_t reg, uint16_t& rxData) {
-    return i2c_memoryRead(this->i2c_, this->deviceId_, reg, 2, reinterpret_cast<uint8_t*>(&rxData), 2);
+    uint8_t rxBuf[2] = { 0, 0 };
+    const Status status = this->readBytes(reg, rxBuf, 2);
+    if (isOk(status)) {
+        rxData = (static_cast<uint16_t>(rxBuf[0]) << 8) + rxBuf[1];
+    }
+    return status;
+}
+
+Status VL53L1X_DistanceSensor::writeBytes(const uint16_t reg, const uint8_t *txData, const uint8_t size) {
+    Status status = this->waitComm();
+    if (isOk(status)) {
+        uint8_t txBuf[6] = {
+            static_cast<uint8_t>(reg >> 8),
+            static_cast<uint8_t>(reg)
+        };
+
+        for (uint8_t i = 0; i < size; ++i) {
+            txBuf[2 + i] = txData[i];
+        }
+
+        status = i2c_masterTransmit(this->i2c_, this->deviceId_, txBuf, 2 + size);
+        if (isOk(status)) {
+            status = this->waitComm();
+        }
+    }
+    return status;
+}
+
+Status VL53L1X_DistanceSensor::readBytes(const uint16_t reg, uint8_t *rxData, const uint8_t size) {
+    Status status = this->waitComm();
+    if (isOk(status)) {
+        uint8_t txBuf[2] = { static_cast<uint8_t>(reg >> 8), static_cast<uint8_t>(reg & 0x00ff) };
+        status = i2c_masterTransmit(this->i2c_, this->deviceId_, txBuf, 2);
+        if (isOk(status)) {
+            status = this->waitComm();
+            if (isOk(status)) {
+                status = i2c_masterReceive(this->i2c_, this->deviceId_, rxData, size);
+                if (isOk(status)) {
+                    status = this->waitComm();
+                }
+            }
+        }
+
+    }
+    return status;
 }
 
 } // namespace hw

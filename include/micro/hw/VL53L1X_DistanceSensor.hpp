@@ -29,9 +29,13 @@ private:
     bool checkDataReady();
     Status waitComm();
     Status writeByte(const uint16_t reg, const uint8_t txData);
-    Status readByte(const uint16_t reg, uint8_t& rxData);
     Status writeWord(const uint16_t reg, const uint16_t txData);
+    Status writeDWord(const uint16_t reg, const uint32_t txData);
+    Status readByte(const uint16_t reg, uint8_t& rxData);
     Status readWord(const uint16_t reg, uint16_t& rxData);
+
+    Status writeBytes(const uint16_t reg, const uint8_t *txData, const uint8_t size);
+    Status readBytes(const uint16_t reg, uint8_t *rxData, const uint8_t size);
 
     const i2c_t i2c_;
     const uint16_t deviceId_;
