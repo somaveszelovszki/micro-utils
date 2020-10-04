@@ -12,21 +12,21 @@
 
 namespace micro {
 
-struct taskState_t {
+struct TaskState {
     TaskStatus_t details;
     state_t<bool> ok;
 };
 
 struct TaskStateComparator {
-    constexpr bool operator()(const taskState_t& a, const taskState_t& b) const { return a.details.xHandle < b.details.xHandle; };
-    constexpr bool operator()(const taskState_t& state, const TaskHandle_t& handle) const { return state.details.xHandle < handle; };
-    constexpr bool operator()(const TaskHandle_t& handle, const taskState_t& state) const { return handle < state.details.xHandle; };
+    constexpr bool operator()(const TaskState& a, const TaskState& b) const { return a.details.xHandle < b.details.xHandle; };
+    constexpr bool operator()(const TaskState& state, const TaskHandle_t& handle) const { return state.details.xHandle < handle; };
+    constexpr bool operator()(const TaskHandle_t& handle, const TaskState& state) const { return handle < state.details.xHandle; };
 };
 
 class SystemManager {
 public:
     typedef uint8_t programState_t;
-    typedef sorted_vec<taskState_t, 16, TaskStateComparator> taskStates_t;
+    typedef sorted_vec<TaskState, 16, TaskStateComparator> TaskStates;
 
     static SystemManager& instance();
 
@@ -37,13 +37,13 @@ public:
 
     void notify(const bool state);
 
-    taskStates_t failingTasks() const;
+    TaskStates failingTasks() const;
 
 private:
     SystemManager() : programState_(0) {}
 
     mutable mutex_t mutex_;
-    taskStates_t taskStates_;
+    TaskStates taskStates_;
     programState_t programState_;
 };
 

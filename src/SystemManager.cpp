@@ -17,7 +17,7 @@ SystemManager& SystemManager::instance() {
 void SystemManager::registerTask() {
     std::lock_guard<mutex_t> lock(this->mutex_);
 
-    taskState_t state;
+    TaskState state;
     vTaskGetInfo(pxCurrentTCB, &state.details, pdFALSE, eInvalid);
     state.ok = false;
     this->taskStates_.insert(state);
@@ -25,16 +25,16 @@ void SystemManager::registerTask() {
 
 void SystemManager::notify(const bool state) {
     std::lock_guard<mutex_t> lock(this->mutex_);
-    const taskStates_t::iterator it = std::lower_bound(this->taskStates_.begin(), this->taskStates_.end(), pxCurrentTCB, TaskStateComparator{});
+    const TaskStates::iterator it = std::lower_bound(this->taskStates_.begin(), this->taskStates_.end(), pxCurrentTCB, TaskStateComparator{});
     if (it->details.xHandle == pxCurrentTCB) {
         it->ok = state;
     }
 }
 
-SystemManager::taskStates_t SystemManager::failingTasks() const {
+SystemManager::TaskStates SystemManager::failingTasks() const {
     std::lock_guard<mutex_t> lock(this->mutex_);
-    taskStates_t result;
-    for (const taskState_t& state : this->taskStates_) {
+    TaskStates result;
+    for (const TaskState& state : this->taskStates_) {
         if (getTime() - state.ok.timestamp() > millisecond_t(50) || !state.ok.value()) {
             result.insert(state);
         }
