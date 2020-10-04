@@ -16,29 +16,30 @@ class semaphore_t {
 public:
     semaphore_t() {
         xSemaphoreCreateBinaryStatic(&this->semphrBuffer_);
-        this->give();
     }
 
     bool take(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
         bool success = false;
         if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            success = xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
+            success = !!xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
+            success = !!xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
         }
         return success;
     }
 
-    void give() {
+    bool give() {
+        bool success = false;
         if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
+            success = !!xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xSemaphoreGive(this->handle());
+            success = !!xSemaphoreGive(this->handle());
         }
+        return success;
     }
 
 private:

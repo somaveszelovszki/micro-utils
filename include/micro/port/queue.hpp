@@ -5,7 +5,7 @@
 
 #if defined OS_FREERTOS
 #include <FreeRTOS.h>
-#include <semphr.h>
+#include <queue.h>
 #endif // OS_FREERTOS
 
 namespace micro {
@@ -19,35 +19,39 @@ public:
         xQueueCreateStatic(size, sizeof(T), this->queueStorageBuffer_, &this->queueBuffer_);
     }
 
-    bool receive(T& value, const millisecond_t timeout) {
-        return xQueueReceive(this->handle(), &value, micro::round(timeout.get()));
+    bool receive(T& value, const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
+        return xQueueReceive(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
     }
 
-    bool peek(T& value, const millisecond_t timeout) {
-        return xQueuePeek(this->handle(), &value, micro::round(timeout.get()));
+    bool peek(T& value, const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
+        return xQueuePeek(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
     }
 
-    void overwrite(const T& value) {
+    bool overwrite(const T& value) {
+        bool success = false;
         if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xQueueOverwriteFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
+            success = !!xQueueOverwriteFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xQueueOverwrite(this->handle(), &value);
+            success = !!xQueueOverwrite(this->handle(), &value);
         }
+        return success;
     }
 
-    void send(const T& value, const millisecond_t timeout) {
+    bool send(const T& value, const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
+        bool success = false;
         if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xQueueSendFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
+            success = !!xQueueSendFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xQueueSend(this->handle(), &value, micro::round(timeout.get()));
+            success = !!xQueueSend(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
         }
+        return success;
     }
 
-private:
+public:
     QueueHandle_t handle() {
         return &this->queueBuffer_;
     }

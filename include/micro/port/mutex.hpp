@@ -22,22 +22,24 @@ public:
         bool success = false;
         if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            success = xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
+            success = !!xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            success = xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
+            success = !!xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
         }
         return success;
     }
 
-    void unlock() {
+    bool unlock() {
+        bool success = false;
         if (getContext() == context_t::ISR) {
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-            xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
+            success = !!xSemaphoreGiveFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            xSemaphoreGive(this->handle());
+            success = !!xSemaphoreGive(this->handle());
         }
+        return success;
     }
 
 private:
