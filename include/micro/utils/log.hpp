@@ -59,10 +59,10 @@ const char* to_string(const Log::level_t& level);
 
 } // namespace micro
 
-#define LOG_DEBUG(format, ...)   micro::Log::instance().print(Log::level_t::Debug,   format, ##__VA_ARGS__)
-#define LOG_INFO(format, ...)    micro::Log::instance().print(Log::level_t::Info,    format, ##__VA_ARGS__)
-#define LOG_WARN(format, ...)    micro::Log::instance().print(Log::level_t::Warning, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...)   micro::Log::instance().print(Log::level_t::Error,   format, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...)   micro::Log::instance().print(micro::Log::level_t::Debug,   format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)    micro::Log::instance().print(micro::Log::level_t::Info,    format, ##__VA_ARGS__)
+#define LOG_WARN(format, ...)    micro::Log::instance().print(micro::Log::level_t::Warning, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...)   micro::Log::instance().print(micro::Log::level_t::Error,   format, ##__VA_ARGS__)
 
 #else
 
