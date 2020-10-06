@@ -28,20 +28,20 @@ Lines::const_iterator findLine(const Lines& lines, const uint32_t id) {
 MainLine::MainLine(const meter_t carFrontRearSensorRowDist)
     : carFrontRearSensorRowDist(carFrontRearSensorRowDist) {}
 
-void MainLine::updateFrontRearLines(const bool isFwd) {
+void MainLine::updateFrontRearLines(const Sign speedSign) {
     const meter_t diff     = (this->carFrontRearSensorRowDist / 2) * tan(this->centerLine.angle);
     const meter_t frontPos = centerLine.pos + diff;
     const meter_t rearPos  = centerLine.pos - diff;
 
     this->frontLine.id  = 0;
-    this->frontLine.pos = isFwd ? frontPos : rearPos;
+    this->frontLine.pos = Sign::POSITIVE == speedSign ? frontPos : rearPos;
     this->rearLine.id   = 0;
-    this->rearLine.pos  = isFwd ? rearPos : frontPos;
+    this->rearLine.pos  = Sign::POSITIVE == speedSign ? rearPos : frontPos;
 }
 
-void MainLine::updateCenterLine(const bool isFwd) {
-    const meter_t frontPos = (isFwd ? this->frontLine : this->rearLine).pos;
-    const meter_t rearPos  = (isFwd ? this->rearLine : this->frontLine).pos;
+void MainLine::updateCenterLine(const Sign speedSign) {
+    const meter_t frontPos = (Sign::POSITIVE == speedSign ? this->frontLine : this->rearLine).pos;
+    const meter_t rearPos  = (Sign::POSITIVE == speedSign ? this->rearLine : this->frontLine).pos;
 
     this->centerLine.pos   = (frontPos - rearPos) / 2;
     this->centerLine.angle = atan2(-(frontPos + rearPos), this->carFrontRearSensorRowDist);
@@ -59,14 +59,13 @@ void updateMainLine(const Lines& lines, Line& mainLine) {
     }
 }
 
-void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine, const bool isFwd) {
+void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine, const Sign speedSign) {
     updateMainLine(frontLines, mainLine.frontLine);
     updateMainLine(frontLines, mainLine.rearLine);
-    mainLine.updateCenterLine(isFwd);
+    mainLine.updateCenterLine(speedSign);
 }
 
 bool areClose(const Lines& lines) {
-
     constexpr millimeter_t MAX_CLOSE_LINES_DISTANCE = centimeter_t(5.2f);
 
     bool close = true;
