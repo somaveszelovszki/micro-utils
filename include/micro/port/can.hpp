@@ -16,7 +16,8 @@ struct can_t {
 };
 
 struct canFrame_t {
-    typedef uint16_t id_t;
+    typedef uint32_t id_t;
+
     union {
         CAN_RxHeaderTypeDef rx;
         CAN_TxHeaderTypeDef tx;
