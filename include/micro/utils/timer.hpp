@@ -41,10 +41,14 @@ public:
     bool checkTimeout(void) {
         bool hasTimedOut = false;
         if (this->isRunning_) {
-            while (getTime() - this->startTime_ > this->period_) {
-                this->startTime_ += this->period_;
+            if (getTime() - this->startTime_ > this->period_) {
+                do {
+                    this->startTime_ += this->period_;
+                } while (getTime() - this->startTime_ > this->period_);
+
+                hasTimedOut = true;
             }
-            hasTimedOut = true;
+
         }
         return hasTimedOut;
     }
