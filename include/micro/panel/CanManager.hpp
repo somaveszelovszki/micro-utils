@@ -16,23 +16,50 @@
 
 namespace micro {
 
+static constexpr uint32_t MAX_NUM_CAN_SUBSCRIBERS = 4;
+static constexpr uint32_t MAX_NUM_CAN_FILTERS     = 16;
+
+typedef sorted_vec<canFrame_t::id_t, MAX_NUM_CAN_FILTERS> CanFrameIds;
+
+struct CanSubscriber {
+    typedef uint8_t id_t;
+
+    static constexpr id_t INVALID_ID = 0;
+
+    struct Filter {
+        canFrame_t::id_t id;
+        millisecond_t lastActivityTime;
+    };
+
+    id_t id;
+    sorted_map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS> rxFilters, txFilters;
+    queue_t<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
+
+    explicit CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
+};
+
 class CanManager {
 public:
-    typedef sorted_vec<uint16_t, 16> filters_t;
-    typedef uint8_t subscriberId_t;
-
     CanManager(const can_t& can, const millisecond_t rxTimeout);
 
-    subscriberId_t registerSubscriber(const filters_t& rxFilters);
+    CanSubscriber::id_t registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters);
 
-    bool read(const subscriberId_t subscriberId, canFrame_t& frame);
+    bool read(const CanSubscriber::id_t subscriberId, canFrame_t& frame);
 
-    template <typename T>
-    void send(const T& data) {
-        canFrame_t frame;
-        frame.header.tx = can::buildHeader<T>();
-        memcpy(frame.data, reinterpret_cast<const uint8_t*>(&data), sizeof(T));
-        can_transmit(this->can_, frame);
+    template<typename T, typename ...Args>
+    void send(const CanSubscriber::id_t subscriberId, Args&&... args) {
+        std::lock_guard<mutex_t> lock(this->mutex_);
+        this->sendFrame<T>(this->subscribers_.at(subscriberId)->txFilters.at(T::id()), std::forward<Args>(args)...);
+    }
+
+    template<typename T, typename ...Args>
+    void periodicSend(const CanSubscriber::id_t subscriberId, Args&&... args) {
+        std::lock_guard<mutex_t> lock(this->mutex_);
+
+        CanSubscriber::Filter *filter = this->subscribers_.at(subscriberId)->txFilters.at(T::id());
+        if (filter && getTime() - filter->lastActivityTime >= T::period()) {
+            this->sendFrame<T>(filter, std::forward<Args>(args)...);
+        }
     }
 
     bool hasRxTimedOut() const {
@@ -42,15 +69,24 @@ public:
     void onFrameReceived();
 
 private:
-    struct subscriber_t {
-        filters_t rxFilters_;
-        queue_t<canFrame_t, 16> rxFrames_;
-    };
+    CanSubscriber* subscriber(const CanSubscriber::id_t subscriberId);
+
+    template<typename T, typename ...Args>
+    void sendFrame(CanSubscriber::Filter *filter, Args&&... args) {
+        if (filter) {
+            const T data(std::forward<Args>(args)...);
+            canFrame_t frame;
+            frame.header.tx = can::buildHeader<T>();
+            memcpy(frame.data, reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+            can_transmit(this->can_, frame);
+            filter->lastActivityTime = getTime();
+        }
+    }
 
     mutable mutex_t mutex_;
     can_t can_;
     WatchdogTimer rxWatchdog_;
-    vec<subscriber_t, 4> subscribers_;
+    sorted_map<CanSubscriber::id_t, CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
 };
 
 class CanFrameHandler {
@@ -61,7 +97,7 @@ public:
 
     void handleFrame(const canFrame_t& rxFrame);
 
-    CanManager::filters_t identifiers() const;
+    CanFrameIds identifiers() const;
 
 private:
     typedef sorted_map<canFrame_t::id_t, handler_fn_t, 16> handlers_t;
