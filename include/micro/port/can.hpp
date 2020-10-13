@@ -22,7 +22,7 @@ struct canFrame_t {
         CAN_RxHeaderTypeDef rx;
         CAN_TxHeaderTypeDef tx;
     } header;
-    alignas(8) uint8_t data[8];
+    uint8_t data[8];
 };
 
 #else // !STM32F4
