@@ -34,7 +34,7 @@ struct CanSubscriber {
 
     id_t id;
     sorted_map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS> rxFilters, txFilters;
-    ring_buffer<canFrame_t, 4 * MAX_NUM_CAN_FILTERS> rxFrames;
+    ring_buffer<canFrame_t, 2 * MAX_NUM_CAN_FILTERS> rxFrames;
 
     explicit CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
 };
