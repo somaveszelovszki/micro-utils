@@ -33,11 +33,10 @@ CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters,
 
 bool CanManager::read(const CanSubscriber::id_t subscriberId, canFrame_t& frame) {
     std::lock_guard<mutex_t> lock(this->mutex_);
-    return this->subscribers_.at(subscriberId)->rxFrames.receive(frame, millisecond_t(0));
+    return isOk(this->subscribers_.at(subscriberId)->rxFrames.get(&frame));
 }
 
 void CanManager::onFrameReceived() {
-    std::lock_guard<mutex_t> lock(this->mutex_);
     canFrame_t rxFrame;
     if (isOk(can_receive(this->can_, rxFrame))) {
         this->rxWatchdog_.reset();
@@ -45,7 +44,7 @@ void CanManager::onFrameReceived() {
         for (std::pair<CanSubscriber::id_t, CanSubscriber>& sub : this->subscribers_) {
             CanSubscriber::Filter *filter = sub.second.rxFilters.at(rxFrame.header.rx.StdId);
             if (filter) {
-                sub.second.rxFrames.send(rxFrame, millisecond_t(0));
+                sub.second.rxFrames.put(rxFrame);
                 filter->lastActivityTime = getTime();
             }
         }

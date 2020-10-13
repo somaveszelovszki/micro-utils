@@ -3,6 +3,7 @@
 #if defined STM32F4
 
 #include <micro/container/map.hpp>
+#include <micro/container/ring_buffer.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/queue.hpp>
@@ -33,7 +34,7 @@ struct CanSubscriber {
 
     id_t id;
     sorted_map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS> rxFilters, txFilters;
-    queue_t<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
+    ring_buffer<canFrame_t, 4 * MAX_NUM_CAN_FILTERS> rxFrames;
 
     explicit CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
 };
