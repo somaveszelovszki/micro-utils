@@ -49,13 +49,13 @@ public:
 
     template<typename T, typename ...Args>
     void send(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::lock_guard<mutex_t> lock(this->mutex_);
+        std::lock_guard<criticalSection_t> lock(this->criticalSection_);
         this->sendFrame<T>(this->subscribers_.at(subscriberId)->txFilters.at(T::id()), std::forward<Args>(args)...);
     }
 
     template<typename T, typename ...Args>
     void periodicSend(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::lock_guard<mutex_t> lock(this->mutex_);
+        std::lock_guard<criticalSection_t> lock(this->criticalSection_);
 
         CanSubscriber::Filter *filter = this->subscribers_.at(subscriberId)->txFilters.at(T::id());
         if (filter && getTime() - filter->lastActivityTime >= T::period()) {
@@ -64,6 +64,7 @@ public:
     }
 
     bool hasRxTimedOut() const {
+        std::lock_guard<criticalSection_t> lock(this->criticalSection_);
         return this->rxWatchdog_.hasTimedOut();
     }
 
@@ -84,7 +85,7 @@ private:
         }
     }
 
-    mutable mutex_t mutex_;
+    mutable criticalSection_t criticalSection_;
     can_t can_;
     WatchdogTimer rxWatchdog_;
     sorted_map<CanSubscriber::id_t, CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;

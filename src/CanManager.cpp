@@ -24,7 +24,7 @@ CanManager::CanManager(const can_t& can, const millisecond_t rxTimeout)
     , rxWatchdog_(rxTimeout) {}
 
 CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters) {
-    std::lock_guard<mutex_t> lock(this->mutex_);
+    std::lock_guard<criticalSection_t> lock(this->criticalSection_);
 
     const CanSubscriber::id_t newId = this->subscribers_.size() + 1;
     this->subscribers_.emplace(newId, CanSubscriber(newId, rxFilters, txFilters));
@@ -32,11 +32,13 @@ CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters,
 }
 
 bool CanManager::read(const CanSubscriber::id_t subscriberId, canFrame_t& frame) {
-    std::lock_guard<mutex_t> lock(this->mutex_);
+    std::lock_guard<criticalSection_t> lock(this->criticalSection_);
     return isOk(this->subscribers_.at(subscriberId)->rxFrames.get(&frame));
 }
 
 void CanManager::onFrameReceived() {
+    std::lock_guard<criticalSection_t> lock(this->criticalSection_);
+
     canFrame_t rxFrame;
     if (isOk(can_receive(this->can_, rxFrame))) {
         this->rxWatchdog_.reset();
