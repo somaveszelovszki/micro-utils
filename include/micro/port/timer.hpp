@@ -41,5 +41,6 @@ Status timer_setCounter(const timer_t& timer, const uint32_t cntr);
 Status timer_getCompare(const timer_t& timer, const uint32_t channel, uint32_t& OUT compare);
 Status timer_setCompare(const timer_t& timer, const uint32_t channel, const uint32_t compare);
 Status timer_setDuty(const timer_t& timer, const uint32_t channel, const float duty);
+Status timer_getCaptured(const timer_t& timer, const uint32_t channel, uint32_t& OUT captured);
 
 } // namespace micro

@@ -163,6 +163,11 @@ Status timer_setDuty(const timer_t& timer, const uint32_t channel, const float d
     return timer_setCompare(timer, channel, map<float, uint32_t>(duty, 0.0f, 1.0f, 0, timer.handle->Instance->ARR - 1));
 }
 
+Status timer_getCaptured(const timer_t& timer, const uint32_t channel, uint32_t& OUT captured) {
+    captured = HAL_TIM_ReadCapturedValue(timer.handle, channel);
+    return Status::OK;
+}
+
 // UART
 
 Status uart_receive(const uart_t& uart, uint8_t * const rxBuf, const uint32_t size) {
