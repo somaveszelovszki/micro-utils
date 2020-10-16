@@ -14,12 +14,13 @@
 namespace micro {
 
 constexpr uint8_t NUM_VERSION_BITS = 4;
+constexpr uint8_t VERSION_INVALID  = 0xff;
 
-panelVersion_t version = 0xff;
+panelVersion_t version = VERSION_INVALID;
 
 panelVersion_t getPanelVersion(void) {
 #if defined STM32
-    if (0xff == version) {
+    if (VERSION_INVALID == version) {
         GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 #if defined STM32F0
@@ -49,11 +50,21 @@ panelVersion_t getPanelVersion(void) {
         }
 
         version = 0;
-        for (uint8_t i = 0; i < NUM_VERSION_BITS; ++i) {
-            gpioPinState_t pinState;
-            gpio_read(PINS[i], pinState);
-            version |= ((pinState == gpioPinState_t::SET ? 1 : 0) << i);
+
+        panelVersion_t candidates[3];
+        for (uint8_t c = 0; c < 3; ++c) {
+            candidates[c] = 0;
+            for (uint8_t b = 0; b < NUM_VERSION_BITS; ++b) {
+                gpioPinState_t pinState;
+                gpio_read(PINS[b], pinState);
+                candidates[c] |= ((pinState == gpioPinState_t::SET ? 1 : 0) << b);
+            }
         }
+
+        version = candidates[0] == candidates[1] ? candidates[0] :
+                  candidates[0] == candidates[2] ? candidates[0] :
+                  candidates[1] == candidates[2] ? candidates[1] :
+                  VERSION_INVALID;
     }
 #endif // STM2
 
