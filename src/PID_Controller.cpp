@@ -4,7 +4,7 @@
 namespace micro {
 
 PID_Controller::PID_Controller(const PID_Params& params, const float outMax, const float deadband)
-    : desired(0.0f)
+    : target(0.0f)
     , params_(params)
     , outMax_(outMax)
     , deadband_(deadband)
@@ -19,9 +19,9 @@ void PID_Controller::tune(const PID_Params& params) {
 void PID_Controller::update(const float measured) {
 
     const millisecond_t now = getExactTime();
-    const float error = this->desired - measured;
+    const float error = this->target - measured;
 
-    if (0.0f == this->desired && abs(error) < this->deadband_) {
+    if (0.0f == this->target && abs(error) < this->deadband_) {
         this->prevErr_  = 0.0f;
         this->output_   = 0.0f;
         this->integral_ = 0.0f;

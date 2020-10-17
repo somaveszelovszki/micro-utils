@@ -106,13 +106,13 @@ ControlData Trajectory::update(const CarProps car) {
     const radian_t desiredFwdAngle  = sectionStartConfig->pose.angle + map(sectionStartDist.get(), 0.0f, sectionLength.get(), radian_t(0), fwdAngleDiff);
 
     ControlData controlData;
-    controlData.speed                     = map(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionStartConfig->speed, sectionEndConfig->speed);
-    controlData.rampTime                  = millisecond_t(0);
-    controlData.controlType               = ControlData::controlType_t::Line;
-    controlData.lineControl.actual.pos    = linePoint.distance(car.pose.pos) * lineSign;
-    controlData.lineControl.actual.angle  = normalizePM180(sectionLineAngle - fwdAngle);
-    controlData.lineControl.desired.pos   = millimeter_t(0);
-    controlData.lineControl.desired.angle = normalizePM180(sectionLineAngle - desiredFwdAngle);
+    controlData.speed                    = map(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionStartConfig->speed, sectionEndConfig->speed);
+    controlData.rampTime                 = millisecond_t(0);
+    controlData.controlType              = ControlData::controlType_t::Line;
+    controlData.lineControl.actual.pos   = linePoint.distance(car.pose.pos) * lineSign;
+    controlData.lineControl.actual.angle = normalizePM180(sectionLineAngle - fwdAngle);
+    controlData.lineControl.target.pos   = millimeter_t(0);
+    controlData.lineControl.target.angle = normalizePM180(sectionLineAngle - desiredFwdAngle);
     return controlData;
 }
 

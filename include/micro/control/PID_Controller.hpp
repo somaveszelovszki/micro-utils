@@ -34,7 +34,7 @@ public:
 
     void update(const float measured);
 
-    float desired;
+    float target;
 
 private:
     PID_Params params_;
