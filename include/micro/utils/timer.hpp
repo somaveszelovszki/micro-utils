@@ -16,6 +16,10 @@ public:
         return this->isRunning_;
     }
 
+    millisecond_t startTime() const {
+        return this->startTime_;
+    }
+
     void setPeriod(const millisecond_t period) {
         this->period_ = period;
     }
