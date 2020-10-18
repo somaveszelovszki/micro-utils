@@ -89,7 +89,9 @@ T BounceFilter<T, N>::update(const T& measuredValue) {
     //
     // In both cases, measurement value will not be saved as output value, only put in the 'raw' array.
     // If a given number of the following samples are in range of this measurement, the sudden change has been validated, and output will be updated.
-    if(micro::isInRange(measuredValue, this->filteredValue_, this->complianceRate) || this->isInRangeOfRaw(measuredValue)) {
+    if (micro::isBtw(measuredValue, this->filteredValue_ - this->deadBand, this->filteredValue_ + this->deadBand) ||
+        micro::isInRange(measuredValue, this->filteredValue_, this->complianceRate)                               ||
+        this->isInRangeOfRaw(measuredValue)) {
         this->filteredValue_ = measuredValue;
     }
 
