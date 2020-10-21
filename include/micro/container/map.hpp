@@ -205,15 +205,12 @@ public:
     V lerp(const K& key) {
         V result { 0 };
         if (this->size() > 0) {
-            const_iterator lower = std::lower_bound(this->begin(), this->end(), key, PairKeyComparator<K, V>{});
-            if (lower != this->begin()) {
-                lower = std::prev(lower);
-            }
-
             const_iterator upper = std::upper_bound(this->begin(), this->end(), key, PairKeyComparator<K, V>{});
             if (upper == this->end()) {
                 upper = this->back();
             }
+            
+            const const_iterator lower = upper == this->begin() ? upper : std::prev(upper);
 
             result = map(key, lower->first, upper->first, lower->second, upper->second);
         }
