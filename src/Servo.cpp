@@ -11,12 +11,12 @@ radian_t Servo::angle() {
     this->angle_ += clamp(this->targetAngle_ - this->angle_, -maxDiff, maxDiff);
 
     this->prevAngleUpdateTime_ = now;
-    return this->angle_ - this->offset_;
+    return this->angle_;
 }
 
 void Servo::write(const radian_t angle) {
-    this->targetAngle_ = micro::clamp(this->offset_ + angle, this->offset_ - this->maxDelta_, this->offset_ + this->maxDelta_);
-    uint32_t pwm = map(this->targetAngle_, radian_t(0), PI, this->pwm0_, this->pwm180_);
+    this->targetAngle_ = micro::clamp(angle, -this->maxAngle_, this->maxAngle_);
+    const uint32_t pwm = this->pwmCenter_ + this->targetAngle_ / this->transferRate_;
     timer_setCompare(this->timer_, this->chnl_, pwm);
 }
 

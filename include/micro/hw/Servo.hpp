@@ -9,44 +9,30 @@ namespace hw {
 class Servo {
 
 public:
-    Servo(const timer_t& timer, uint32_t chnl, uint32_t pwm0, uint32_t pwm180, rad_per_sec_t maxAngVel, radian_t offset, radian_t maxDelta)
+    Servo(const timer_t& timer, uint32_t chnl, uint32_t pwmCenter, const radian_t transferRate, radian_t maxAngle, rad_per_sec_t maxAngVel)
         : timer_(timer)
         , chnl_(chnl)
-        , pwm0_(pwm0)
-        , pwm180_(pwm180)
-        , maxAngVel_(maxAngVel)
-        , offset_(offset)
-        , maxDelta_(maxDelta) {}
+        , pwmCenter_(pwmCenter)
+        , transferRate_(transferRate)
+        , maxAngle_(maxAngle)
+        , maxAngVel_(maxAngVel) {}
 
-    radian_t offset() const {
-        return offset_;
-    }
-
-    radian_t maxDelta() const {
-        return this->maxDelta_;
+    radian_t maxAngle() const {
+        return this->maxAngle_;
     }
 
     radian_t angle();
 
-    void setOffset(const radian_t offset) {
-        this->offset_ = offset;
-    }
-
-    void setMaxDelta(const radian_t maxDelta) {
-        this->maxDelta_ = maxDelta;
-    }
-
     void write(const radian_t angle);
 
 private:
-    const timer_t timer_;           // The timer used for PWM generation.
-    const uint32_t chnl_;           // The timer channel used for PWM generation.
-    const uint32_t pwm0_;           // The PWM value for 0 degrees.
-    const uint32_t pwm180_;         // The PWM value for 180 degrees.
-    const rad_per_sec_t maxAngVel_; // The max angular velocity of the servo.
+    const timer_t timer_;           // The timer used for PWM generation
+    const uint32_t chnl_;           // The timer channel used for PWM generation
+    const uint32_t pwmCenter_;      // The PWM value for the center position
+    const radian_t transferRate_;   // The transfer rate between the PWM input and the angle output
+    const radian_t maxAngle_;       // The maximum angle - relative to the center
+    const rad_per_sec_t maxAngVel_; // The maximum angular velocity
 
-    radian_t offset_;
-    radian_t maxDelta_;
     radian_t angle_;
     radian_t targetAngle_;
     microsecond_t prevAngleUpdateTime_;
