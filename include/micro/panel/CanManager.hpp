@@ -17,8 +17,8 @@
 
 namespace micro {
 
-static constexpr uint32_t MAX_NUM_CAN_SUBSCRIBERS = 4;
-static constexpr uint32_t MAX_NUM_CAN_FILTERS     = 16;
+#define MAX_NUM_CAN_SUBSCRIBERS 4
+#define MAX_NUM_CAN_FILTERS     12
 
 typedef sorted_vec<canFrame_t::id_t, MAX_NUM_CAN_FILTERS> CanFrameIds;
 
@@ -34,9 +34,9 @@ struct CanSubscriber {
 
     id_t id;
     sorted_map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS> rxFilters, txFilters;
-    ring_buffer<canFrame_t, 2 * MAX_NUM_CAN_FILTERS> rxFrames;
+    ring_buffer<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
 
-    explicit CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
+    CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
 };
 
 class CanManager {
@@ -50,16 +50,21 @@ public:
     template<typename T, typename ...Args>
     void send(const CanSubscriber::id_t subscriberId, Args&&... args) {
         std::lock_guard<criticalSection_t> lock(this->criticalSection_);
-        this->sendFrame<T>(this->subscribers_.at(subscriberId)->txFilters.at(T::id()), std::forward<Args>(args)...);
+
+        if (this->isValid(subscriberId)) {
+            this->sendFrame<T>(this->subscribers_[subscriberId].txFilters.at(T::id()), std::forward<Args>(args)...);
+        }
     }
 
     template<typename T, typename ...Args>
     void periodicSend(const CanSubscriber::id_t subscriberId, Args&&... args) {
         std::lock_guard<criticalSection_t> lock(this->criticalSection_);
 
-        CanSubscriber::Filter *filter = this->subscribers_.at(subscriberId)->txFilters.at(T::id());
-        if (filter && getTime() - filter->lastActivityTime >= T::period()) {
-            this->sendFrame<T>(filter, std::forward<Args>(args)...);
+        if (this->isValid(subscriberId)) {
+            CanSubscriber::Filter *filter = this->subscribers_[subscriberId].txFilters.at(T::id());
+            if (filter && getTime() - filter->lastActivityTime >= T::period()) {
+                this->sendFrame<T>(filter, std::forward<Args>(args)...);
+            }
         }
     }
 
@@ -71,7 +76,9 @@ public:
     void onFrameReceived();
 
 private:
-    CanSubscriber* subscriber(const CanSubscriber::id_t subscriberId);
+    bool isValid(const CanSubscriber::id_t subscriberId) const {
+        return subscriberId != CanSubscriber::INVALID_ID && subscriberId < this->subscribers_.size();
+    }
 
     template<typename T, typename ...Args>
     void sendFrame(CanSubscriber::Filter *filter, Args&&... args) {
@@ -88,7 +95,7 @@ private:
     mutable criticalSection_t criticalSection_;
     can_t can_;
     WatchdogTimer rxWatchdog_;
-    sorted_map<CanSubscriber::id_t, CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
+    vec<CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
 };
 
 class CanFrameHandler {
@@ -102,8 +109,8 @@ public:
     CanFrameIds identifiers() const;
 
 private:
-    typedef sorted_map<canFrame_t::id_t, handler_fn_t, 16> handlers_t;
-    handlers_t handlers_;
+    typedef sorted_map<canFrame_t::id_t, handler_fn_t, MAX_NUM_CAN_FILTERS> Handlers;
+    Handlers handlers_;
 };
 
 }  // namespace micro

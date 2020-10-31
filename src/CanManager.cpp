@@ -7,6 +7,8 @@
 
 namespace micro {
 
+constexpr uint8_t CanSubscriber::INVALID_ID;
+
 CanSubscriber::CanSubscriber(const id_t id, const CanFrameIds& rxFilters, const CanFrameIds& txFilters)
     : id(id) {
 
@@ -25,15 +27,18 @@ CanManager::CanManager(const can_t& can, const millisecond_t rxTimeout)
 
 CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters) {
     std::lock_guard<criticalSection_t> lock(this->criticalSection_);
-
-    const CanSubscriber::id_t newId = this->subscribers_.size() + 1;
-    this->subscribers_.emplace(newId, CanSubscriber(newId, rxFilters, txFilters));
-    return newId;
+    return this->subscribers_.emplace_back(this->subscribers_.size() + 1, rxFilters, txFilters)->id;
 }
 
 bool CanManager::read(const CanSubscriber::id_t subscriberId, canFrame_t& frame) {
     std::lock_guard<criticalSection_t> lock(this->criticalSection_);
-    return isOk(this->subscribers_.at(subscriberId)->rxFrames.get(&frame));
+
+    bool success = false;
+    if (this->isValid(subscriberId)) {
+        success = this->subscribers_[subscriberId].rxFrames.read(frame);
+    }
+
+    return success;
 }
 
 void CanManager::onFrameReceived() {
@@ -43,10 +48,10 @@ void CanManager::onFrameReceived() {
     if (isOk(can_receive(this->can_, rxFrame))) {
         this->rxWatchdog_.reset();
 
-        for (std::pair<CanSubscriber::id_t, CanSubscriber>& sub : this->subscribers_) {
-            CanSubscriber::Filter *filter = sub.second.rxFilters.at(rxFrame.header.rx.StdId);
+        for (CanSubscriber& subscriber : this->subscribers_) {
+            CanSubscriber::Filter *filter = subscriber.rxFilters.at(rxFrame.header.rx.StdId);
             if (filter) {
-                sub.second.rxFrames.put(rxFrame);
+                subscriber.rxFrames.write(rxFrame);
                 filter->lastActivityTime = getTime();
             }
         }
@@ -66,7 +71,7 @@ void CanFrameHandler::handleFrame(const canFrame_t& rxFrame) {
 
 CanFrameIds CanFrameHandler::identifiers() const {
     CanFrameIds ids;
-    for (const handlers_t::entry_type& entry : this->handlers_) {
+    for (const Handlers::entry_type& entry : this->handlers_) {
         ids.insert(entry.first);
     }
     return ids;
