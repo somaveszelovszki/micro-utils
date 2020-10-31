@@ -315,6 +315,14 @@ inline constexpr int32_t round(const float value) {
     return static_cast<int32_t>(value >= 0.0f ? value + 0.5f : value - 0.5f);
 }
 
+inline constexpr int32_t round_down(const float value) {
+    return value >= 0.0f ? round(value - 0.5f) : round(value + 0.5f);
+}
+
+inline constexpr int32_t round_up(const float value) {
+    return value >= 0.0f ? round(value + 0.5f) : round(value - 0.5f);
+}
+
 /**
  * @brief Calculates power.
  * @param value
