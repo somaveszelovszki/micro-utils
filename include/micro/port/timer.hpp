@@ -36,6 +36,7 @@ millisecond_t getTime();
  **/
 microsecond_t getExactTime();
 
+Status timer_getPeriod(const timer_t& timer, uint32_t& OUT period);
 Status timer_getCounter(const timer_t& timer, uint32_t& OUT cntr);
 Status timer_setCounter(const timer_t& timer, const uint32_t cntr);
 Status timer_getCompare(const timer_t& timer, const uint32_t channel, uint32_t& OUT compare);

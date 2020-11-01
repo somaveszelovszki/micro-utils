@@ -138,6 +138,11 @@ microsecond_t getExactTime() {
     return time;
 }
 
+Status timer_getPeriod(const timer_t& timer, uint32_t& OUT period) {
+    period = timer.handle->Instance->ARR;
+    return Status::OK;
+}
+
 Status timer_getCounter(const timer_t& timer, uint32_t& OUT cntr) {
     cntr = __HAL_TIM_GET_COUNTER(timer.handle);
     return Status::OK;
@@ -160,7 +165,9 @@ Status timer_setCompare(const timer_t& timer, const uint32_t channel, const uint
 }
 
 Status timer_setDuty(const timer_t& timer, const uint32_t channel, const float duty) {
-    return timer_setCompare(timer, channel, map<float, uint32_t>(duty, 0.0f, 1.0f, 0, timer.handle->Instance->ARR - 1));
+    uint32_t period = 0;
+    timer_getPeriod(timer, period);
+    return timer_setCompare(timer, channel, map<float, uint32_t>(duty, 0.0f, 1.0f, 0, period - 1));
 }
 
 Status timer_getCaptured(const timer_t& timer, const uint32_t channel, uint32_t& OUT captured) {
