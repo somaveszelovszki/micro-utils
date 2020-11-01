@@ -30,21 +30,22 @@ MainLine::MainLine(const meter_t carFrontRearSensorRowDist)
 
 void MainLine::updateFrontRearLines(const Sign speedSign) {
     const meter_t diff     = (this->carFrontRearSensorRowDist / 2) * tan(this->centerLine.angle);
-    const meter_t frontPos = centerLine.pos + diff;
-    const meter_t rearPos  = centerLine.pos - diff;
+    const meter_t frontPos = centerLine.pos - diff;
+    const meter_t rearPos  = centerLine.pos + diff;
 
     this->frontLine.id  = 0;
-    this->frontLine.pos = Sign::POSITIVE == speedSign ? frontPos : rearPos;
+    this->frontLine.pos = Sign::POSITIVE == speedSign ? frontPos : -rearPos;
     this->rearLine.id   = 0;
-    this->rearLine.pos  = Sign::POSITIVE == speedSign ? rearPos : frontPos;
+    this->rearLine.pos  = Sign::POSITIVE == speedSign ? -rearPos : frontPos;
 }
 
 void MainLine::updateCenterLine(const Sign speedSign) {
-    const meter_t frontPos = (Sign::POSITIVE == speedSign ? this->frontLine : this->rearLine).pos;
-    const meter_t rearPos  = (Sign::POSITIVE == speedSign ? this->rearLine : this->frontLine).pos;
+    // gets front and rear positions in the car's coordinate system
+    const meter_t frontPos = Sign::POSITIVE == speedSign ? this->frontLine.pos : -this->rearLine.pos;
+    const meter_t rearPos  = Sign::POSITIVE == speedSign ? -this->rearLine.pos : this->frontLine.pos;
 
-    this->centerLine.pos   = (frontPos - rearPos) / 2;
-    this->centerLine.angle = atan2(-(frontPos + rearPos), this->carFrontRearSensorRowDist);
+    this->centerLine.pos   = avg(frontPos, rearPos);
+    this->centerLine.angle = atan2(-(frontPos - rearPos), this->carFrontRearSensorRowDist);
 }
 
 void updateMainLine(const Lines& lines, Line& mainLine) {
@@ -61,7 +62,7 @@ void updateMainLine(const Lines& lines, Line& mainLine) {
 
 void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine, const Sign speedSign) {
     updateMainLine(frontLines, mainLine.frontLine);
-    updateMainLine(frontLines, mainLine.rearLine);
+    updateMainLine(rearLines, mainLine.rearLine);
     mainLine.updateCenterLine(speedSign);
 }
 
