@@ -25,7 +25,7 @@ typedef sorted_vec<canFrame_t::id_t, MAX_NUM_CAN_FILTERS> CanFrameIds;
 struct CanSubscriber {
     typedef uint8_t id_t;
 
-    static constexpr id_t INVALID_ID = 0;
+    static constexpr id_t INVALID_ID = 0xff;
 
     struct Filter {
         canFrame_t::id_t id;
@@ -77,7 +77,7 @@ public:
 
 private:
     bool isValid(const CanSubscriber::id_t subscriberId) const {
-        return subscriberId != CanSubscriber::INVALID_ID && subscriberId < this->subscribers_.size();
+        return subscriberId < this->subscribers_.size();
     }
 
     template<typename T, typename ...Args>
