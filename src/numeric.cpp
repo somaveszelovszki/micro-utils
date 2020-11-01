@@ -2,30 +2,24 @@
 
 namespace micro {
 
-uint32_t add_overflow(uint32_t value, uint32_t incr, uint32_t exclusive_max) {
-    value += incr;
-    while(value >= exclusive_max) {
-        value -= exclusive_max;
-    }
-    return value;
+uint32_t incr_overflow(uint32_t value, uint32_t incr, const uint32_t exclusive_max) {
+    return value < exclusive_max - incr ? value + incr : incr - (exclusive_max - value);
 }
 
-uint32_t sub_underflow(uint32_t value, uint32_t sub, uint32_t exclusive_max) {
-    while(value >= exclusive_max) {
-        value -= exclusive_max;
-    }
-    while(sub >= exclusive_max) {
-        sub -= exclusive_max;
-    }
-    return value >= sub ? value - sub : value + exclusive_max - sub;
+uint32_t decr_underflow(uint32_t value, uint32_t decr, const uint32_t exclusive_max) {
+    return value >= decr ? value - decr : exclusive_max - (decr - value);
 }
 
-uint32_t incr_overflow(uint32_t value, uint32_t exclusive_max) {
-    return ++value == exclusive_max ? 0 : value;
+uint32_t incr_overflow(uint32_t value, const uint32_t exclusive_max) {
+    return incr_overflow(value, 1, exclusive_max);
 }
 
-uint32_t decr_underflow(uint32_t value, uint32_t exclusive_max) {
-    return value-- == 0 ? exclusive_max - 1 : value;
+uint32_t decr_underflow(uint32_t value, const uint32_t exclusive_max) {
+    return decr_underflow(value, 1, exclusive_max);
+}
+
+uint32_t diff_overflow(uint32_t a, uint32_t b, const uint32_t exclusive_max) {
+    return a >= b ? a - b : exclusive_max - b + a;
 }
 
 // Fast inverse square-root

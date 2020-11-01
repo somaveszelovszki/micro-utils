@@ -338,13 +338,13 @@ inline T powerOf(const T& value, uint32_t pow) {
     return result;
 }
 
-uint32_t add_overflow(uint32_t value, uint32_t incr, uint32_t exclusive_max);
+uint32_t incr_overflow(uint32_t value, uint32_t incr, const uint32_t exclusive_max);
+uint32_t decr_underflow(uint32_t value, uint32_t decr, const uint32_t exclusive_max);
 
-uint32_t sub_underflow(uint32_t value, uint32_t sub, uint32_t exclusive_max);
+uint32_t incr_overflow(uint32_t value, const uint32_t exclusive_max);
+uint32_t decr_underflow(uint32_t value, const uint32_t exclusive_max);
 
-uint32_t incr_overflow(uint32_t value, uint32_t exclusive_max);
-
-uint32_t decr_underflow(uint32_t value, uint32_t exclusive_max);
+uint32_t diff_overflow(uint32_t a, uint32_t b, const uint32_t exclusive_max);
 
 // Fast inverse square-root
 // See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
