@@ -18,8 +18,9 @@ public:
             this->duration_  = duration;
         }
 
-        // performs mapping from target to start so that 0 duration mapping results in the target being returned
-        return map(getExactTime(), this->startTime_ + this->duration_, this->startTime_, this->target_, this->start_);
+        return this->duration_ != microsecond_t(0) ?
+            map(getExactTime(), this->startTime_, this->startTime_ + this->duration_, this->start_, this->target_) :
+            this->target_;
     }
 
 private:
