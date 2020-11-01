@@ -179,7 +179,7 @@ struct LineDetectControl {
 
 } __attribute__((packed));
 
-struct SetFrontWheelParams : public detail::ServoParams {
+struct SetFrontSteeringServoParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x601; }
     static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
@@ -188,7 +188,7 @@ struct SetFrontWheelParams : public detail::ServoParams {
 
 } __attribute__((packed));
 
-struct SetRearWheelParams : public detail::ServoParams {
+struct SetRearSteeringServoParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x602; }
     static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
@@ -208,14 +208,14 @@ struct SetExtraServoParams : public detail::ServoParams {
 
 struct SetMotorControlParams : public detail::MotorControlParams {
     static constexpr uint16_t id() { return 0x604; }
-    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
-    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
+    static constexpr millisecond_t period()  { return micro::millisecond_t(1000); }
+    static constexpr millisecond_t timeout() { return micro::millisecond_t(2000); }
 
     using detail::MotorControlParams::MotorControlParams;
 
 } __attribute__((packed));
 
-struct FrontWheelParams : public detail::ServoParams {
+struct FrontSteeringServoParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x701; }
     static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
@@ -224,7 +224,7 @@ struct FrontWheelParams : public detail::ServoParams {
 
 } __attribute__((packed));
 
-struct RearWheelParams : public detail::ServoParams {
+struct RearSteeringServoParams : public detail::ServoParams {
     static constexpr uint16_t id() { return 0x702; }
     static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
