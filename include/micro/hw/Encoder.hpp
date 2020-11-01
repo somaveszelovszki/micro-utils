@@ -11,6 +11,8 @@ class Encoder {
 public:
     explicit Encoder(const timer_t& timer);
 
+    void initialize();
+
     void update();
 
     int64_t absPos() const {
@@ -26,11 +28,15 @@ public:
     }
 
 private:
+    uint32_t timerPos();
+
     const timer_t timer_;
+    uint32_t period_;
     int64_t absPos_;
     uint64_t numIncr_;
     uint32_t prevPos_;
     int32_t lastDiff_;
+    bool initialized_;
 };
 } // namespace hw
 } // namespace micro
