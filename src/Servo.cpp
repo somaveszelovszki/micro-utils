@@ -5,6 +5,14 @@
 namespace micro {
 namespace hw {
 
+Servo::Servo(const timer_t& timer, uint32_t chnl, uint32_t pwmCenter, const radian_t transferRate, radian_t maxAngle, rad_per_sec_t maxAngVel)
+    : timer_(timer)
+    , chnl_(chnl)
+    , pwmCenter_(pwmCenter)
+    , transferRate_(transferRate)
+    , maxAngle_(maxAngle)
+    , maxAngVel_(maxAngVel) {}
+
 radian_t Servo::angle() {
     const microsecond_t now = getExactTime();
     const radian_t maxDiff  = this->maxAngVel_ * (now - this->prevAngleUpdateTime_);

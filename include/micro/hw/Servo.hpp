@@ -9,13 +9,7 @@ namespace hw {
 class Servo {
 
 public:
-    Servo(const timer_t& timer, uint32_t chnl, uint32_t pwmCenter, const radian_t transferRate, radian_t maxAngle, rad_per_sec_t maxAngVel)
-        : timer_(timer)
-        , chnl_(chnl)
-        , pwmCenter_(pwmCenter)
-        , transferRate_(transferRate)
-        , maxAngle_(maxAngle)
-        , maxAngVel_(maxAngVel) {}
+    Servo(const timer_t& timer, uint32_t chnl, uint32_t pwmCenter, const radian_t transferRate, radian_t maxAngle, rad_per_sec_t maxAngVel);
 
     radian_t maxAngle() const {
         return this->maxAngle_;
