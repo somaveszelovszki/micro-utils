@@ -113,27 +113,16 @@ struct Serializer<CarProps> {
         const CarProps car = *static_cast<const CarProps*>(value);
         os_exitCritical(interruptStatus);
 
-        return sprint(stream, size,
-            "{"
-                "\"pose\":{"
-                    "\"pos_m\":{"
-                        "\"X\":%f,"
-                        "\"Y\":%f"
-                    "},"
-                    "\"angle_deg\":%f"
-                "},"
-                "\"speed_mps\":%f,"
-                "\"distance_m\":%f,"
-                "\"orientedDistance_m\":%f,"
-                "\"frontWheelAngle_deg\":%f,"
-                "\"rearWheelAngle_deg\":%f,"
-                "\"yawRate_degps\":%f"
-            "}",
+        return sprint(stream, size, "[%f,%f,%f,%f,%f,%f,%f,%f,%f]",
             car.pose.pos.X.get(),
             car.pose.pos.Y.get(),
             static_cast<degree_t>(car.pose.angle).get(),
-            car.speed.get()
-        );
+            car.speed.get(),
+            car.distance.get(),
+            car.orientedDistance.get(),
+            static_cast<degree_t>(car.frontWheelAngle).get(),
+            static_cast<degree_t>(car.rearWheelAngle).get(),
+            static_cast<deg_per_sec_t>(car.yawRate).get());
     }
 
     static uint32_t deserialize(const char * const stream, void * const value) {
