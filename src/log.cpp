@@ -34,6 +34,7 @@ void Log::vprint(level_t level, const char *format, va_list args) {
         uint32_t len = strncpy_until(msg, levelStr, strlen(levelStr));
         len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len - 3, format, args);
         len += strncpy_until(&msg[len], LOG_SEPARATOR_SEQ, ARRAY_SIZE(LOG_SEPARATOR_SEQ));
+        msg[len] = '\0';
         this->queue_.send(msg, millisecond_t(0));
     }
 }
