@@ -34,15 +34,15 @@ void MainLine::updateFrontRearLines(const Sign speedSign) {
     const meter_t rearPos  = centerLine.pos + diff;
 
     this->frontLine.id  = 0;
-    this->frontLine.pos = Sign::POSITIVE == speedSign ? frontPos : -rearPos;
+    this->frontLine.pos = frontPos;
     this->rearLine.id   = 0;
-    this->rearLine.pos  = Sign::POSITIVE == speedSign ? -rearPos : frontPos;
+    this->rearLine.pos  = -rearPos;
 }
 
 void MainLine::updateCenterLine(const Sign speedSign) {
     // gets front and rear positions in the car's coordinate system
-    const meter_t frontPos = Sign::POSITIVE == speedSign ? this->frontLine.pos : -this->rearLine.pos;
-    const meter_t rearPos  = Sign::POSITIVE == speedSign ? -this->rearLine.pos : this->frontLine.pos;
+    const meter_t frontPos = this->frontLine.pos;
+    const meter_t rearPos  = -this->rearLine.pos;
 
     this->centerLine.pos   = avg(frontPos, rearPos);
     this->centerLine.angle = atan2(-(frontPos - rearPos), this->carFrontRearSensorRowDist);
