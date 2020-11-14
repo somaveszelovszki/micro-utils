@@ -37,6 +37,14 @@ public:
     }
 };
 
+struct LineInfo {
+    struct {
+        Lines lines;
+        LinePattern pattern;
+        bool isPatternPending;
+    } front, rear;
+};
+
 enum class linePatternDomain_t : uint8_t {
     Race      = 0,
     Labyrinth = 1
