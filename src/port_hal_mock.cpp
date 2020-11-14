@@ -43,6 +43,7 @@ microsecond_t getExactTime() {
 }
 
 Status timer_getPeriod(const timer_t&, uint32_t& OUT) { return Status::OK; }
+Status timer_getCounter(const timer_t&, uint32_t& OUT) { return Status::OK; }
 Status timer_setCounter(const timer_t&, const uint32_t) { return Status::OK; }
 Status timer_getCompare(const timer_t&, const uint32_t, uint32_t& OUT) { return Status::OK; }
 Status timer_setCompare(const timer_t&, const uint32_t, const uint32_t) { return Status::OK; }
