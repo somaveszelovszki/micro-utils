@@ -1,5 +1,6 @@
 #include <micro/math/linalg.hpp>
 #include <micro/math/unit_utils.hpp>
+#include <micro/utils/LinePattern.hpp>
 #include <micro/utils/trajectory.hpp>
 
 namespace micro {
@@ -20,9 +21,11 @@ void Trajectory::appendLine(const config_t& dest) {
     }
 }
 
-void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed, uint32_t numSections) {
+void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed) {
     const configs_t::const_iterator lastCfg = this->configs_.back();
     const vec2m relativeVec = lastCfg->pose.pos - center;
+
+    const uint32_t numSections = (relativeVec.length() * angle) / centimeter_t(5);
 
     for (uint32_t i = 1; i <= numSections; ++i) {
         const m_per_sec_t currentSpeed    = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, destSpeed);
@@ -33,13 +36,15 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
     }
 }
 
-void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientationUpdate_t orientationUpdate, uint32_t numSections, radian_t sineStart, radian_t sineEnd) {
+void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientationUpdate_t orientationUpdate, radian_t sineStart, radian_t sineEnd) {
     const configs_t::const_iterator lastCfg = this->configs_.back();
     const point2m c1_ = lastCfg->pose.pos.rotate(-fwdAngle);
     const point2m c2_ = dest.pose.pos.rotate(-fwdAngle);
 
     const meter_t dx = c2_.X - c1_.X;
     const meter_t dy = c2_.Y - c1_.Y;
+
+    const uint32_t numSections = (dx + dy) / centimeter_t(5);
 
     configs_t::const_iterator prevCfg = lastCfg;
 
@@ -114,6 +119,37 @@ ControlData Trajectory::update(const CarProps car) {
     controlData.lineControl.target.pos   = millimeter_t(0);
     controlData.lineControl.target.angle = normalizePM180(sectionLineAngle - desiredFwdAngle);
     return controlData;
+}
+
+bool Trajectory::finished(const CarProps& car, const LineInfo& lineInfo) const {
+    static constexpr meter_t LINE_DETECTED_DISTANCE_LIMIT        = centimeter_t(15);
+    static constexpr meter_t CENTER_LINE_DETECTED_DISTANCE_LIMIT = centimeter_t(40);
+    static constexpr meter_t OVERFLOW_DISTANCE_LIMIT             = centimeter_t(150);
+    static constexpr meter_t CENTER_LINE_POS_LIMIT               = centimeter_t(4);
+
+    const Sign speedSign           = sgn(car.speed);
+    const meter_t residualDistance = this->length() - this->coveredDistance();
+    const bool lineDetected        = LinePattern::NONE != (Sign::POSITIVE == speedSign ? lineInfo.front.pattern : lineInfo.rear.pattern).type;
+
+    bool finished = false;
+
+    if (lineDetected) {
+        if (residualDistance < LINE_DETECTED_DISTANCE_LIMIT) {
+            finished = true;
+        } else if (residualDistance < CENTER_LINE_DETECTED_DISTANCE_LIMIT) {
+            const Lines& lines = Sign::POSITIVE == speedSign ? lineInfo.front.lines : lineInfo.rear.lines;
+            for (const Line& line : lines) {
+                if (abs(line.pos) < CENTER_LINE_POS_LIMIT) {
+                    finished = true;
+                    break;
+                }
+            }
+        }
+    } else if (residualDistance < -OVERFLOW_DISTANCE_LIMIT) {
+        finished = true;
+    }
+
+    return finished;
 }
 
 Trajectory::configs_t::const_iterator Trajectory::getClosestConfig(const point2m& pos) const {

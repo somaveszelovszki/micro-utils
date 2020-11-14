@@ -1,11 +1,12 @@
 #pragma once
 
-#include "CarProps.hpp"
-#include "ControlData.hpp"
-
 #include <micro/container/vec.hpp>
+#include <micro/utils/CarProps.hpp>
+#include <micro/utils/ControlData.hpp>
 
 namespace micro {
+
+struct LineInfo;
 
 class Trajectory {
 public:
@@ -34,7 +35,7 @@ public:
     }
 
     meter_t coveredDistance() const {
-        return min(this->coveredDistanceUntilLastConfig_ + carDistanceSinceLastConfig_, this->length_);
+        return this->coveredDistanceUntilLastConfig_ + carDistanceSinceLastConfig_, this->length_;
     }
 
     config_t lastConfig() const {
@@ -43,10 +44,12 @@ public:
 
     void setStartConfig(const config_t& start, meter_t currentDist);
     void appendLine(const config_t& dest);
-    void appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed, uint32_t numSections);
-    void appendSineArc(const config_t& dest, radian_t fwdAngle, orientationUpdate_t orientationUpdate, uint32_t numSections, radian_t sineStart, radian_t sineEnd);
+    void appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed);
+    void appendSineArc(const config_t& dest, radian_t fwdAngle, orientationUpdate_t orientationUpdate, radian_t sineStart, radian_t sineEnd);
 
     ControlData update(const CarProps car);
+
+    bool finished(const CarProps& car, const LineInfo& lineInfo) const;
 
     void clear() {
         this->configs_.clear();

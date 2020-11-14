@@ -92,7 +92,6 @@ void test_sine_arc_fix_orientation_perfect_follow(const Sign speedSign) {
         },
         radian_t(0),
         Trajectory::orientationUpdate_t::FIX_ORIENTATION,
-        50,
         radian_t(0),
         PI
     );
