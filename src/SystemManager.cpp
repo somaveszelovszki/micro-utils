@@ -14,6 +14,14 @@ SystemManager& SystemManager::instance() {
     return instance_;
 }
 
+SystemManager::programState_t SystemManager::programState() const {
+    return this->programState_;
+}
+
+void SystemManager::setProgramState(const programState_t programState) {
+    this->programState_ = programState;
+}
+
 void SystemManager::registerTask() {
     std::lock_guard<mutex_t> lock(this->mutex_);
 

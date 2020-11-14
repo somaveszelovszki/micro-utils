@@ -12,26 +12,27 @@
 
 namespace micro {
 
-struct TaskState {
-    TaskStatus_t details;
-    state_t<bool> ok;
-};
-
-struct TaskStateComparator {
-    constexpr bool operator()(const TaskState& a, const TaskState& b) const { return a.details.xHandle < b.details.xHandle; };
-    constexpr bool operator()(const TaskState& state, const TaskHandle_t& handle) const { return state.details.xHandle < handle; };
-    constexpr bool operator()(const TaskHandle_t& handle, const TaskState& state) const { return handle < state.details.xHandle; };
-};
-
 class SystemManager {
 public:
+    struct TaskState {
+        TaskStatus_t details;
+        state_t<bool> ok;
+    };
+
+    struct TaskStateComparator {
+        constexpr bool operator()(const TaskState& a, const TaskState& b) const             { return a.details.xHandle < b.details.xHandle; };
+        constexpr bool operator()(const TaskState& state, const TaskHandle_t& handle) const { return state.details.xHandle < handle; };
+        constexpr bool operator()(const TaskHandle_t& handle, const TaskState& state) const { return handle < state.details.xHandle; };
+    };
+
     typedef uint8_t programState_t;
     typedef sorted_vec<TaskState, 16, TaskStateComparator> TaskStates;
 
     static SystemManager& instance();
 
-    programState_t programState() const { return this->programState_; }
-    void setProgramState(const programState_t programState) { this->programState_ = programState; }
+    programState_t programState() const;
+
+    void setProgramState(const programState_t programState);
 
     void registerTask();
 
