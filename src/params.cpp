@@ -70,9 +70,6 @@ void Params::serializeAll(char * const str, uint32_t size) {
             str[idx++] = ',';
             if (idx >= size) break;
         }
-
-        str[idx++] = '\r';
-        str[idx++] = '\n';
     }
 
     str[idx++] = '}';
