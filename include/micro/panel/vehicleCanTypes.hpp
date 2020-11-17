@@ -117,9 +117,9 @@ struct LateralState {
     static constexpr millisecond_t period()  { return millisecond_t(5); }
     static constexpr millisecond_t timeout() { return millisecond_t(20); }
 
-    uint16_t frontWheelAngle_deg_8p8 : 16;
-    uint16_t rearWheelAngle_deg_8p8  : 16;
-    uint16_t extraServoAngle_deg_8p8 : 16;
+    int16_t frontWheelAngle_deg_8p8 : 16;
+    int16_t rearWheelAngle_deg_8p8  : 16;
+    int16_t extraServoAngle_deg_8p8 : 16;
 
     LateralState(const radian_t frontWheelAngle, const radian_t rearWheelAngle, const radian_t extraServoAngle);
     void acquire(radian_t& frontWheelAngle, radian_t& rearWheelAngle, radian_t& extraServoAngle) const;

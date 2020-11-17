@@ -130,14 +130,14 @@ void RearLines::acquire(Lines& lines) const {
 }
 
 LateralState::LateralState(const radian_t frontWheelAngle, const radian_t rearWheelAngle, const radian_t extraServoAngle)
-    : frontWheelAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(frontWheelAngle).get() * detail::SHIFT_8))
-    , rearWheelAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(rearWheelAngle).get() * detail::SHIFT_8))
-    , extraServoAngle_deg_8p8(static_cast<uint16_t>(static_cast<degree_t>(extraServoAngle).get() * detail::SHIFT_8)) {}
+    : frontWheelAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(frontWheelAngle).get() * detail::SHIFT_8))
+    , rearWheelAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(rearWheelAngle).get() * detail::SHIFT_8))
+    , extraServoAngle_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(extraServoAngle).get() * detail::SHIFT_8)) {}
 
 void LateralState::acquire(radian_t& frontWheelAngle, radian_t& rearWheelAngle, radian_t& extraServoAngle) const {
     frontWheelAngle = degree_t(this->frontWheelAngle_deg_8p8 / detail::SHIFT_8);
     rearWheelAngle  = degree_t(this->rearWheelAngle_deg_8p8 / detail::SHIFT_8);
-    extraServoAngle         = degree_t(this->extraServoAngle_deg_8p8 / detail::SHIFT_8);
+    extraServoAngle = degree_t(this->extraServoAngle_deg_8p8 / detail::SHIFT_8);
 }
 
 LongitudinalState::LongitudinalState(const m_per_sec_t speed, const meter_t distance)
