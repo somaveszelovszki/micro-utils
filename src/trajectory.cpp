@@ -5,6 +5,8 @@
 
 namespace micro {
 
+static constexpr meter_t TRAJECTORY_RESOLUTION = centimeter_t(1);
+
 void Trajectory::setStartConfig(const config_t& start, meter_t currentDist) {
     this->configs_.clear();
     this->configs_.push_back(start);
@@ -25,7 +27,7 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
     const configs_t::const_iterator lastCfg = this->configs_.back();
     const vec2m relativeVec = lastCfg->pose.pos - center;
 
-    const uint32_t numSections = (relativeVec.length() * angle) / centimeter_t(5);
+    const uint32_t numSections = (relativeVec.length() * angle) / TRAJECTORY_RESOLUTION;
 
     for (uint32_t i = 1; i <= numSections; ++i) {
         const m_per_sec_t currentSpeed    = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, destSpeed);
@@ -44,7 +46,7 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
     const meter_t dx = c2_.X - c1_.X;
     const meter_t dy = c2_.Y - c1_.Y;
 
-    const uint32_t numSections = (dx + dy) / centimeter_t(5);
+    const uint32_t numSections = (dx + dy) / TRAJECTORY_RESOLUTION;
 
     configs_t::const_iterator prevCfg = lastCfg;
 
@@ -62,62 +64,43 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
 
 ControlData Trajectory::update(const CarProps car) {
 
-    const configs_t::const_iterator closestConfig = this->getClosestConfig(car.pose.pos);
-    configs_t::const_iterator otherConfig;
+    const std::pair<configs_t::const_iterator, configs_t::const_iterator> sectionBoundaries = getSectionBoundaries(car.pose.pos);
 
-    if (closestConfig == this->configs_.begin()) {
-        otherConfig = closestConfig + 1;
-    } else if (closestConfig == this->configs_.back()) {
-        otherConfig = closestConfig - 1;
-    } else {
-        const meter_t closestDist = car.pose.pos.distance(closestConfig->pose.pos);
-
-        const float prevRelativeDist = car.pose.pos.distance((closestConfig - 1)->pose.pos) / closestDist;
-        const float nextRelativeDist = car.pose.pos.distance((closestConfig + 1)->pose.pos) / closestDist;
-
-        if (prevRelativeDist < nextRelativeDist) {
-            otherConfig = closestConfig - 1;
-        } else {
-            otherConfig = closestConfig + 1;
-        }
-    }
-
-    const configs_t::const_iterator sectionStartConfig = min(closestConfig, otherConfig);
-    const configs_t::const_iterator sectionEndConfig   = max(closestConfig, otherConfig);
-
-    if (sectionStartConfig > this->sectionStartConfig_) {
-        for (configs_t::const_iterator it = this->sectionStartConfig_; it != sectionStartConfig; ++it) {
+    if (sectionBoundaries.first > this->sectionStartConfig_) {
+        for (configs_t::const_iterator it = this->sectionStartConfig_; it != sectionBoundaries.first; ++it) {
             this->coveredDistanceUntilLastConfig_ += (it + 1)->pose.pos.distance(it->pose.pos);
         }
-        this->sectionStartConfig_ = sectionStartConfig;
+        this->sectionStartConfig_ = sectionBoundaries.first;
         this->carDistanceAtLastConfig_ = car.distance;
     }
 
     this->carDistanceSinceLastConfig_ = car.distance - this->carDistanceAtLastConfig_;
 
-    const line2m carCenterLine(car.pose.pos, car.pose.pos + vec2m{ meter_t(0), meter_t(1) }.rotate(car.pose.angle));
-    const radian_t fwdAngle         = car.speed >= m_per_sec_t(0) ? car.pose.angle : car.pose.angle + PI;
-    const line2m sectionLine        = line2f(sectionStartConfig->pose.pos, sectionEndConfig->pose.pos);
+    const line2m carPerpendicularLine(car.pose.pos, car.pose.pos + vec2m{ meter_t(0), meter_t(1) }.rotate(car.pose.angle));
+
+    const line2m sectionLine(sectionBoundaries.first->pose.pos, sectionBoundaries.second->pose.pos);
     const radian_t sectionLineAngle = sectionLine.getAngle();
-    const point2m linePoint         = lineLine_intersection(sectionLine, carCenterLine);
-    const radian_t linePointAngle   = (linePoint - car.pose.pos).getAngle();
-    const Sign lineSign             = eqWithOverflow360(linePointAngle, fwdAngle - PI_2, PI_2) ? Sign::POSITIVE : Sign::NEGATIVE;
 
-    const meter_t sectionStartDist  = sectionStartConfig->pose.pos.distance(car.pose.pos);
-    const meter_t sectionEndDist    = sectionEndConfig->pose.pos.distance(car.pose.pos);
-    const meter_t sectionLength     = sectionEndDist - sectionStartDist;
+    const point2m linePoint       = lineLine_intersection(sectionLine, carPerpendicularLine);
+    const radian_t linePointAngle = (linePoint - car.pose.pos).getAngle();
+    const Sign lineSign           = eqWithOverflow360(linePointAngle, car.pose.angle + PI_2, PI_2) ? Sign::NEGATIVE : Sign::POSITIVE;
 
-    const radian_t fwdAngleDiff     = normalizePM180(sectionEndConfig->pose.angle - sectionStartConfig->pose.angle);
-    const radian_t desiredFwdAngle  = sectionStartConfig->pose.angle + map(sectionStartDist.get(), 0.0f, sectionLength.get(), radian_t(0), fwdAngleDiff);
+    const meter_t sectionStartDist = sectionBoundaries.first->pose.pos.distance(car.pose.pos);
+    const meter_t sectionEndDist   = sectionBoundaries.second->pose.pos.distance(car.pose.pos);
+    const meter_t sectionLength    = sectionEndDist - sectionStartDist;
+
+    const radian_t fwdAngleDiff   = normalizePM180(sectionBoundaries.second->pose.angle - sectionBoundaries.first->pose.angle);
+    const radian_t targetFwdAngle = sectionBoundaries.first->pose.angle + map(sectionStartDist.get(), 0.0f, sectionLength.get(), radian_t(0), fwdAngleDiff);
 
     ControlData controlData;
-    controlData.speed                    = map(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionStartConfig->speed, sectionEndConfig->speed);
+    controlData.speed                    = map(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionBoundaries.first->speed, sectionBoundaries.second->speed);
     controlData.rampTime                 = millisecond_t(0);
     controlData.controlType              = ControlData::controlType_t::Line;
-    controlData.lineControl.actual.pos   = linePoint.distance(car.pose.pos) * lineSign;
-    controlData.lineControl.actual.angle = normalizePM180(sectionLineAngle - fwdAngle);
+    controlData.lineControl.actual.pos   = lineSign * linePoint.distance(car.pose.pos);
+    controlData.lineControl.actual.angle = normalize(sectionLineAngle - car.pose.angle, PI, true);
     controlData.lineControl.target.pos   = millimeter_t(0);
-    controlData.lineControl.target.angle = normalizePM180(sectionLineAngle - desiredFwdAngle);
+    controlData.lineControl.target.angle = normalize(sectionLineAngle - targetFwdAngle, PI, true);
+
     return controlData;
 }
 
@@ -150,6 +133,33 @@ bool Trajectory::finished(const CarProps& car, const LineInfo& lineInfo) const {
     }
 
     return finished;
+}
+
+std::pair<Trajectory::configs_t::const_iterator, Trajectory::configs_t::const_iterator> Trajectory::getSectionBoundaries(const point2m& pos) const {
+    const configs_t::const_iterator closestConfig = this->getClosestConfig(pos);
+    configs_t::const_iterator otherConfig;
+
+    if (closestConfig == this->configs_.begin()) {
+        otherConfig = closestConfig + 1;
+    } else if (closestConfig == this->configs_.back()) {
+        otherConfig = closestConfig - 1;
+    } else {
+        const meter_t closestDist = pos.distance(closestConfig->pose.pos);
+
+        const float prevRelativeDist = pos.distance((closestConfig - 1)->pose.pos) / closestDist;
+        const float nextRelativeDist = pos.distance((closestConfig + 1)->pose.pos) / closestDist;
+
+        if (prevRelativeDist < nextRelativeDist) {
+            otherConfig = closestConfig - 1;
+        } else {
+            otherConfig = closestConfig + 1;
+        }
+    }
+
+    return {
+        min(closestConfig, otherConfig),
+        max(closestConfig, otherConfig)
+    };
 }
 
 Trajectory::configs_t::const_iterator Trajectory::getClosestConfig(const point2m& pos) const {

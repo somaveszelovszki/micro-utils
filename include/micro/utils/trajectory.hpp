@@ -35,7 +35,7 @@ public:
     }
 
     meter_t coveredDistance() const {
-        return this->coveredDistanceUntilLastConfig_ + carDistanceSinceLastConfig_, this->length_;
+        return this->coveredDistanceUntilLastConfig_ + carDistanceSinceLastConfig_;
     }
 
     config_t lastConfig() const {
@@ -61,6 +61,8 @@ public:
     }
 
 private:
+    std::pair<configs_t::const_iterator, configs_t::const_iterator> getSectionBoundaries(const point2m& pos) const;
+
     configs_t::const_iterator getClosestConfig(const point2m& pos) const;
 
     configs_t configs_;
