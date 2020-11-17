@@ -116,34 +116,30 @@ inline constexpr typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::
     return radian_t(atan2(y.template get<true>(), static_cast<T1>(x).template get<true>()));
 }
 
-inline radian_t normalizePM180(radian_t value) {
-    while(value >= PI) {
-        value -= 2 * PI;
+inline radian_t normalize(radian_t value, const radian_t limit, const bool zeroOffset = false) {
+
+    const radian_t overflowLimit = zeroOffset ? limit / 2 : limit;
+
+    while(value >= overflowLimit) {
+        value -= limit;
     }
-    while(value < -PI) {
-        value += 2 * PI;
+    while(value < -overflowLimit) {
+        value += limit;
     }
+
     return value;
+}
+
+inline radian_t normalizePM180(radian_t value) {
+    return normalize(value, 2 * PI, true);
 }
 
 inline radian_t normalize360(radian_t value) {
-    while(value >= 2 * PI) {
-        value -= 2 * PI;
-    }
-    while(value < radian_t(0)) {
-        value += 2 * PI;
-    }
-    return value;
+    return normalize(value, 2 * PI, false);
 }
 
 inline radian_t normalize180(radian_t value) {
-    while(value >= PI) {
-        value -= PI;
-    }
-    while(value < radian_t(0)) {
-        value += PI;
-    }
-    return value;
+    return normalize(value, PI, false);
 }
 
 inline bool eqWithOverflow360(radian_t value, radian_t ref, radian_t eps) {
