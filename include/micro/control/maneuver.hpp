@@ -8,9 +8,6 @@ namespace micro {
 
 class Maneuver {
 public:
-    Maneuver()
-        : finished_(false) {}
-
     virtual ~Maneuver() = default;
 
     virtual void update(const CarProps& car, const LineInfo& lineInfo, MainLine& mainLine, ControlData& controlData) = 0;
@@ -20,6 +17,12 @@ public:
     }
 
 protected:
+    Maneuver() : finished_(false) {}
+
+    void initialize() {
+        this->finished_ = false;
+    }
+
     void finish() {
         this->finished_ = true;
     }
