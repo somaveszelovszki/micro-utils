@@ -1,5 +1,6 @@
 #include <micro/hw/DC_Motor.hpp>
 #include <micro/math/numeric.hpp>
+#include <micro/port/task.hpp>
 
 namespace micro {
 namespace hw {
@@ -15,8 +16,12 @@ DC_Motor::DC_Motor(const timer_t& timer, const uint32_t chnl1, const uint32_t ch
 
 void DC_Motor::write(const float duty) {
     const float duty1 = map(duty, -1.0f, 1.0f, 1.0f - this->maxDuty_, this->maxDuty_);
+
+    criticalSection_t criticalSection;
+    criticalSection.lock();
     timer_setDuty(this->timer_, this->chnl1_, duty1);
     timer_setDuty(this->timer_, this->chnl2_, 1.0f - duty1);
+    criticalSection.unlock();
 }
 
 } // namespace hw
