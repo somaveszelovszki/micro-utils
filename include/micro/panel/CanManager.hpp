@@ -32,16 +32,20 @@ struct CanSubscriber {
         millisecond_t lastActivityTime;
     };
 
+    typedef sorted_map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS> Filters;
+
     id_t id;
-    sorted_map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS> rxFilters, txFilters;
+    Filters rxFilters, txFilters;
     ring_buffer<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
 
     CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
+
+    bool hasTimedOut() const;
 };
 
 class CanManager {
 public:
-    CanManager(const can_t& can, const millisecond_t rxTimeout);
+    explicit CanManager(const can_t& can);
 
     CanSubscriber::id_t registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters);
 
@@ -68,12 +72,9 @@ public:
         }
     }
 
-    bool hasRxTimedOut() const {
-        std::lock_guard<criticalSection_t> lock(this->criticalSection_);
-        return this->rxWatchdog_.hasTimedOut();
-    }
-
     void onFrameReceived();
+
+    bool hasTimedOut(const CanSubscriber::id_t subscriberId) const;
 
 private:
     bool isValid(const CanSubscriber::id_t subscriberId) const {
@@ -94,7 +95,6 @@ private:
 
     mutable criticalSection_t criticalSection_;
     can_t can_;
-    WatchdogTimer rxWatchdog_;
     vec<CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
 };
 
