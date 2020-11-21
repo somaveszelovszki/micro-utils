@@ -140,14 +140,15 @@ void LateralState::acquire(radian_t& frontWheelAngle, radian_t& rearWheelAngle, 
     extraServoAngle = degree_t(this->extraServoAngle_deg_8p8 / detail::SHIFT_8);
 }
 
-LongitudinalState::LongitudinalState(const m_per_sec_t speed, const meter_t distance)
+LongitudinalState::LongitudinalState(const m_per_sec_t speed, const bool remoteControlled, const meter_t distance)
     : speed_mmps(static_cast<int16_t>(static_cast<mm_per_sec_t>(speed).get()))
-    , reserved(0)
+    , remoteControlled(remoteControlled)
     , distance_mm(static_cast<uint32_t>(static_cast<millimeter_t>(distance).get())) {}
 
-void LongitudinalState::acquire(m_per_sec_t& speed, meter_t& distance) const {
-    speed    = mm_per_sec_t(this->speed_mmps);
-    distance = millimeter_t(this->distance_mm);
+void LongitudinalState::acquire(m_per_sec_t& speed, bool& remoteControlled, meter_t& distance) const {
+    speed            = mm_per_sec_t(this->speed_mmps);
+    remoteControlled = this->remoteControlled;
+    distance         = millimeter_t(this->distance_mm);
 }
 
 FrontLinePattern::FrontLinePattern(const LinePattern& pattern)

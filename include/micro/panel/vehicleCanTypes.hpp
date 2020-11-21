@@ -10,6 +10,19 @@
 
 namespace micro {
 namespace can {
+
+template <typename T>
+CAN_TxHeaderTypeDef buildHeader() {
+    CAN_TxHeaderTypeDef header;
+    header.StdId = T::id();
+    header.ExtId = 0;
+    header.IDE   = CAN_ID_STD;
+    header.RTR   = CAN_RTR_DATA;
+    header.DLC   = sizeof(T);
+    header.TransmitGlobalTime = DISABLE;
+    return header;
+}
+
 namespace detail {
 
 struct Lines {
@@ -47,18 +60,6 @@ struct MotorControlParams {
 } __attribute__((packed));
 
 } // namespace detail
-
-template <typename T>
-CAN_TxHeaderTypeDef buildHeader() {
-    CAN_TxHeaderTypeDef header;
-    header.StdId = T::id();
-    header.ExtId = 0;
-    header.IDE   = CAN_ID_STD;
-    header.RTR   = CAN_RTR_DATA;
-    header.DLC   = sizeof(T);
-    header.TransmitGlobalTime = DISABLE;
-    return header;
-}
 
 struct LateralControl {
     static constexpr uint16_t id() { return 0x301; }
@@ -131,12 +132,12 @@ struct LongitudinalState {
     static constexpr millisecond_t period()  { return millisecond_t(5); }
     static constexpr millisecond_t timeout() { return millisecond_t(20); }
 
-    int16_t  speed_mmps  : 15;
-    uint8_t  reserved    : 1;
-    uint32_t distance_mm : 24;
+    int16_t  speed_mmps       : 15;
+    bool     remoteControlled : 1;
+    uint32_t distance_mm      : 24;
 
-    LongitudinalState(const m_per_sec_t speed, const meter_t distance);
-    void acquire(m_per_sec_t& speed, meter_t& distance) const;
+    LongitudinalState(const m_per_sec_t speed, const bool remoteControlled, const meter_t distance);
+    void acquire(m_per_sec_t& speed, bool& remoteControlled, meter_t& distance) const;
 
 } __attribute__((packed));
 
