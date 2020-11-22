@@ -73,15 +73,6 @@ micro::can::detail::LinePattern convert(const micro::LinePattern& in) {
     };
 }
 
-ServoParams::ServoParams(const radian_t offset, const radian_t maxDelta)
-    : offset_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(offset).get() * detail::SHIFT_8))
-    , maxDelta_deg_8p8(static_cast<int16_t>(static_cast<degree_t>(maxDelta).get() * detail::SHIFT_8)) {}
-
-void ServoParams::acquire(radian_t& offset, radian_t& maxAngle) const {
-    offset   = degree_t(this->offset_deg_8p8 / detail::SHIFT_8);
-    maxAngle = degree_t(this->maxDelta_deg_8p8 / detail::SHIFT_8);
-}
-
 MotorControlParams::MotorControlParams(const float controller_P, const float controller_I)
     : controller_P_8p24(static_cast<uint32_t>(controller_P * detail::SHIFT_24))
     , controller_I_8p24(static_cast<uint32_t>(controller_I * detail::SHIFT_24)) {}

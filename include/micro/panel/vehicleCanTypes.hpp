@@ -41,15 +41,6 @@ struct LinePattern {
     uint8_t reserved      : 7;
 } __attribute__((packed));
 
-struct ServoParams {
-    int16_t offset_deg_8p8   : 16;
-    int16_t maxDelta_deg_8p8 : 16;
-
-    ServoParams(const radian_t offset, const radian_t maxDelta);
-    void acquire(radian_t& offset, radian_t& maxDelta) const;
-
-} __attribute__((packed));
-
 struct MotorControlParams {
     uint32_t controller_P_8p24 : 32;
     uint32_t controller_I_8p24 : 32;
@@ -180,66 +171,12 @@ struct LineDetectControl {
 
 } __attribute__((packed));
 
-struct SetFrontSteeringServoParams : public detail::ServoParams {
-    static constexpr uint16_t id() { return 0x601; }
-    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
-    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
-
-    using detail::ServoParams::ServoParams;
-
-} __attribute__((packed));
-
-struct SetRearSteeringServoParams : public detail::ServoParams {
-    static constexpr uint16_t id() { return 0x602; }
-    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
-    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
-
-    using detail::ServoParams::ServoParams;
-
-} __attribute__((packed));
-
-struct SetExtraServoParams : public detail::ServoParams {
-    static constexpr uint16_t id() { return 0x603; }
-    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
-    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
-
-    using detail::ServoParams::ServoParams;
-
-} __attribute__((packed));
-
 struct SetMotorControlParams : public detail::MotorControlParams {
     static constexpr uint16_t id() { return 0x604; }
     static constexpr millisecond_t period()  { return micro::millisecond_t(1000); }
     static constexpr millisecond_t timeout() { return micro::millisecond_t(2000); }
 
     using detail::MotorControlParams::MotorControlParams;
-
-} __attribute__((packed));
-
-struct FrontSteeringServoParams : public detail::ServoParams {
-    static constexpr uint16_t id() { return 0x701; }
-    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
-    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
-
-    using detail::ServoParams::ServoParams;
-
-} __attribute__((packed));
-
-struct RearSteeringServoParams : public detail::ServoParams {
-    static constexpr uint16_t id() { return 0x702; }
-    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
-    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
-
-    using detail::ServoParams::ServoParams;
-
-} __attribute__((packed));
-
-struct ExtraServoParams : public detail::ServoParams {
-    static constexpr uint16_t id() { return 0x703; }
-    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
-    static constexpr millisecond_t timeout() { return micro::numeric_limits<millisecond_t>::infinity(); }
-
-    using detail::ServoParams::ServoParams;
 
 } __attribute__((packed));
 
