@@ -27,15 +27,13 @@ void PID_Controller::update(const float measured) {
         this->integral_ = 0.0f;
     } else {
         const millisecond_t d_time = now - this->prevUpdateTime_;
-        this->integral_ += error;
-        const float output = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) * d_time.get() * this->params_.D;
+        this->output_ = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) * d_time.get() * this->params_.D;
 
-        // resets integral on zero-crossings
-        if (sgn(error) != sgn(this->prevErr_)) {
-            this->integral_ = 0.0f;
+        if (isBtw(this->output_, -this->outMax_, this->outMax_)) {
+            this->integral_ += error;
+        } else {
+            this->output_ = clamp(this->output_, -this->outMax_, this->outMax_);
         }
-
-        this->output_ = clamp(output, -this->outMax_, this->outMax_);
     }
 
     this->prevUpdateTime_ = now;
