@@ -51,7 +51,7 @@ void Params::serializeAll(char * const str, uint32_t size) {
 
     std::lock_guard<mutex_t> lock(this->mutex_);
 
-    uint32_t idx = strncpy_until(str, PARAMS_START_SEQ, ARRAY_SIZE(PARAMS_START_SEQ));
+    uint32_t idx = strncpy_until(str, PARAMS_START_SEQ, size);
     str[idx++] = '{';
 
     for (values_t::const_iterator it = this->values_.begin(); it != this->values_.end(); ++it) {
@@ -73,17 +73,17 @@ void Params::serializeAll(char * const str, uint32_t size) {
     }
 
     str[idx++] = '}';
-    idx += strncpy_until(&str[idx], LOG_SEPARATOR_SEQ, ARRAY_SIZE(LOG_SEPARATOR_SEQ));
+    idx += strncpy_until(&str[idx], LOG_SEPARATOR_SEQ, size - idx);
 }
 
 void Params::deserializeAll(const char * const str, uint32_t size) {
 
     std::lock_guard<mutex_t> lock(this->mutex_);
 
-    if (!strncmp(str, PARAMS_START_SEQ, ARRAY_SIZE(PARAMS_START_SEQ))) {
+    if (!strncmp(str, PARAMS_START_SEQ, strlen(PARAMS_START_SEQ))) {
         const char *msgEnd = std::find(str, str + size, LOG_SEPARATOR_CHAR);
         if (msgEnd != str + size) {
-            uint32_t idx = ARRAY_SIZE(PARAMS_START_SEQ);
+            uint32_t idx = strlen(PARAMS_START_SEQ);
             idx++; // '{'
 
             char name[STR_MAX_LEN_PARAM_NAME];
@@ -95,11 +95,11 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
                 idx++; // ':'
 
                 const values_t::iterator it = std::lower_bound(this->values_.begin(), this->values_.end(), name, ParamNameComparator{});
-                if (it == this->values_.end()) {
+                if (it == this->values_.end() || strncmp(it->name, name, STR_MAX_LEN_PARAM_NAME) != 0) {
                     LOG_ERROR("Unknown parameter name: '%s'.", name);
-                    skipParam(&str[idx], idx);
+                    skipParam(str, idx);
                 } else if (it->permission == Param::permission_t::ReadOnly) {
-                    skipParam(&str[idx], idx);
+                    skipParam(str, idx);
                 } else {
                     idx += it->deserialize(&str[idx], it->buf);
                 }
@@ -127,7 +127,6 @@ void Params::skipWhiteSpaces(const char * const str, uint32_t& idx) {
 void Params::skipParam(const char * const str, uint32_t& idx) {
     uint32_t depth = 0;
     bool isStr = false;
-    bool end = false;
 
     do {
         const char c = str[idx];
@@ -138,7 +137,7 @@ void Params::skipParam(const char * const str, uint32_t& idx) {
 
         if (!isStr) {
             if (depth == 0 && (c == ',' || c == '}')) {
-                end = true;
+                break;
             } else if (c == '{') {
                 ++depth;
             } else if (c == '}') {
@@ -147,7 +146,7 @@ void Params::skipParam(const char * const str, uint32_t& idx) {
         }
 
         ++idx;
-    } while (!end);
+    } while (true);
 }
 
 } // namespace micro
