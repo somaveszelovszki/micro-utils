@@ -93,7 +93,7 @@ template <typename T_rx, typename T_tx>
 void PanelLink<T_rx, T_tx>::send(const T_tx& txData) {
     if (this->isConnected()) {
         this->txData_ = txData;
-        calcChecksum(this->txData_);
+        this->txData_.checksum = calcChecksum(this->txData_);
         uart_transmit(this->uart_, (uint8_t*)&this->txData_, sizeof(this->txData_));
         this->lastTxTime_ = getTime();
     }
@@ -131,7 +131,7 @@ void PanelLink<T_rx, T_tx>::update() {
 
         if (panelLinkRole_t::Master == this->role_) {
             uart_receive(this->uart_, reinterpret_cast<uint8_t*>(&this->rxData_), sizeof(T_rx));
-            calcChecksum(this->startData_);
+            this->startData_.checksum = calcChecksum(this->startData_);
             uart_transmit(this->uart_, reinterpret_cast<uint8_t*>(&this->startData_), sizeof(PanelLinkData));
         } else { // Slave
             this->startData_.checksum = 0;
