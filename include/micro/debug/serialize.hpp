@@ -19,7 +19,7 @@ template <>
 struct Serializer<bool> {
     static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
         uint32_t result = 0;
-        if (value) {
+        if (*static_cast<const bool*>(value)) {
             strncpy(stream, "true", size);
             result = 4;
         } else {
