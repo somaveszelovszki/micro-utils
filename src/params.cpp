@@ -14,11 +14,12 @@ namespace micro {
 
 constexpr char PARAMS_START_SEQ[] = "[P]";
 
-Param::Param() : Param("", permission_t::ReadOnly, nullptr, 0, nullptr, nullptr) {}
+Param::Param() : Param("", false, false, nullptr, 0, nullptr, nullptr) {}
 
-Param::Param(const char *name, const permission_t permission, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
+Param::Param(const char *name, const bool broadcast, const bool writable, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
     : name("")
-    , permission(permission)
+    , broadcast(broadcast)
+    , writable(writable)
     , buf(buf)
     , size(size)
     , serialize(serialize)
@@ -55,20 +56,22 @@ void Params::serializeAll(char * const str, uint32_t size) {
     str[idx++] = '{';
 
     for (values_t::const_iterator it = this->values_.begin(); it != this->values_.end(); ++it) {
-        str[idx++] = '"';
+        if (it->broadcast) {
+            str[idx++] = '"';
 
-        idx += strncpy_until(&str[idx], it->name, size - idx);
+            idx += strncpy_until(&str[idx], it->name, size - idx);
 
-        str[idx++] = '"';
-        str[idx++] = ':';
+            str[idx++] = '"';
+            str[idx++] = ':';
 
-        idx += it->serialize(&str[idx], size - idx, it->buf);
+            idx += it->serialize(&str[idx], size - idx, it->buf);
 
-        if (idx >= size) break;
-
-        if (it != this->values_.back()) {
-            str[idx++] = ',';
             if (idx >= size) break;
+
+            if (it != this->values_.back()) {
+                str[idx++] = ',';
+                if (idx >= size) break;
+            }
         }
     }
 
@@ -98,10 +101,10 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
                 if (it == this->values_.end() || strncmp(it->name, name, STR_MAX_LEN_PARAM_NAME) != 0) {
                     LOG_ERROR("Unknown parameter name: '%s'.", name);
                     skipParam(str, idx);
-                } else if (it->permission == Param::permission_t::ReadOnly) {
-                    skipParam(str, idx);
-                } else {
+                } else if (it->writable) {
                     idx += it->deserialize(&str[idx], it->buf);
+                } else {
+                    skipParam(str, idx);
                 }
 
                 skipWhiteSpaces(str, idx);

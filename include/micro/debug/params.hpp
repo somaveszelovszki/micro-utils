@@ -10,26 +10,22 @@
 #include <mutex>
 
 #define STR_MAX_LEN_PARAM_NAME 32u
-#define MAX_NUM_GLOBAL_PARAMS  64u
+#define MAX_NUM_GLOBAL_PARAMS  128u
 
 namespace micro {
 
 struct Param {
-    enum class permission_t : uint8_t {
-        ReadOnly  = 0,
-        ReadWrite = 1
-    };
-
     Param();
 
-    Param(const char *name, const permission_t permission, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize);
+    Param(const char *name, const bool broadcast, const bool writable, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize);
 
     Param(const Param& other) = default;
 
     Param& operator=(const Param& other) = default;
 
     char name[STR_MAX_LEN_PARAM_NAME];
-    permission_t permission;
+    bool broadcast;
+    bool writable;
     void *buf;
     uint8_t size;
     serialize_func serialize;
@@ -48,11 +44,12 @@ public:
     static Params& instance();
 
     template <typename T>
-    void registerParam(const char *name, T& value, const Param::permission_t permission) {
+    void registerParam(const char *name, T& value, const bool broadcast, const bool writable) {
         std::lock_guard<mutex_t> lock(this->mutex_);
         this->values_.insert(Param(
             name,
-            permission,
+            broadcast,
+            writable,
             reinterpret_cast<uint8_t*>(&value),
             sizeof(T),
             micro::Serializer<T>::serialize,
@@ -76,8 +73,9 @@ private:
     values_t values_;
 };
 
-#define REGISTER_READ_ONLY_PARAM(var)  micro::Params::instance().registerParam(#var, var, Param::permission_t::ReadOnly)
-#define REGISTER_READ_WRITE_PARAM(var) micro::Params::instance().registerParam(#var, var, Param::permission_t::ReadWrite)
+#define REGISTER_READ_ONLY_PARAM(var)  micro::Params::instance().registerParam(#var, var, true, false)
+#define REGISTER_WRITE_ONLY_PARAM(var) micro::Params::instance().registerParam(#var, var, false, true)
+#define REGISTER_READ_WRITE_PARAM(var) micro::Params::instance().registerParam(#var, var, true, true)
 
 } // namespace micro
 
