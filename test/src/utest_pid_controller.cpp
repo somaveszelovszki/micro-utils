@@ -14,15 +14,13 @@ constexpr millisecond_t MOTOR_DEAD_TIME              = millisecond_t(50);
 constexpr microsecond_t SIMULATION_STEP   = microsecond_t(500);
 constexpr microsecond_t SIMULATION_LENGTH = second_t(5);
 
-} // namespace
-
-TEST(PID_Controller, step) {
+void step(const m_per_sec_t target) {
     MotorSimulator motor(MOTOR_ACCELERATION_FWD_RATIO, MOTOR_ACCELERATION_BWD_RATIO, MOTOR_DEAD_TIME, SIMULATION_STEP);
 
     const PID_Params params = { 1.0f, 0.0005f, 0.0f };
     PID_Controller speedController(params, 1.0f, 0.0f);
 
-    speedController.target = m_per_sec_t(1.0f).get();
+    speedController.target = target.get();
 
     microsecond_t now = microsecond_t(0);
 
@@ -39,7 +37,7 @@ TEST(PID_Controller, step) {
     }
 }
 
-TEST(PID_Controller, ramp) {
+void ramp(const m_per_sec_t target) {
     MotorSimulator motor(MOTOR_ACCELERATION_FWD_RATIO, MOTOR_ACCELERATION_BWD_RATIO, MOTOR_DEAD_TIME, SIMULATION_STEP);
 
     const PID_Params params = { 1.0f, 0.0005f, 0.0f };
@@ -49,7 +47,7 @@ TEST(PID_Controller, ramp) {
 
     while (now < SIMULATION_LENGTH) {
 
-        speedController.target = micro::map<microsecond_t, m_per_sec_t>(now, second_t(0), second_t(2), m_per_sec_t(0), m_per_sec_t(1)).get();
+        speedController.target = micro::map<microsecond_t, m_per_sec_t>(now, second_t(0), second_t(2), m_per_sec_t(0), target).get();
 
         const float actual = motor.speed().get();
         speedController.update(actual);
@@ -59,4 +57,22 @@ TEST(PID_Controller, ramp) {
 
         now += SIMULATION_STEP;
     }
+}
+
+} // namespace
+
+TEST(PID_Controller, step_positive) {
+    step(m_per_sec_t(1));
+}
+
+TEST(PID_Controller, step_negative) {
+    step(m_per_sec_t(-1));
+}
+
+TEST(PID_Controller, ramp_positive) {
+    ramp(m_per_sec_t(1));
+}
+
+TEST(PID_Controller, ramp_negative) {
+    ramp(m_per_sec_t(-1));
 }
