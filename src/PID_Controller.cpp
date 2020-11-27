@@ -3,10 +3,11 @@
 
 namespace micro {
 
-PID_Controller::PID_Controller(const PID_Params& params, const float outMax, const float deadband)
+PID_Controller::PID_Controller(const PID_Params& params, const float outMax, const float maxRate, const float deadband)
     : target(0.0f)
     , params_(params)
     , outMax_(outMax)
+    , maxRate_(maxRate)
     , deadband_(deadband)
     , prevErr_(0.0f)
     , integral_(0.0f)
@@ -27,7 +28,9 @@ void PID_Controller::update(const float measured) {
         this->integral_ = 0.0f;
     } else {
         const millisecond_t d_time = now - this->prevUpdateTime_;
-        this->output_ = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) * d_time.get() * this->params_.D;
+        const float output = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) * d_time.get() * this->params_.D;
+
+        this->output_ = clamp(output, this->output_ - this->maxRate_, this->output_ + this->maxRate_);
 
         if (isBtw(this->output_, -this->outMax_, this->outMax_)) {
             this->integral_ += error;

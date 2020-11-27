@@ -3,6 +3,8 @@
 
 #include "utils.hpp"
 
+#include <fstream>
+
 using namespace micro;
 
 namespace {
@@ -18,16 +20,20 @@ void step(const m_per_sec_t target) {
     MotorSimulator motor(MOTOR_ACCELERATION_FWD_RATIO, MOTOR_ACCELERATION_BWD_RATIO, MOTOR_DEAD_TIME, SIMULATION_STEP);
 
     const PID_Params params = { 1.0f, 0.0005f, 0.0f };
-    PID_Controller speedController(params, 1.0f, 0.0f);
+    PID_Controller speedController(params, 1.0f, 0.2f, 0.0f);
 
     speedController.target = target.get();
 
     microsecond_t now = microsecond_t(0);
 
+    std::ofstream out("/home/soma/work/temp/controller.csv");
+
     while (now < SIMULATION_LENGTH) {
         const float actual = motor.speed().get();
         speedController.update(actual);
         motor.update(speedController.output());
+
+        out << actual << "," << speedController.output() << "\n";
 
         if (now > second_t(2)) {
             EXPECT_NEAR(speedController.target, actual, 0.1f);
@@ -41,7 +47,7 @@ void ramp(const m_per_sec_t target) {
     MotorSimulator motor(MOTOR_ACCELERATION_FWD_RATIO, MOTOR_ACCELERATION_BWD_RATIO, MOTOR_DEAD_TIME, SIMULATION_STEP);
 
     const PID_Params params = { 1.0f, 0.0005f, 0.0f };
-    PID_Controller speedController(params, 1.0f, 0.0f);
+    PID_Controller speedController(params, 1.0f, 0.2f, 0.0f);
 
     microsecond_t now = microsecond_t(0);
 

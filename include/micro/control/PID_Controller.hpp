@@ -24,7 +24,7 @@ inline PID_Params operator*(const T& c, const PID_Params& p) { return p * c; }
 
 class PID_Controller {
 public:
-    PID_Controller(const PID_Params& params, const float outMax, const float deadband);
+    PID_Controller(const PID_Params& params, const float outMax, const float maxRate, const float deadband);
 
     void tune(const PID_Params& params);
 
@@ -39,6 +39,7 @@ public:
 private:
     PID_Params params_;
     const float outMax_;
+    const float maxRate_;
     const float deadband_;
     float prevErr_;
     float integral_;
