@@ -8,10 +8,11 @@ namespace hw {
 
 /* @brief Controls a servo motor using the standard servo interface.
  **/
-class Servo : public ServoInterfaceMotor<radian_t> {
+class ServoMotor : public ServoInterfaceMotor<radian_t> {
 
 public:
-    Servo(const micro::timer_t& timer, uint32_t chnl, uint32_t pwmCenter, const radian_t transferRate, radian_t maxAngle, rad_per_sec_t maxAngVel);
+    ServoMotor(const micro::timer_t& timer, uint32_t chnl, uint32_t pwmCenter,
+        const radian_t& positiveTransferRate, const radian_t& negativeTransferRate, radian_t maxAngle, rad_per_sec_t maxAngVel);
 
     radian_t angle() const;
 

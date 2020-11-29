@@ -5,7 +5,7 @@ namespace micro {
 namespace hw {
 
 ServoInterfaceDcMotor::ServoInterfaceDcMotor(const micro::timer_t& timer, const uint32_t chnl)
-    : ServoInterfaceMotor<float>(timer, chnl, 1500, 1.0f / 500, 1.0f) {}
+    : ServoInterfaceMotor<float>(timer, chnl, 1500, 1.0f / 500, 1.0f / 500, 1.0f) {}
 
 BridgeDcMotor::BridgeDcMotor(const micro::timer_t& timer, const uint32_t chnl1, const uint32_t chnl2, const float maxDuty)
     : BridgeDcMotor(timer, chnl1, chnl2, gpio_t{}, gpio_t{}, maxDuty, false) {}

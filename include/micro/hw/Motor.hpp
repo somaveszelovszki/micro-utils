@@ -13,7 +13,7 @@ template <typename T>
 class Motor {
 public:
     explicit Motor(const T& maxValue)
-        : value_(0.0f)
+        : value_(0)
         , maxValue_(maxValue) {}
 
     void setValue(const T& value) {
@@ -44,18 +44,19 @@ private:
 template <typename T>
 class ServoInterfaceMotor : public Motor<T> {
 public:
-    ServoInterfaceMotor(const micro::timer_t& timer, const uint32_t chnl, uint32_t pwmOffset, const T& transferRate, const T& maxValue)
+    ServoInterfaceMotor(const micro::timer_t& timer, const uint32_t chnl, uint32_t pwmOffset, const T& positiveTransferRate, const T& negativeTransferRate, const T& maxValue)
         : Motor<T>(maxValue)
         , timer_(timer)
         , chnl_(chnl)
         , pwmOffset_(pwmOffset)
-        , transferRate_(transferRate) {}
+        , positiveTransferRate_(positiveTransferRate)
+        , negativeTransferRate_(negativeTransferRate) {}
 
     void start() override {}
 
     void write(const T& value) override {
         this->setValue(value);
-        const uint32_t pwm = this->pwmOffset_ + this->value() / this->transferRate_;
+        const uint32_t pwm = this->pwmOffset_ + micro::round(this->value() / (this->value() >= T(0) ? this->positiveTransferRate_ : this->negativeTransferRate_));
         timer_setCompare(this->timer_, this->chnl_, pwm);
     }
 
@@ -65,7 +66,8 @@ private:
     const micro::timer_t timer_;
     const uint32_t chnl_;
     const uint32_t pwmOffset_;
-    const T transferRate_;   // The transfer rate between the requested value and the output PWM relative the offset
+    const T positiveTransferRate_;   // The transfer rate between the requested value and the output PWM relative the offset in the positive direction
+    const T negativeTransferRate_;   // The transfer rate between the requested value and the output PWM relative the offset in the positive direction
 };
 
 } // namespace hw

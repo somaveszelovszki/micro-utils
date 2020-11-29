@@ -3,15 +3,16 @@
 namespace micro {
 namespace hw {
 
-Servo::Servo(const micro::timer_t& timer, uint32_t chnl, uint32_t pwmCenter, const radian_t transferRate, radian_t maxAngle, rad_per_sec_t maxAngVel)
-    : ServoInterfaceMotor<radian_t>(timer, chnl, pwmCenter, transferRate, maxAngle)
+ServoMotor::ServoMotor(const micro::timer_t& timer, uint32_t chnl, uint32_t pwmCenter,
+    const radian_t& positiveTransferRate, const radian_t& negativeTransferRate, radian_t maxAngle, rad_per_sec_t maxAngVel)
+    : ServoInterfaceMotor<radian_t>(timer, chnl, pwmCenter, positiveTransferRate, negativeTransferRate, maxAngle)
     , maxAngVel_(maxAngVel) {}
 
-radian_t Servo::angle() const {
+radian_t ServoMotor::angle() const {
     return this->actualAngle_;
 }
 
-void Servo::write(const radian_t& angle) {
+void ServoMotor::write(const radian_t& angle) {
 
     // updates actual angle
     const microsecond_t now    = getExactTime();
