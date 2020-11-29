@@ -15,8 +15,8 @@ namespace micro {
 #if defined STM32
 
 struct gpio_t {
-    GPIO_TypeDef *instance;
-    uint16_t pin;
+    GPIO_TypeDef *instance = nullptr;
+    uint16_t pin = 0;
 };
 
 #else // !STM32

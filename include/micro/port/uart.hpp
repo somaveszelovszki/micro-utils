@@ -15,7 +15,7 @@ namespace micro {
 #if defined STM32
 
 struct uart_t {
-    UART_HandleTypeDef *handle;
+    UART_HandleTypeDef *handle = nullptr;
 };
 
 #else // !STM32

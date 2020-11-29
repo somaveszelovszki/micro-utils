@@ -15,7 +15,7 @@ namespace micro {
 #if defined STM32
 
 struct i2c_t {
-    I2C_HandleTypeDef *handle;
+    I2C_HandleTypeDef *handle = nullptr;
 };
 
 #else // !STM32

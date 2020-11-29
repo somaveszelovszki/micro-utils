@@ -12,7 +12,7 @@ namespace micro {
 #if defined STM32F4
 
 struct can_t {
-    CAN_HandleTypeDef *handle;
+    CAN_HandleTypeDef *handle = nullptr;
 };
 
 struct canFrame_t {
