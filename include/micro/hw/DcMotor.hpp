@@ -35,6 +35,8 @@ private:
     const gpio_t shutdown1_;
     const gpio_t shutdown2_;
     const bool shutdownPinsEnabled_;
+
+    const float maxDuty_;
 };
 
 } // namespace hw
