@@ -30,11 +30,11 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
     const uint32_t numSections = (relativeVec.length() * angle) / TRAJECTORY_RESOLUTION;
 
     for (uint32_t i = 1; i <= numSections; ++i) {
-        const m_per_sec_t currentSpeed    = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, destSpeed);
-        const vec2m currentRelativeVec    = relativeVec.rotate(map<uint32_t, radian_t>(i, 0, numSections, radian_t(0), angle));
-        const radian_t currentOrientation = currentRelativeVec.getAngle() + sgn(angle) * PI_2;
+        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, destSpeed);
+        const vec2m currentRelativeVec = relativeVec.rotate(map<uint32_t, radian_t>(i, 0, numSections, radian_t(0), angle));
+        const radian_t currentFwdAngle = currentRelativeVec.getAngle() + sgn(angle) * PI_2;
 
-        this->appendLine(config_t{ { center + currentRelativeVec, currentOrientation }, currentSpeed });
+        this->appendLine(config_t{ { center + currentRelativeVec, toCarOrientation(currentFwdAngle, currentSpeed) }, currentSpeed });
     }
 }
 
@@ -53,11 +53,11 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
     for (uint32_t i = 1; i <= numSections; ++i) {
         const meter_t x_ = c1_.X + static_cast<float>(i) / numSections * dx;
         const meter_t y_ = c1_.Y + dy * (1 - cos(map<float, radian_t>(i, 0, numSections, sineStart, sineEnd))) / 2;
-        const point2m currentPoint        = point2m{ x_, y_ }.rotate(fwdAngle);
-        const m_per_sec_t currentSpeed    = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, dest.speed);
-        const radian_t currentOrientation = orientationUpdate == orientationUpdate_t::FIX_ORIENTATION ? lastCfg->pose.angle : (currentPoint - prevCfg->pose.pos).getAngle();
+        const point2m currentPoint     = point2m{ x_, y_ }.rotate(fwdAngle);
+        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, dest.speed);
+        const radian_t currentFwdAngle = orientationUpdate == orientationUpdate_t::FIX_ORIENTATION ? lastCfg->pose.angle : (currentPoint - prevCfg->pose.pos).getAngle();
 
-        this->appendLine(config_t{ { currentPoint, currentOrientation }, currentSpeed });
+        this->appendLine(config_t{ { currentPoint, toCarOrientation(currentFwdAngle, currentSpeed) }, currentSpeed });
         prevCfg = this->configs_.back();
     }
 }
@@ -177,6 +177,11 @@ Trajectory::configs_t::const_iterator Trajectory::getClosestConfig(const point2m
     }
 
     return closest;
+}
+
+radian_t Trajectory::toCarOrientation(const radian_t fwdAngle, const m_per_sec_t speed)
+{
+    return speed >= m_per_sec_t(0) ? fwdAngle : normalize360(fwdAngle + PI);
 }
 
 } // namespace micro

@@ -65,6 +65,8 @@ private:
 
     configs_t::const_iterator getClosestConfig(const point2m& pos) const;
 
+    static radian_t toCarOrientation(const radian_t fwdAngle, const m_per_sec_t speed);
+
     configs_t configs_;
     configs_t::const_iterator sectionStartConfig_;
     meter_t length_;
