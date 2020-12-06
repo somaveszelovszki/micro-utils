@@ -42,6 +42,8 @@ public:
         return *this->configs_.back();
     }
 
+    radian_t lastSpeedAngle() const;
+
     void setStartConfig(const config_t& start, meter_t currentDist);
     void appendLine(const config_t& dest);
     void appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed);

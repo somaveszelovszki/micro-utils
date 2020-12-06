@@ -3,9 +3,17 @@
 #include <micro/utils/LinePattern.hpp>
 #include <micro/utils/trajectory.hpp>
 
+#include <iterator>
+
 namespace micro {
 
 static constexpr meter_t TRAJECTORY_RESOLUTION = centimeter_t(1);
+
+radian_t Trajectory::lastSpeedAngle() const {
+    return this->configs_.size() >= 2 ?
+        (this->configs_.back()->pose.pos - std::prev(this->configs_.back())->pose.pos).getAngle() :
+        radian_t(0);
+}
 
 void Trajectory::setStartConfig(const config_t& start, meter_t currentDist) {
     this->configs_.clear();
