@@ -25,7 +25,7 @@ void Trajectory::setStartConfig(const config_t& start, meter_t currentDist) {
 
 void Trajectory::appendLine(const config_t& dest) {
     const meter_t diff = dest.pose.pos.distance(this->configs_.back()->pose.pos);
-    if (diff > centimeter_t(1)) {
+    if (diff >= TRAJECTORY_RESOLUTION) {
         this->length_ += diff;
         this->configs_.push_back(dest);
     }
@@ -70,13 +70,13 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
     }
 }
 
-ControlData Trajectory::update(const CarProps car) {
+ControlData Trajectory::update(const CarProps& car) {
 
-    const std::pair<configs_t::const_iterator, configs_t::const_iterator> sectionBoundaries = getSectionBoundaries(car.pose.pos);
+    const std::pair<configs_t::const_iterator, configs_t::const_iterator> sectionBoundaries = getSectionBoundaries(car);
 
     if (sectionBoundaries.first > this->sectionStartConfig_) {
         for (configs_t::const_iterator it = this->sectionStartConfig_; it != sectionBoundaries.first; ++it) {
-            this->coveredDistanceUntilLastConfig_ += (it + 1)->pose.pos.distance(it->pose.pos);
+            this->coveredDistanceUntilLastConfig_ += std::next(it)->pose.pos.distance(it->pose.pos);
         }
         this->sectionStartConfig_ = sectionBoundaries.first;
         this->carDistanceAtLastConfig_ = car.distance;
@@ -112,55 +112,41 @@ ControlData Trajectory::update(const CarProps car) {
     return controlData;
 }
 
-bool Trajectory::finished(const CarProps& car, const LineInfo& lineInfo) const {
-    static constexpr meter_t LINE_DETECTED_DISTANCE_LIMIT        = centimeter_t(15);
-    static constexpr meter_t CENTER_LINE_DETECTED_DISTANCE_LIMIT = centimeter_t(40);
-    static constexpr meter_t OVERFLOW_DISTANCE_LIMIT             = centimeter_t(150);
-    static constexpr meter_t CENTER_LINE_POS_LIMIT               = centimeter_t(4);
+bool Trajectory::finished(const CarProps& car, const LineInfo& lineInfo, const meter_t lineDetectedDistanceThreshold) const {
 
-    const Sign speedSign           = sgn(car.speed);
     const meter_t residualDistance = this->length() - this->coveredDistance();
-    const bool lineDetected        = LinePattern::NONE != (Sign::POSITIVE == speedSign ? lineInfo.front.pattern : lineInfo.rear.pattern).type;
+    const Lines& lines             = (car.speed >= m_per_sec_t(0) ? lineInfo.front : lineInfo.rear).lines;
 
-    bool finished = false;
-
-    if (lineDetected) {
-        if (residualDistance < LINE_DETECTED_DISTANCE_LIMIT) {
-            finished = true;
-        } else if (residualDistance < CENTER_LINE_DETECTED_DISTANCE_LIMIT) {
-            const Lines& lines = Sign::POSITIVE == speedSign ? lineInfo.front.lines : lineInfo.rear.lines;
-            for (const Line& line : lines) {
-                if (abs(line.pos) < CENTER_LINE_POS_LIMIT) {
-                    finished = true;
-                    break;
-                }
-            }
-        }
-    } else if (residualDistance < -OVERFLOW_DISTANCE_LIMIT) {
-        finished = true;
-    }
-
-    return finished;
+    return residualDistance <= meter_t(0) || (residualDistance <= lineDetectedDistanceThreshold && lines.size() > 0);
 }
 
-std::pair<Trajectory::configs_t::const_iterator, Trajectory::configs_t::const_iterator> Trajectory::getSectionBoundaries(const point2m& pos) const {
-    const configs_t::const_iterator closestConfig = this->getClosestConfig(pos);
+std::pair<Trajectory::configs_t::const_iterator, Trajectory::configs_t::const_iterator> Trajectory::getSectionBoundaries(const CarProps& car) const {
+    const configs_t::const_iterator closestConfig = this->getClosestConfig(car.pose.pos);
     configs_t::const_iterator otherConfig;
 
     if (closestConfig == this->configs_.begin()) {
-        otherConfig = closestConfig + 1;
+        otherConfig = std::next(closestConfig);
     } else if (closestConfig == this->configs_.back()) {
-        otherConfig = closestConfig - 1;
+        otherConfig = std::prev(closestConfig);
     } else {
-        const meter_t closestDist = pos.distance(closestConfig->pose.pos);
+        const configs_t::const_iterator prevConfig = std::prev(closestConfig);
+        const configs_t::const_iterator nextConfig = std::next(closestConfig);
 
-        const float prevRelativeDist = pos.distance((closestConfig - 1)->pose.pos) / closestDist;
-        const float nextRelativeDist = pos.distance((closestConfig + 1)->pose.pos) / closestDist;
-
-        if (prevRelativeDist < nextRelativeDist) {
-            otherConfig = closestConfig - 1;
+        if (std::distance(this->sectionStartConfig_, prevConfig) > std::ptrdiff_t{ 0 })
+        {
+            // If the section start is before the previous configuration,
+            // then the car is between the previous and the closest configuration.
+            otherConfig = prevConfig;
+        } else if (this->sectionStartConfig_ == prevConfig) {
+            // If the section start is the previous configuration,
+            // then checks if the distance between the closest and the previous configuration has been covered.
+            // If yes, then the closest configuration has been reached, and the trajectory should now
+            // lead the car towards the next configuration.
+            otherConfig = car.distance - this->carDistanceAtLastConfig_ >= closestConfig->pose.pos.distance(prevConfig->pose.pos) ? nextConfig : prevConfig;
         } else {
-            otherConfig = closestConfig + 1;
+            // If the section start is after the previous configuration (probably the closest configuration is the section start),
+            // then the car is between the closest and the next configuration.
+            otherConfig = nextConfig;
         }
     }
 

@@ -49,9 +49,9 @@ public:
     void appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed);
     void appendSineArc(const config_t& dest, radian_t fwdAngle, orientationUpdate_t orientationUpdate, radian_t sineStart, radian_t sineEnd);
 
-    ControlData update(const CarProps car);
+    ControlData update(const CarProps& car);
 
-    bool finished(const CarProps& car, const LineInfo& lineInfo) const;
+    bool finished(const CarProps& car, const LineInfo& lineInfo, const meter_t lineDetectedDistanceThreshold) const;
 
     void clear() {
         this->configs_.clear();
@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    std::pair<configs_t::const_iterator, configs_t::const_iterator> getSectionBoundaries(const point2m& pos) const;
+    std::pair<configs_t::const_iterator, configs_t::const_iterator> getSectionBoundaries(const CarProps& car) const;
 
     configs_t::const_iterator getClosestConfig(const point2m& pos) const;
 
