@@ -295,4 +295,69 @@ public:
     }
 };
 
+template <typename T, uint32_t capacity_>
+class set : public vec_base<T, capacity_> {
+private:
+    typedef vec_base<T, capacity_> base_type;
+
+public:
+    typedef typename base_type::iterator iterator;
+    typedef typename base_type::const_iterator const_iterator;
+    typedef typename base_type::entry_type entry_type;
+
+    set() : base_type() {}
+
+    /* @brief Copy constructor - copies elements.
+     * @param other The other vector.
+     **/
+    set(const set& other) : base_type(other) {}
+
+    set(const std::initializer_list<T>& values) {
+        this->push_back(values.begin(), values.end());
+    }
+
+    set& operator=(const set& other) {
+        this->construct(other);
+        return *this;
+    }
+
+    /* @brief Inserts one element to the end of the vector.
+     * @param value The element to insert.
+     * @returns An iterator pointing to the inserted element, or end() if the insertion was unsuccessful.
+     **/
+    iterator push_back(const T& value) {
+        return this->insert(this->end(), value);
+    }
+
+    /* @brief Appends elements to the end of the vector.
+     * @param _data The elements to append.
+     * @param _size Number of elements to append.
+     * @returns An iterator pointing to the first inserted element, or end() if the insertion was unsuccessful.
+     **/
+    template <typename Iter>
+    iterator push_back(Iter begin_, Iter end_) {
+        iterator result = this->end();
+        if (this->size() + std::distance(begin_, end_) <= this->capacity()) {
+            for (Iter it = begin_; it != end_; ++it) {
+                this->push_back(*it);
+            }
+        }
+        return result;
+    }
+
+private:
+    iterator insert(iterator iter, const T& value) {
+        iterator result = this->end();
+        if (iter >= this->begin() && iter <= this->end() && this->size() < this->capacity() &&
+            std::find(this->begin(), this->end(), value) == this->end()) {
+
+            micro::shift_right(iter, this->end());
+            *iter = value;
+            ++this->size_;
+            result = iter;
+        }
+        return result;
+    }
+};
+
 } // namespace micro
