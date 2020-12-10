@@ -4,6 +4,7 @@
 #include <micro/math/numeric.hpp>
 
 #include <initializer_list>
+#include <iterator>
 
 namespace micro {
 
@@ -12,6 +13,8 @@ class vec_base {
 public:
     typedef T* iterator;
     typedef const T* const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef T entry_type;
 
     vec_base() : size_(0) {}
@@ -95,6 +98,22 @@ public:
 
     const_iterator end() const {
         return std::next(this->begin(), this->size_);
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(this->back());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(this->back());
+    }
+
+    reverse_iterator rend() {
+        return std::next(this->rbegin(), this->size_);
+    }
+
+    const_reverse_iterator rend() const {
+        return std::next(this->rbegin(), this->size_);
     }
 
     iterator back() {
@@ -189,7 +208,6 @@ public:
         if (this->size() + std::distance(begin_, end_) <= this->capacity()) {
             for (Iter it = begin_; it != end_; ++it) {
                 this->data_[this->size_++] = *it;
-                // the insertion causes the result iterator to point to the first inserted element
             }
         }
         return result;
