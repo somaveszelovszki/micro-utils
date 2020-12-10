@@ -320,7 +320,7 @@ inline constexpr int32_t round_down(const float value) {
 }
 
 inline constexpr int32_t round_up(const float value) {
-    return value >= 0.0f ? round(value + 0.5f) : round(value - 0.5f);
+    return value >= 0.0f ? round(value + 0.49999f) : round(value - 0.49999f);
 }
 
 /**
