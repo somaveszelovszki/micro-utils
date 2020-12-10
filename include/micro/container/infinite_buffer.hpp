@@ -29,13 +29,14 @@ public:
      * @returns Status indicating if element has been added.
      **/
     void push_back(const T& value) {
-        if (capacity_ == ++this->idx_) this->idx_ = 0;
-        if (capacity_ < ++this->size_) this->size_ = capacity_;
+        this->idx_  = incr_overflow(this->idx_, 1, capacity_);
+        this->size_ = min(this->size_ + 1, capacity_);
 
         this->data_[this->idx_] = value;
     }
 
     T& peek_back(uint32_t step) {
+        step = clamp<uint32_t>(step, 0, this->size_);
         return this->data_[this->idx_ >= step ? this->idx_ - step : capacity_ + this->idx_ - step];
     }
 
