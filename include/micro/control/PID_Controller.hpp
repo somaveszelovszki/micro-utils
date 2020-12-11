@@ -34,6 +34,8 @@ public:
 
     void update(const float measured);
 
+    void update(const float error, const float diff);
+
     float target;
 
 private:
@@ -44,6 +46,5 @@ private:
     float prevErr_;
     float integral_;
     float output_;
-    millisecond_t prevUpdateTime_;
 };
 } // namespace micro

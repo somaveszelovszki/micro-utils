@@ -19,16 +19,18 @@ void PID_Controller::tune(const PID_Params& params) {
 
 void PID_Controller::update(const float measured) {
 
-    const millisecond_t now = getExactTime();
     const float error = this->target - measured;
+    this->update(error, error - this->prevErr_);
+}
+
+void PID_Controller::update(const float error, const float diff) {
 
     if (0.0f == this->target && abs(error) < this->deadband_) {
         this->prevErr_  = 0.0f;
         this->output_   = 0.0f;
         this->integral_ = 0.0f;
     } else {
-        const millisecond_t d_time = now - this->prevUpdateTime_;
-        const float output = error * this->params_.P + this->integral_ * this->params_.I + (error - this->prevErr_) / d_time.get() * this->params_.D;
+        const float output = error * this->params_.P + this->integral_ * this->params_.I + diff * this->params_.D;
 
         this->output_ = clamp(output, this->output_ - this->maxRate_, this->output_ + this->maxRate_);
 
@@ -39,8 +41,7 @@ void PID_Controller::update(const float measured) {
         }
     }
 
-    this->prevUpdateTime_ = now;
-    this->prevErr_        = error;
+    this->prevErr_ = error;
 }
 
 }  // namespace micro
