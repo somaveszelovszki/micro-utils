@@ -202,17 +202,48 @@ public:
         return const_cast<V*>(const_cast<const sorted_map*>(this)->at(key));
     }
 
-    V lerp(const K& key) {
+    std::pair<const_iterator, const_iterator> bounds(const K& key) const {
+        const_iterator lower = this->end();
+        const_iterator upper = this->upper_bound(key);
+
+        if (upper == this->begin()) {
+            lower = upper;
+        } else if (upper == this->end()) {
+            upper = this->back();
+            lower = upper;
+        } else {
+            lower = std::prev(upper);
+        }
+
+        return { lower, upper };
+    }
+
+    std::pair<iterator, iterator> bounds(const K& key) {
+        const std::pair<const_iterator, const_iterator> bounds = const_cast<const sorted_map*>(this)->bounds(key);
+        return { const_cast<iterator>(bounds.first), const_cast<iterator>(bounds.second) };
+    }
+
+    const_iterator lower_bound(const K& key) const {
+        return std::lower_bound(this->begin(), this->end(), key, PairKeyComparator<K, V>{});
+    }
+
+    iterator lower_bound(const K& key) {
+        return const_cast<iterator>(const_cast<const sorted_map*>(this)->lower_bound(key));
+    }
+
+    const_iterator upper_bound(const K& key) const {
+        return std::upper_bound(this->begin(), this->end(), key, PairKeyComparator<K, V>{});
+    }
+
+    iterator upper_bound(const K& key) {
+        return const_cast<iterator>(const_cast<const sorted_map*>(this)->upper_bound(key));
+    }
+
+    V lerp(const K& key) const {
         V result { 0 };
         if (this->size() > 0) {
-            const_iterator upper = std::upper_bound(this->begin(), this->end(), key, PairKeyComparator<K, V>{});
-            if (upper == this->end()) {
-                upper = this->back();
-            }
-            
-            const const_iterator lower = upper == this->begin() ? upper : std::prev(upper);
-
-            result = map(key, lower->first, upper->first, lower->second, upper->second);
+            const std::pair<const_iterator, const_iterator> bounds = this->bounds(key);
+            result = map(key, bounds.first->first, bounds.second->first, bounds.first->second, bounds.second->second);
         }
 
         return result;
