@@ -45,5 +45,26 @@ void BridgeDcMotor::stop() {
     }
 }
 
+BidirectionalPwmDcMotor::BidirectionalPwmDcMotor(const micro::timer_t& timer, const uint32_t chnl, const micro::gpio_t& dir, const float maxDuty)
+    : Motor<float>()
+    , timer_(timer)
+    , chnl_(chnl)
+    , dir_(dir)
+    , maxDuty_(maxDuty) {}
+
+void BidirectionalPwmDcMotor::start() {}
+
+void BidirectionalPwmDcMotor::write(const float& duty) {
+    const float clampedDuty = map(duty, -1.0f, 1.0f, 1.0f - this->maxDuty_, this->maxDuty_);
+
+    criticalSection_t criticalSection;
+    criticalSection.lock();
+    timer_setDuty(this->timer_, this->chnl_, clampedDuty);
+    gpio_write(this->dir_, clampedDuty >= 0.0f ? gpioPinState_t::SET : gpioPinState_t::RESET);
+    criticalSection.unlock();
+}
+
+void BidirectionalPwmDcMotor::stop() {}
+
 } // namespace hw
 } // namespace micro

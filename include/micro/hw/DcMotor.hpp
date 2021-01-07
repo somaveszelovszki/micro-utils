@@ -39,5 +39,23 @@ private:
     const float maxDuty_;
 };
 
+class BidirectionalPwmDcMotor : public Motor<float> {
+public:
+	BidirectionalPwmDcMotor(const micro::timer_t& timer, const uint32_t chnl, const micro::gpio_t& dir, const float maxDuty);
+
+    void start() override;
+
+    void write(const float& duty) override;
+
+    void stop() override;
+
+private:
+    const micro::timer_t timer_;
+    const uint32_t chnl_;
+    const micro::gpio_t dir_;
+
+    const float maxDuty_;
+};
+
 } // namespace hw
 } // namespace micro
