@@ -21,7 +21,7 @@ uint32_t atof(const char * const s, float *pResult);
  **/
 uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding = 0);
 
-uint32_t ftoa(float n, char * const s, uint32_t size);
+uint32_t ftoa(float n, char * const s, uint32_t size, uint32_t padding = 4);
 
 uint32_t strncpy_until(char * const dest, const char * const src, const uint32_t size, const char delimiter = '\0');
 

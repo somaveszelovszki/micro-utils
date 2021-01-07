@@ -119,8 +119,7 @@ uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding) {
     return idx;
 }
 
-uint32_t ftoa(float n, char * const s, uint32_t size) {
-    static constexpr uint32_t PADDING = 4;
+uint32_t ftoa(float n, char * const s, uint32_t size, uint32_t padding) {
 
     (void)size; // TODO
 
@@ -134,11 +133,11 @@ uint32_t ftoa(float n, char * const s, uint32_t size) {
     }
 
     int32_t dec = static_cast<int32_t>(n);
-    int32_t frac = static_cast<int32_t>((n - static_cast<float>(dec)) * powerOf(10, PADDING));
+    int32_t frac = static_cast<int32_t>((n - static_cast<float>(dec)) * powerOf(10, padding));
     if ((decLen = itoa(dec, &s[idx], STR_MAX_LEN_FLOAT_DEC)) > 0) {
         idx += decLen;
         s[idx++] = '.';
-        if ((fracLen = itoa(frac, &s[idx], STR_MAX_LEN_FLOAT_FRAC, PADDING)) > 0) {
+        if ((fracLen = itoa(frac, &s[idx], STR_MAX_LEN_FLOAT_FRAC, padding)) > 0) {
             idx += fracLen;
         } else {
             idx = 0;
