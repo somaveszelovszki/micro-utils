@@ -12,7 +12,6 @@ public:
 
     state_t(const T& value, const millisecond_t timestamp)
         : value_(value)
-        , prevValue_(value)
         , timestamp_(timestamp) {}
 
     state_t(const T& value) : state_t(value, getTime()) {}
@@ -30,22 +29,17 @@ public:
         return this->value_;
     }
 
-    bool changed() const {
-        return this->value_ != this->prevValue_;
-    }
-
     void set(const T& value, const millisecond_t timestamp) {
-        this->prevValue_ = this->value_;
         this->value_     = value;
         this->timestamp_ = timestamp;
     }
 
-    const T& value() const {
-        return this->value_;
+    void set(const T& value) {
+        this->set(value, getTime());
     }
 
-    const T& prev() const {
-        return this->prevValue_;
+    const T& value() const {
+        return this->value_;
     }
 
     millisecond_t timestamp() const {
@@ -54,7 +48,6 @@ public:
 
 private:
     T value_;
-    T prevValue_;
     millisecond_t timestamp_;
 };
 
