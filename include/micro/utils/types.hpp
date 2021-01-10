@@ -86,4 +86,9 @@ inline T operator*(Sign sign, const T& value) {
 
 const char* to_string(const Sign& sign);
 
+template <typename Iter>
+auto to_raw_pointer(const Iter& it) -> decltype(&*it) {
+    return &*it;
+}
+
 } // namespace micro
