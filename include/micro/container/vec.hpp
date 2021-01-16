@@ -308,7 +308,7 @@ public:
     set() : base_type() {}
 
     /* @brief Copy constructor - copies elements.
-     * @param other The other vector.
+     * @param other The other set.
      **/
     set(const set& other) : base_type(other) {}
 
@@ -321,7 +321,7 @@ public:
         return *this;
     }
 
-    /* @brief Inserts one element to the end of the vector.
+    /* @brief Inserts one element to the end of the set.
      * @param value The element to insert.
      * @returns An iterator pointing to the inserted element, or end() if the insertion was unsuccessful.
      **/
@@ -329,7 +329,7 @@ public:
         return this->insert(this->end(), value);
     }
 
-    /* @brief Appends elements to the end of the vector.
+    /* @brief Appends elements to the end of the set.
      * @param _data The elements to append.
      * @param _size Number of elements to append.
      * @returns An iterator pointing to the first inserted element, or end() if the insertion was unsuccessful.
