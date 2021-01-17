@@ -57,8 +57,7 @@ micro::LinePattern convert(const micro::can::detail::LinePattern& in) {
         static_cast<micro::LinePattern::type_t>(in.type),
         static_cast<micro::Sign>(in.dir),
         static_cast<micro::Direction>(in.side),
-        millimeter_t(in.startDist_mm),
-        in.isPatternPending
+        millimeter_t(in.startDist_mm)
     };
 }
 
@@ -68,7 +67,6 @@ micro::can::detail::LinePattern convert(const micro::LinePattern& in) {
         static_cast<int8_t>(in.dir),
         static_cast<int8_t>(in.side),
         static_cast<uint32_t>(static_cast<millimeter_t>(in.startDist).get()),
-        in.isPending,
         0 // reserved
     };
 }

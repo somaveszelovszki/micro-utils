@@ -37,8 +37,7 @@ struct LinePattern {
     int8_t   dir          : 2;
     int8_t   side         : 2;
     uint32_t startDist_mm : 24;
-    bool isPatternPending : 1;
-    uint8_t reserved      : 7;
+    uint8_t reserved      : 8;
 } __attribute__((packed));
 
 struct MotorControlParams {
