@@ -67,7 +67,7 @@ void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& m
 }
 
 bool areClose(const Lines& lines) {
-    constexpr millimeter_t MAX_CLOSE_LINES_DISTANCE = centimeter_t(5.8f);
+    constexpr millimeter_t MAX_CLOSE_LINES_DISTANCE = centimeter_t(5.5f);
 
     bool close = true;
     for (uint32_t i = 1; i < lines.size(); ++i) {
