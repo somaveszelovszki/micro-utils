@@ -89,6 +89,7 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
             uint32_t idx = strlen(PARAMS_START_SEQ);
             idx++; // '{'
 
+            uint32_t numParams = 0;
             char name[STR_MAX_LEN_PARAM_NAME];
 
             while (idx < size) {
@@ -103,6 +104,7 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
                     skipParam(str, idx);
                 } else if (it->writable) {
                     idx += it->deserialize(&str[idx], it->buf);
+                    ++numParams;
                 } else {
                     skipParam(str, idx);
                 }
@@ -118,7 +120,9 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
                 }
             }
 
-            LOG_INFO("Params updated from server");
+            if (numParams >= 2) {
+                LOG_INFO("Params updated from server");
+            }
         }
     }
 }
