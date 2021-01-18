@@ -45,14 +45,16 @@ struct Serializer<bool> {
 template <>
 struct Serializer<char> {
     static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
-        memcpy(stream, static_cast<const char*>(value), 1);
-        stream[1] = '\0';
+        stream[0] = '"';
+        memcpy(&stream[1], static_cast<const char*>(value), 1);
+        stream[2] = '"';
+        stream[3] = '\0';
         return 1;
     }
 
     static uint32_t deserialize(const char * const stream, void * const value) {
-        *static_cast<char*>(value) = stream[0];
-        return 1;
+        *static_cast<char*>(value) = stream[1];
+        return 3;
     }
 };
 
