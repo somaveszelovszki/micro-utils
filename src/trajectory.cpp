@@ -35,7 +35,7 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
     const configs_t::const_iterator lastCfg = this->configs_.back();
     const vec2m relativeVec = lastCfg->pose.pos - center;
 
-    const uint32_t numSections = (relativeVec.length() * angle) / TRAJECTORY_RESOLUTION;
+    const uint32_t numSections = (relativeVec.length() * abs(angle)) / TRAJECTORY_RESOLUTION;
 
     for (uint32_t i = 1; i <= numSections; ++i) {
         const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, destSpeed);
