@@ -338,6 +338,20 @@ inline T powerOf(const T& value, uint32_t pow) {
     return result;
 }
 
+struct average_t {
+    float weight1;
+    float weight2;
+
+    average_t(const float weight1, const float weight2)
+        : weight1(weight1)
+        , weight2(weight2) {}
+
+    template <typename T>
+    T calculate(const T& value1, const T& value2) const {
+        return (value1 * this->weight1 + value2 * this->weight2) / (this->weight1 + this->weight2);
+    }
+};
+
 uint32_t incr_overflow(uint32_t value, uint32_t incr, const uint32_t exclusive_max);
 uint32_t decr_underflow(uint32_t value, uint32_t decr, const uint32_t exclusive_max);
 
