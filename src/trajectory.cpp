@@ -103,7 +103,7 @@ ControlData Trajectory::update(const CarProps& car) {
     ControlData controlData;
     controlData.speed                    = map(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionBoundaries.first->speed, sectionBoundaries.second->speed);
     controlData.rampTime                 = millisecond_t(0);
-    controlData.controlType              = ControlData::controlType_t::Line;
+    controlData.rearSteerEnabled         = true;
     controlData.lineControl.actual.pos   = lineSign * linePoint.distance(car.pose.pos);
     controlData.lineControl.actual.angle = normalize(sectionLineAngle - car.pose.angle, PI, true);
     controlData.lineControl.target.pos   = millimeter_t(0);
