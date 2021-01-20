@@ -13,7 +13,6 @@ const char* to_string(const LinePattern::type_t& type) {
     case LinePattern::JUNCTION_1:  str = "JUNCTION_1";  break;
     case LinePattern::JUNCTION_2:  str = "JUNCTION_2";  break;
     case LinePattern::JUNCTION_3:  str = "JUNCTION_3";  break;
-    case LinePattern::DEAD_END:    str = "DEAD_END";    break;
     default:                       str = "";            break;
     }
     return str;

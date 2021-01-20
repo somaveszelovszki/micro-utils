@@ -18,8 +18,7 @@ public:
         LANE_CHANGE = 4, ///< 1 solid line in the middle, 1 dashed line on one (UNKNOWN!) side (dash and space lengths decreasing)
         JUNCTION_1  = 5, ///< Labyrinth junction of 1 segment
         JUNCTION_2  = 6, ///< Labyrinth junction of 2 segments
-        JUNCTION_3  = 7, ///< Labyrinth junction of 3 segments
-        DEAD_END    = 8  ///< Labyrinth dead-end
+        JUNCTION_3  = 7  ///< Labyrinth junction of 3 segments
     };
 
     type_t type    = type_t::NONE;        // Line pattern type.
