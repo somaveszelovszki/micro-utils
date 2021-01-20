@@ -29,7 +29,7 @@ void test_straight_line_perfect_follow(const Sign speedSign) {
         controlData = trajectory.update(car);
         EXPECT_EQ(speedSign * m_per_sec_t(1.0f), controlData.speed);
         EXPECT_EQ(millisecond_t(0), controlData.rampTime);
-        EXPECT_EQ(ControlData::controlType_t::Line, controlData.controlType);
+        EXPECT_TRUE(controlData.rearSteerEnabled);
         EXPECT_NEAR_UNIT(millimeter_t(0), controlData.lineControl.actual.pos, millimeter_t(1));
         EXPECT_NEAR_UNIT(radian_t(0), controlData.lineControl.actual.angle, degree_t(1));
         EXPECT_EQ(millimeter_t(0), controlData.lineControl.target.pos);
@@ -66,7 +66,7 @@ void test_straight_line_nonperfect_follow(const Sign speedSign) {
         controlData = trajectory.update(car);
         EXPECT_EQ(speedSign * m_per_sec_t(1.0f), controlData.speed);
         EXPECT_EQ(millisecond_t(0), controlData.rampTime);
-        EXPECT_EQ(ControlData::controlType_t::Line, controlData.controlType);
+        EXPECT_TRUE(controlData.rearSteerEnabled);
         EXPECT_NEAR_UNIT(carOffset, controlData.lineControl.actual.pos, centimeter_t(1));
         EXPECT_NEAR_UNIT(-carAngle, controlData.lineControl.actual.angle, degree_t(1));
         EXPECT_EQ(millimeter_t(0), controlData.lineControl.target.pos);
@@ -106,7 +106,7 @@ void test_sine_arc_fix_orientation_perfect_follow(const Sign speedSign) {
         controlData = trajectory.update(car);
         EXPECT_EQ(speedSign * m_per_sec_t(1.0f), controlData.speed);
         EXPECT_EQ(millisecond_t(0), controlData.rampTime);
-        EXPECT_EQ(ControlData::controlType_t::Line, controlData.controlType);
+        EXPECT_TRUE(controlData.rearSteerEnabled);
         EXPECT_NEAR_UNIT(millimeter_t(0), controlData.lineControl.actual.pos, millimeter_t(1));
         EXPECT_EQ(millimeter_t(0), controlData.lineControl.target.pos);
         EXPECT_NEAR_UNIT(controlData.lineControl.actual.angle, controlData.lineControl.target.angle, degree_t(1));
