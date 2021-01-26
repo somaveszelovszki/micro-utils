@@ -90,6 +90,10 @@ inline T operator*(Sign sign, const T& value) {
     return value * sign;
 }
 
+inline Direction operator*(const Direction value, Sign sign) {
+    return static_cast<Direction>(enum_cast(value) * sign);
+}
+
 const char* to_string(const Sign& sign);
 
 template <typename Iter>
