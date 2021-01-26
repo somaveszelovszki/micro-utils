@@ -265,7 +265,7 @@ public:
         return *this;
     }
 
-    vec<T, capacity_>& operator=(const std::initializer_list<T>& values) {
+    sorted_vec& operator=(const std::initializer_list<T>& values) {
         this->clear();
         this->insert(values.begin(), values.end());
         return *this;
