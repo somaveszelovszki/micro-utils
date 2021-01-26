@@ -28,7 +28,7 @@ Lines::const_iterator findLine(const Lines& lines, const uint32_t id) {
 MainLine::MainLine(const meter_t carFrontRearSensorRowDist)
     : carFrontRearSensorRowDist(carFrontRearSensorRowDist) {}
 
-void MainLine::updateFrontRearLines(const Sign speedSign) {
+void MainLine::updateFrontRearLines() {
     const meter_t diff     = (this->carFrontRearSensorRowDist / 2) * tan(this->centerLine.angle);
     const meter_t frontPos = centerLine.pos - diff;
     const meter_t rearPos  = centerLine.pos + diff;
@@ -39,7 +39,7 @@ void MainLine::updateFrontRearLines(const Sign speedSign) {
     this->rearLine.pos  = -rearPos;
 }
 
-void MainLine::updateCenterLine(const Sign speedSign) {
+void MainLine::updateCenterLine() {
     // gets front and rear positions in the car's coordinate system
     const meter_t frontPos = this->frontLine.pos;
     const meter_t rearPos  = -this->rearLine.pos;
@@ -60,10 +60,10 @@ void updateMainLine(const Lines& lines, Line& mainLine) {
     }
 }
 
-void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine, const Sign speedSign) {
+void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine) {
     updateMainLine(frontLines, mainLine.frontLine);
     updateMainLine(rearLines, mainLine.rearLine);
-    mainLine.updateCenterLine(speedSign);
+    mainLine.updateCenterLine();
 }
 
 bool areClose(const Lines& lines) {

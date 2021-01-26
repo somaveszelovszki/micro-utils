@@ -38,13 +38,13 @@ struct MainLine {
 
     explicit MainLine(const meter_t carFrontRearSensorRowDist);
 
-    void updateFrontRearLines(const Sign speedSign);
-    void updateCenterLine(const Sign speedSign);
+    void updateFrontRearLines();
+    void updateCenterLine();
 };
 
 void updateMainLine(const Lines& lines, Line& mainLine);
 
-void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine, const Sign speedSign);
+void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& mainLine);
 
 Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos);
 
