@@ -39,7 +39,6 @@ struct LineInfo {
     struct {
         Lines lines;
         LinePattern pattern;
-        bool isPatternPending;
     } front, rear;
 };
 
