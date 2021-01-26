@@ -1,12 +1,18 @@
 #pragma once
 
 #include <cstdint>
+#include <type_traits>
 
 namespace micro {
 
 #define OUT
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+
+template <typename T, typename std::enable_if<std::is_enum<T>::value, void>::type* = nullptr>
+typename std::underlying_type<T>::type enum_cast(const T& value) {
+    return static_cast<typename std::underlying_type<T>::type>(value);
+}
 
 /**
  * @brief Status for operations
