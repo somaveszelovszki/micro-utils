@@ -54,7 +54,7 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
     const meter_t dx = c2_.X - c1_.X;
     const meter_t dy = c2_.Y - c1_.Y;
 
-    const uint32_t numSections = (dx + dy) / TRAJECTORY_RESOLUTION;
+    const uint32_t numSections = (abs(dx) + abs(dy)) / TRAJECTORY_RESOLUTION;
 
     configs_t::const_iterator prevCfg = lastCfg;
 
