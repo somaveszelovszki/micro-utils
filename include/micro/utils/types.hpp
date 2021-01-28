@@ -90,6 +90,10 @@ inline T operator*(Sign sign, const T& value) {
     return value * sign;
 }
 
+inline Sign operator*(const Sign s1, Sign s2) {
+    return static_cast<Sign>(static_cast<int8_t>(s1) * static_cast<int8_t>(s2));
+}
+
 inline Direction operator*(const Direction value, Sign sign) {
     return static_cast<Direction>(enum_cast(value) * sign);
 }
