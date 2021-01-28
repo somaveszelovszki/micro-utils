@@ -70,30 +70,10 @@ struct Serializer<T, typename std::enable_if<std::is_enum<T>::value>::type> {
 };
 
 template <typename T>
-struct Serializer<T, typename std::enable_if<std::is_integral<T>::value>::type> {
-    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
-        return micro::itoa(static_cast<int32_t>(*static_cast<const T*>(value)), stream, size);
-    }
-
-    static uint32_t deserialize(const char * const stream, void * const value) {
-        int32_t n;
-        uint32_t idx = 0;
-        idx++; // '"'
-        idx += micro::atoi(&stream[idx], &n);
-        if (idx > 1) {
-            *static_cast<T*>(value) = static_cast<T>(n);
-            idx++; // '"'
-        } else {
-            idx = 0;
-        }
-        return idx;
-    }
-};
-
-template <typename T>
 struct Serializer<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
     static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
-        return micro::ftoa(*static_cast<const float*>(value), stream, size);
+        const float n = static_cast<float>(*static_cast<const T*>(value));
+        return micro::ftoa(n, stream, size);
     }
 
     static uint32_t deserialize(const char * const stream, void * const value) {
@@ -108,6 +88,21 @@ struct Serializer<T, typename std::enable_if<std::is_floating_point<T>::value>::
             idx = 0;
         }
         return idx;
+    }
+};
+
+template <typename T>
+struct Serializer<T, typename std::enable_if<std::is_integral<T>::value>::type> {
+    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
+        const float n = static_cast<float>(*static_cast<const T*>(value));
+        return Serializer<float>::serialize(stream, size, &n);
+    }
+
+    static uint32_t deserialize(const char * const stream, void * const value) {
+        float n;
+        const uint32_t result = Serializer<float>::deserialize(stream, &n);
+        *static_cast<T*>(value) = static_cast<T>(micro::round(n));
+        return result;
     }
 };
 
