@@ -115,9 +115,9 @@ ControlData Trajectory::update(const CarProps& car) {
 bool Trajectory::finished(const CarProps& car, const LineInfo& lineInfo, const meter_t lineDetectedDistanceThreshold) const {
 
     const meter_t residualDistance = this->length() - this->coveredDistance();
-    const Lines& lines             = (car.speed >= m_per_sec_t(0) ? lineInfo.front : lineInfo.rear).lines;
+    const LinePattern& pattern     = (car.speed >= m_per_sec_t(0) ? lineInfo.front : lineInfo.rear).pattern;
 
-    return residualDistance <= meter_t(0) || (residualDistance <= lineDetectedDistanceThreshold && lines.size() > 0);
+    return residualDistance <= meter_t(0) || (residualDistance <= lineDetectedDistanceThreshold && LinePattern::NONE != pattern.type);
 }
 
 std::pair<Trajectory::configs_t::const_iterator, Trajectory::configs_t::const_iterator> Trajectory::getSectionBoundaries(const CarProps& car) const {
