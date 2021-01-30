@@ -132,20 +132,21 @@ std::pair<Trajectory::configs_t::const_iterator, Trajectory::configs_t::const_it
         const configs_t::const_iterator prevConfig = std::prev(closestConfig);
         const configs_t::const_iterator nextConfig = std::next(closestConfig);
 
-        if (std::distance(this->sectionStartConfig_, prevConfig) > std::ptrdiff_t{ 0 })
-        {
-            // If the section start is before the previous configuration,
-            // then the car is between the previous and the closest configuration.
+        // If the section start is before the previous configuration,
+        // then the car is between the previous and the closest configuration.
+        if (std::distance(this->sectionStartConfig_, prevConfig) > std::ptrdiff_t{ 0 }) {
             otherConfig = prevConfig;
+
+        // If the section start is the previous configuration,
+        // then checks if the distance between the closest and the previous configuration has been covered.
+        // If yes, then the closest configuration has been reached, and the trajectory should now
+        // lead the car towards the next configuration.
         } else if (this->sectionStartConfig_ == prevConfig) {
-            // If the section start is the previous configuration,
-            // then checks if the distance between the closest and the previous configuration has been covered.
-            // If yes, then the closest configuration has been reached, and the trajectory should now
-            // lead the car towards the next configuration.
             otherConfig = car.distance - this->carDistanceAtLastConfig_ >= closestConfig->pose.pos.distance(prevConfig->pose.pos) ? nextConfig : prevConfig;
+
+        // If the section start is after the previous configuration (probably the closest configuration is the section start),
+        // then the car is between the closest and the next configuration.
         } else {
-            // If the section start is after the previous configuration (probably the closest configuration is the section start),
-            // then the car is between the closest and the next configuration.
             otherConfig = nextConfig;
         }
     }
