@@ -1,3 +1,4 @@
+#include <micro/math/numeric.hpp>
 #include <micro/math/random_generator.hpp>
 
 namespace micro {
@@ -17,5 +18,10 @@ float random_generator::get() {
     lfsr_ = (lfsr_ >> 1) | (bit << 15);
     return static_cast<float>(lfsr_) / 65536u;
 }
+
+uint16_t random_generator::get(const uint16_t inclusiveLow, const uint16_t exclusiveHigh) {
+    return map(this->get(), 0.0f, 1.0f, inclusiveLow, exclusiveHigh);
+}
+
 
 } // namespace micro
