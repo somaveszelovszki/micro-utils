@@ -10,7 +10,7 @@ void test_straight_line_perfect_follow(const Sign speedSign) {
     trajectory.setStartConfig(Trajectory::config_t{
         Pose{ point2m{ meter_t(0), meter_t(0) }, radian_t(0) },
         speedSign * m_per_sec_t(1.0f)
-    }, meter_t(100));
+    }, meter_t(0));
 
     trajectory.appendLine(Trajectory::config_t{
         Pose{
@@ -25,7 +25,7 @@ void test_straight_line_perfect_follow(const Sign speedSign) {
 
     for (meter_t dist = { 0 }; dist < trajectory.length(); dist += centimeter_t(20)) {
         car.pose = { point2m{ dist, meter_t(0) }, radian_t(0) };
-        car.distance = meter_t(0);
+        car.distance = dist;
         controlData = trajectory.update(car);
         EXPECT_EQ(speedSign * m_per_sec_t(1.0f), controlData.speed);
         EXPECT_EQ(millisecond_t(0), controlData.rampTime);
@@ -43,7 +43,7 @@ void test_straight_line_nonperfect_follow(const Sign speedSign) {
     trajectory.setStartConfig(Trajectory::config_t{
         Pose{ point2m{ meter_t(0), meter_t(0) }, radian_t(0) },
         speedSign * m_per_sec_t(1.0f)
-    }, meter_t(100));
+    }, meter_t(0));
 
     trajectory.appendLine(Trajectory::config_t{
         Pose{
@@ -62,7 +62,7 @@ void test_straight_line_nonperfect_follow(const Sign speedSign) {
         const radian_t carAngle = degree_t(10) * coverage;
 
         car.pose = { point2m{ dist, carOffset }, carAngle };
-        car.distance = meter_t(0);
+        car.distance = dist;
         controlData = trajectory.update(car);
         EXPECT_EQ(speedSign * m_per_sec_t(1.0f), controlData.speed);
         EXPECT_EQ(millisecond_t(0), controlData.rampTime);
@@ -80,7 +80,7 @@ void test_sine_arc_fix_orientation_perfect_follow(const Sign speedSign) {
     trajectory.setStartConfig(Trajectory::config_t{
         Pose{ point2m{ meter_t(0), meter_t(0) }, radian_t(0) },
         speedSign * m_per_sec_t(1.0f)
-    }, meter_t(100));
+    }, meter_t(0));
 
     trajectory.appendSineArc(
         Trajectory::config_t{
@@ -99,10 +99,11 @@ void test_sine_arc_fix_orientation_perfect_follow(const Sign speedSign) {
     CarProps car;
     ControlData controlData;
 
-    const point2m endPos =  trajectory.lastConfig().pose.pos;
+    const point2m endPos = trajectory.lastConfig().pose.pos;
     for (meter_t x = { 0 }; x < endPos.X; x += centimeter_t(20)) {
+        const point2m prevPos = car.pose.pos;
         car.pose = { point2m{ x, endPos.Y * (1 - cos(x / endPos.X * PI)) / 2 }, radian_t(0) };
-        car.distance = meter_t(0);
+        car.distance += (car.pose.pos - prevPos).length();
         controlData = trajectory.update(car);
         EXPECT_EQ(speedSign * m_per_sec_t(1.0f), controlData.speed);
         EXPECT_EQ(millisecond_t(0), controlData.rampTime);
