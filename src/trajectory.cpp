@@ -94,7 +94,6 @@ ControlData Trajectory::update(const CarProps& car) {
     const Sign lineSign           = eqWithOverflow360(linePointAngle, car.pose.angle + PI_2, PI_2) ? Sign::NEGATIVE : Sign::POSITIVE;
 
     const meter_t sectionStartDist = sectionBoundaries.first->pose.pos.distance(car.pose.pos);
-    const meter_t sectionEndDist   = sectionBoundaries.second->pose.pos.distance(car.pose.pos);
     const meter_t sectionLength    = sectionBoundaries.first->pose.pos.distance(sectionBoundaries.second->pose.pos);
 
     const radian_t fwdAngleDiff   = normalizePM180(sectionBoundaries.second->pose.angle - sectionBoundaries.first->pose.angle);
