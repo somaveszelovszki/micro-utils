@@ -95,7 +95,7 @@ ControlData Trajectory::update(const CarProps& car) {
 
     const meter_t sectionStartDist = sectionBoundaries.first->pose.pos.distance(car.pose.pos);
     const meter_t sectionEndDist   = sectionBoundaries.second->pose.pos.distance(car.pose.pos);
-    const meter_t sectionLength    = sectionEndDist - sectionStartDist;
+    const meter_t sectionLength    = sectionBoundaries.first->pose.pos.distance(sectionBoundaries.second->pose.pos);
 
     const radian_t fwdAngleDiff   = normalizePM180(sectionBoundaries.second->pose.angle - sectionBoundaries.first->pose.angle);
     const radian_t targetFwdAngle = sectionBoundaries.first->pose.angle + map(sectionStartDist.get(), 0.0f, sectionLength.get(), radian_t(0), fwdAngleDiff);
