@@ -161,12 +161,23 @@ point2<T1>& operator-=(point2<T1>& p1, const point2<T2>& p2) {
 }
 
 /* @brief Multiplies coordinates of the point with the given constant.
+ * @param p The point
  * @param c The constant.
  * @returns The result of the multiplication.
  **/
 template <typename T1, typename T2, typename R = decltype (std::declval<T1>() * std::declval<T2>())>
 typename std::enable_if<!is_base_of_template<point2, T2>::value, point2<R>>::type operator*(const point2<T1>& p, const T2& c) {
     return point2<R>(p.X * c, p.Y * c);
+}
+
+/* @brief Multiplies coordinates of the point with the given constant.
+ * @param c The constant.
+ * @param p The point
+ * @returns The result of the multiplication.
+ **/
+template <typename T1, typename T2, typename R = decltype (std::declval<T1>() * std::declval<T2>())>
+typename std::enable_if<!is_base_of_template<point2, T2>::value, point2<R>>::type operator*(const T1& c, const point2<T2>& p) {
+    return p * c;
 }
 
 /* @brief Divides coordinates of the point by the given constant.
