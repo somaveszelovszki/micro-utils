@@ -22,6 +22,14 @@ template <typename T> struct point2 {
      **/
     T Y;
 
+    point2(const T& fill = T())
+        : X(fill)
+        , Y(fill) {}
+
+    point2(const T& x, const T& y)
+        : X(x)
+        , Y(y) {}
+
     /* @brief Casts point to another type.
      * @returns point cast to another type.
      **/

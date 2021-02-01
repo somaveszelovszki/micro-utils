@@ -26,6 +26,16 @@ template <typename T> struct point3 {
      **/
     T Z;
 
+    point3(const T& fill = T())
+        : X(fill)
+        , Y(fill)
+        , Z(fill) {}
+
+    point3(const T& x, const T& y, const T& z)
+        : X(x)
+        , Y(y)
+        , Z(z) {}
+
     /* @brief Adds coordinates of this and the other point.
     * @param other The other point.
     * @returns The result of the addition.
