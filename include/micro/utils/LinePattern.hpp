@@ -47,6 +47,11 @@ enum class linePatternDomain_t : uint8_t {
     Labyrinth = 1
 };
 
+struct LineDetectControl {
+    linePatternDomain_t domain = linePatternDomain_t::Labyrinth;
+    bool isReducedScanRangeEnabled = false;
+};
+
 const char* to_string(const LinePattern::type_t& type);
 
 } // namespace micro
