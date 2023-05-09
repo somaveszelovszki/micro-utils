@@ -1,4 +1,7 @@
-micro-utils is a portable C++ utility library collection targeting embedded projects.
+micro-utils is a collection of C++ utility libraries.
+In order to be well-suited for embedded use cases, the libraries do not have any dependencies
+that might be missing from an embedded implementation of the standard.
+Also, the libraries strictly use static memory allocation.
 
 ## Directories:
 |Directory     |Role                                                                   |
@@ -14,3 +17,5 @@ micro-utils is a portable C++ utility library collection targeting embedded proj
 | sim/         | Simulator classes for testing purposes                                |
 | test/        | Unit testing utilities                                                |
 | utils/       | Low-level utility classes and functions                               |
+
+Find out more about my projects at [soma.veszelovszki.hu](https://soma.veszelovszki.hu)
