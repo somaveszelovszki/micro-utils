@@ -1,9 +1,7 @@
 #pragma once
 
-#include <micro/port/task.hpp>
 #include <micro/utils/types.hpp>
 #include <micro/utils/point2.hpp>
-#include <micro/utils/CarProps.hpp>
 #include <micro/utils/str_utils.hpp>
 
 #include <cstring>
@@ -114,75 +112,6 @@ struct Serializer<T, typename std::enable_if<is_unit<T>::value>::type> {
 
     static uint32_t deserialize(const char * const stream, void * const value) {
         return Serializer<typename T::value_type>::deserialize(stream, value);
-    }
-};
-
-template <>
-struct Serializer<CarProps> {
-    static uint32_t serialize(char * const stream, const uint32_t size, const void * const value) {
-        const interruptStatus_t interruptStatus = os_enterCritical();
-        const CarProps car = *static_cast<const CarProps*>(value);
-        os_exitCritical(interruptStatus);
-
-        return sprint(stream, size, "[%f,%f,%f,%f,%f,%f,%f,%f,%f]",
-            car.pose.pos.X.get(),
-            car.pose.pos.Y.get(),
-            static_cast<degree_t>(car.pose.angle).get(),
-            car.speed.get(),
-            car.distance.get(),
-            car.orientedDistance.get(),
-            static_cast<degree_t>(car.frontWheelAngle).get(),
-            static_cast<degree_t>(car.rearWheelAngle).get(),
-            static_cast<deg_per_sec_t>(car.yawRate).get());
-    }
-
-    static uint32_t deserialize(const char * const stream, void * const value) {
-        CarProps car;
-        float n;
-
-        uint32_t idx = strlen("{\"pose\":{\"pos_m\":{\"X\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.pose.pos.X = meter_t(n);
-
-        idx += strlen(",\"Y\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.pose.pos.Y = meter_t(n);
-
-        idx += strlen("},\"angle_deg\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.pose.angle = degree_t(n);
-
-        idx += strlen("},\"speed_mps\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.speed = m_per_sec_t(n);
-
-        idx += strlen(",\"distance_m\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.distance = meter_t(n);
-
-        idx += strlen(",\"orientedDistance_m\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.orientedDistance = meter_t(n);
-
-        idx += strlen(",\"frontWheelAngle_deg\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.frontWheelAngle = degree_t(n);
-
-        idx += strlen(",\"rearWheelAngle_deg\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.rearWheelAngle = degree_t(n);
-
-        idx += strlen(",\"yawRate_degps\":");
-        idx += micro::atof(&stream[idx], &n);
-        car.yawRate = deg_per_sec_t(n);
-
-        idx += strlen("}");
-
-        const interruptStatus_t interruptStatus = os_enterCritical();
-        *static_cast<CarProps*>(value) = car;
-        os_exitCritical(interruptStatus);
-
-        return idx;
     }
 };
 
