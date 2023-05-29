@@ -32,7 +32,8 @@ void Log::vprint(level_t level, const char *format, va_list args) {
         char msg[LOG_MSG_MAX_SIZE];
         const char *levelStr = to_string(level);
         uint32_t len = strncpy_until(msg, levelStr, strlen(levelStr));
-        len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len - 3, format, args);
+        msg[len++] = ':';
+        len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len - ARRAY_SIZE(LOG_SEPARATOR_SEQ), format, args);
         len += strncpy_until(&msg[len], LOG_SEPARATOR_SEQ, ARRAY_SIZE(LOG_SEPARATOR_SEQ));
         msg[len] = '\0';
         this->queue_.send(msg, millisecond_t(0));
@@ -53,11 +54,11 @@ bool Log::receive(message_t& msg) {
 const char* to_string(const Log::level_t& level) {
     const char *result = nullptr;
     switch (level) {
-        case Log::level_t::Debug:   result = "[D]"; break;
-        case Log::level_t::Info:    result = "[I]"; break;
-        case Log::level_t::Warning: result = "[W]"; break;
-        case Log::level_t::Error:   result = "[E]"; break;
-        default:                    result = "[?]"; break;
+        case Log::level_t::Debug:   result = "D"; break;
+        case Log::level_t::Info:    result = "I"; break;
+        case Log::level_t::Warning: result = "W"; break;
+        case Log::level_t::Error:   result = "E"; break;
+        default:                    result = "?"; break;
     }
     return result;
 }

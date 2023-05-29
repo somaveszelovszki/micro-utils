@@ -12,7 +12,7 @@
 
 namespace micro {
 
-constexpr char PARAMS_START_SEQ[] = "[P]";
+constexpr char PARAMS_START_SEQ[] = "P:";
 
 Param::Param() : Param("", false, false, nullptr, 0, nullptr, nullptr) {}
 
