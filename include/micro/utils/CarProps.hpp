@@ -27,13 +27,14 @@ struct CarProps  {
     CarProps() {}
 
     bool operator==(const CarProps& other) {
-        return this->pose          == other.pose            &&
-            this->speed            == other.speed           &&
-            this->distance         == other.distance        &&
-            this->orientedDistance == other.distance        &&
-            this->frontWheelAngle  == other.frontWheelAngle &&
-            this->rearWheelAngle   == other.rearWheelAngle  &&
-            this->yawRate          == other.yawRate;
+        return this->pose            == other.pose            &&
+            this->speed              == other.speed           &&
+            this->distance           == other.distance        &&
+            this->orientedDistance   == other.distance        &&
+            this->frontWheelAngle    == other.frontWheelAngle &&
+            this->rearWheelAngle     == other.rearWheelAngle  &&
+            this->yawRate            == other.yawRate  &&
+            this->isRemoteControlled == other.isRemoteControlled;
     }
 
     bool operator!=(const CarProps& other) { return !(*this == other); }
@@ -45,6 +46,7 @@ struct CarProps  {
     radian_t frontWheelAngle;
     radian_t rearWheelAngle;
     rad_per_sec_t yawRate;
+    bool isRemoteControlled = false;
 
     radian_t getSpeedAngle(const meter_t frontRearPivotDist) const;
 
