@@ -51,17 +51,19 @@ public:
 
     template <typename T>
     void registerParam(const char *name, T& value, const bool broadcast, const bool writable) {
-        std::lock_guard<mutex_t> lock(this->mutex_);
-        this->values_.insert(Param(
-            name,
-            broadcast,
-            writable,
-            reinterpret_cast<uint8_t*>(&value),
-            sizeof(T),
-            micro::Serializer<T>::serialize,
-            micro::Serializer<T>::deserialize,
-            micro::Serializer<T>::exchange
-        ));
+        if (sizeof(T) <= MAX_PARAM_SIZE_BYTES) {
+            std::lock_guard<mutex_t> lock(this->mutex_);
+            this->values_.insert(Param(
+                name,
+                broadcast,
+                writable,
+                reinterpret_cast<uint8_t*>(&value),
+                sizeof(T),
+                micro::Serializer<T>::serialize,
+                micro::Serializer<T>::deserialize,
+                micro::Serializer<T>::exchange
+            ));
+        }
     }
 
     void serializeAll(char * const str, uint32_t size);
