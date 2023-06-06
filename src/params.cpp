@@ -12,14 +12,10 @@
 
 namespace micro {
 
-constexpr char PARAMS_START_SEQ[] = "P:";
+Param::Param() : Param("", nullptr, 0, nullptr, nullptr, nullptr) {}
 
-Param::Param() : Param("", false, false, nullptr, 0, nullptr, nullptr, nullptr) {}
-
-Param::Param(const char *name, const bool broadcast, const bool writable, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize, exchange_func exchange)
+Param::Param(const char *name, void *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize, exchange_func exchange)
     : name("")
-    , broadcast(broadcast)
-    , writable(writable)
     , buf(buf)
     , size(size)
     , serializedCount(0u)
@@ -46,21 +42,22 @@ bool ParamNameComparator::operator()(const char * const name, const Param& param
     return (*this)(name, param.name);
 }
 
-Params& Params::instance() {
-    static Params instance_;
-    return instance_;
-}
+Params::Params(const char prefix) : prefix_(prefix) {}
 
-void Params::serializeAll(char * const str, uint32_t size) {
+uint32_t Params::serializeAll(char * const str, uint32_t size) {
 
     std::lock_guard<mutex_t> lock(this->mutex_);
 
-    uint32_t idx = strncpy_until(str, PARAMS_START_SEQ, size);
+    uint32_t idx = 0u;
+    str[idx++] = this->prefix_;
+    str[idx++] = ':';
     str[idx++] = '{';
+
+    uint32_t count = 0u;
 
     for (values_t::iterator it = this->values_.begin(); it != this->values_.end(); ++it) {
         const bool changed = it->exchange(it->prev, it->buf);
-        if (it->broadcast && (it->serializedCount == 0u || changed)) {
+        if (it->serializedCount == 0u || changed) {
             str[idx++] = '"';
 
             idx += strncpy_until(&str[idx], it->name, size - idx);
@@ -78,24 +75,26 @@ void Params::serializeAll(char * const str, uint32_t size) {
             }
 
             ++it->serializedCount;
+            ++count;
         }
     }
 
     str[idx++] = '}';
     idx += strncpy_until(&str[idx], LOG_SEPARATOR_SEQ, size - idx);
+
+    return count;
 }
 
-void Params::deserializeAll(const char * const str, uint32_t size) {
+uint32_t Params::deserializeAll(const char * const str, uint32_t size) {
 
     std::lock_guard<mutex_t> lock(this->mutex_);
 
-    if (!strncmp(str, PARAMS_START_SEQ, strlen(PARAMS_START_SEQ))) {
+    uint32_t count = 0u;
+
+    if (str[0] == this->prefix_) {
         const char *msgEnd = std::find(str, str + size, LOG_SEPARATOR_CHAR);
         if (msgEnd != str + size) {
-            uint32_t idx = strlen(PARAMS_START_SEQ);
-            idx++; // '{'
-
-            uint32_t numParams = 0;
+            uint32_t idx = 3; // skips prefix, colon and opening bracket
             char name[STR_MAX_LEN_PARAM_NAME];
 
             while (idx < size) {
@@ -108,11 +107,9 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
                 if (it == this->values_.end() || strncmp(it->name, name, STR_MAX_LEN_PARAM_NAME) != 0) {
                     LOG_ERROR("Unknown parameter name: '%s'.", name);
                     skipParam(str, idx);
-                } else if (it->writable) {
-                    idx += it->deserialize(&str[idx], it->buf);
-                    ++numParams;
                 } else {
-                    skipParam(str, idx);
+                    idx += it->deserialize(&str[idx], it->buf);
+                    ++count;
                 }
 
                 skipWhiteSpaces(str, idx);
@@ -125,12 +122,14 @@ void Params::deserializeAll(const char * const str, uint32_t size) {
                     idx++; // ','
                 }
             }
-
-            if (numParams >= 2) {
-                LOG_INFO("Params updated from server");
-            }
         }
     }
+
+    if (count > 0) {
+        LOG_INFO("%u params updated in section '%c'", count, this->prefix_);
+    }
+
+    return count;
 }
 
 void Params::skipWhiteSpaces(const char * const str, uint32_t& idx) {
