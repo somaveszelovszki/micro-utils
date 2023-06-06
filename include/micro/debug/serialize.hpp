@@ -10,8 +10,19 @@ namespace micro {
 
 typedef uint32_t (*serialize_func)(char * const, const uint32_t size, const void * const);
 typedef uint32_t (*deserialize_func)(const char * const, void * const);
+typedef bool (*exchange_func)(void * const, const void * const);
 
 template <typename T, typename partial = void> struct Serializer {};
+
+template <typename T>
+bool raw_buffer_exchange(void * const obj, const void * new_value) {
+    T& obj_ = *static_cast<T*>(obj);
+    const T& new_value_ = *static_cast<const T*>(new_value);
+
+    const bool changed = obj_ != new_value_;
+    obj_ = new_value_;
+    return changed;
+}
 
 template <>
 struct Serializer<bool> {
@@ -38,6 +49,10 @@ struct Serializer<bool> {
         }
         return result;
     }
+
+    static bool exchange(void * const obj, const void * new_value) {
+        return raw_buffer_exchange<bool>(obj, new_value);
+    }
 };
 
 template <>
@@ -54,6 +69,10 @@ struct Serializer<char> {
         *static_cast<char*>(value) = stream[1];
         return 3;
     }
+
+    static bool exchange(void * const obj, const void * new_value) {
+        return raw_buffer_exchange<char>(obj, new_value);
+    }
 };
 
 template <typename T>
@@ -64,6 +83,10 @@ struct Serializer<T, typename std::enable_if<std::is_enum<T>::value>::type> {
 
     static uint32_t deserialize(const char * const stream, void * const value) {
         return Serializer<typename std::underlying_type<T>::type>::deserialize(stream, value);
+    }
+
+    static bool exchange(void * const obj, const void * new_value) {
+        return raw_buffer_exchange<T>(obj, new_value);
     }
 };
 
@@ -87,6 +110,10 @@ struct Serializer<T, typename std::enable_if<std::is_floating_point<T>::value>::
         }
         return idx;
     }
+
+    static bool exchange(void * const obj, const void * new_value) {
+        return raw_buffer_exchange<T>(obj, new_value);
+    }
 };
 
 template <typename T>
@@ -102,6 +129,10 @@ struct Serializer<T, typename std::enable_if<std::is_integral<T>::value>::type> 
         *static_cast<T*>(value) = static_cast<T>(micro::round(n));
         return result;
     }
+
+    static bool exchange(void * const obj, const void * new_value) {
+        return raw_buffer_exchange<T>(obj, new_value);
+    }
 };
 
 template <typename T>
@@ -112,6 +143,10 @@ struct Serializer<T, typename std::enable_if<is_unit<T>::value>::type> {
 
     static uint32_t deserialize(const char * const stream, void * const value) {
         return Serializer<typename T::value_type>::deserialize(stream, value);
+    }
+
+    static bool exchange(void * const obj, const void * new_value) {
+        return raw_buffer_exchange<T>(obj, new_value);
     }
 };
 

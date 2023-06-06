@@ -14,17 +14,20 @@ namespace micro {
 
 constexpr char PARAMS_START_SEQ[] = "P:";
 
-Param::Param() : Param("", false, false, nullptr, 0, nullptr, nullptr) {}
+Param::Param() : Param("", false, false, nullptr, 0, nullptr, nullptr, nullptr) {}
 
-Param::Param(const char *name, const bool broadcast, const bool writable, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize)
+Param::Param(const char *name, const bool broadcast, const bool writable, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize, exchange_func exchange)
     : name("")
     , broadcast(broadcast)
     , writable(writable)
     , buf(buf)
     , size(size)
+    , serializedCount(0u)
     , serialize(serialize)
-    , deserialize(deserialize) {
+    , deserialize(deserialize)
+    , exchange(exchange) {
     strncpy(const_cast<char*>(this->name), name, STR_MAX_LEN_PARAM_NAME);
+    memset(this->prev, 0, MAX_PARAM_SIZE_BYTES);
 }
 
 bool ParamNameComparator::operator()(const char * const a, const char * const b) const {
@@ -55,8 +58,9 @@ void Params::serializeAll(char * const str, uint32_t size) {
     uint32_t idx = strncpy_until(str, PARAMS_START_SEQ, size);
     str[idx++] = '{';
 
-    for (values_t::const_iterator it = this->values_.begin(); it != this->values_.end(); ++it) {
-        if (it->broadcast) {
+    for (values_t::iterator it = this->values_.begin(); it != this->values_.end(); ++it) {
+        const bool changed = it->exchange(it->prev, it->buf);
+        if (it->broadcast && (it->serializedCount == 0u || changed)) {
             str[idx++] = '"';
 
             idx += strncpy_until(&str[idx], it->name, size - idx);
@@ -72,6 +76,8 @@ void Params::serializeAll(char * const str, uint32_t size) {
                 str[idx++] = ',';
                 if (idx >= size) break;
             }
+
+            ++it->serializedCount;
         }
     }
 

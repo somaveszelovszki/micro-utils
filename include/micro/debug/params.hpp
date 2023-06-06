@@ -11,25 +11,31 @@
 
 #define STR_MAX_LEN_PARAM_NAME 32u
 #define MAX_NUM_GLOBAL_PARAMS  128u
+#define MAX_PARAM_SIZE_BYTES   4u
 
 namespace micro {
 
 struct Param {
     Param();
 
-    Param(const char *name, const bool broadcast, const bool writable, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize);
+    Param(const char *name, const bool broadcast, const bool writable, uint8_t *buf, uint8_t size, serialize_func serialize, deserialize_func deserialize, exchange_func exchange);
 
     Param(const Param& other) = default;
 
     Param& operator=(const Param& other) = default;
+
+    bool checkChange();
 
     char name[STR_MAX_LEN_PARAM_NAME];
     bool broadcast;
     bool writable;
     void *buf;
     uint8_t size;
+    uint8_t prev[MAX_PARAM_SIZE_BYTES];
+    uint32_t serializedCount;
     serialize_func serialize;
     deserialize_func deserialize;
+    exchange_func exchange;
 };
 
 struct ParamNameComparator {
@@ -53,7 +59,8 @@ public:
             reinterpret_cast<uint8_t*>(&value),
             sizeof(T),
             micro::Serializer<T>::serialize,
-            micro::Serializer<T>::deserialize
+            micro::Serializer<T>::deserialize,
+            micro::Serializer<T>::exchange
         ));
     }
 
