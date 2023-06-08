@@ -1,7 +1,5 @@
 #pragma once
 
-#if defined OS_FREERTOS // params interface is only supported if FreeRTOS is available
-
 #include <micro/container/vec.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/utils/log.hpp>
@@ -83,5 +81,3 @@ private:
 #define REGISTER_PARAM(params, var) params.registerParam(#var, var)
 
 } // namespace micro
-
-#endif // OS_FREERTOS
