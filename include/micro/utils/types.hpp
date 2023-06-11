@@ -10,7 +10,7 @@ namespace micro {
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
 template <typename T, typename std::enable_if<std::is_enum<T>::value, void>::type* = nullptr>
-typename std::underlying_type<T>::type enum_cast(const T& value) {
+typename std::underlying_type<T>::type underlying_value(const T& value) {
     return static_cast<typename std::underlying_type<T>::type>(value);
 }
 
@@ -95,7 +95,7 @@ inline Sign operator*(const Sign s1, Sign s2) {
 }
 
 inline Direction operator*(const Direction value, Sign sign) {
-    return static_cast<Direction>(enum_cast(value) * sign);
+    return static_cast<Direction>(underlying_value(value) * sign);
 }
 
 const char* to_string(const Sign& sign);
