@@ -16,6 +16,7 @@ public:
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef T entry_type;
+    typedef T value_type;
 
     vec_base() : size_(0) {}
 
