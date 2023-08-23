@@ -21,36 +21,18 @@ bool ParamManager::Param::setValue(const value_type newValue) {
         }, newValue);
 }
 
-auto ParamManager::getAll() -> Values {
+auto ParamManager::update(const bool notifyAllParams, const Values& newValues) -> Values {
     std::scoped_lock lock{mutex_};
     Values result;
     for (auto& [name, param] : params_) {
-        result.insert({name, param.prev});
-    }
-    return result;
-}
-
-auto ParamManager::getChanged() -> Values {
-    std::scoped_lock lock{mutex_};
-    Values result;
-    for (auto& [name, param] : params_) {
-        if (param.updatePrev()) {
-            result.insert({name, param.prev});
-        }
-    }
-    return result;
-}
-
-
-auto ParamManager::update(const Values& newValues) -> Values {
-    std::scoped_lock lock{mutex_};
-    Values result;
-    for (const auto& [name, value] : newValues) {
-        if (auto it = params_.find(name); it != params_.end()) {
-            auto& param = it->second;
-            if (param.setValue(value) && param.updatePrev()) {
-                result.insert({name, param.prev});
+        if (const auto it = newValues.find(name); it != newValues.end()) {
+            if (!param.setValue(it->second)) {
+                continue;
             }
+        }
+
+        if (param.updatePrev() || notifyAllParams) {
+            result.insert({name, param.prev});
         }
     }
     return result;
