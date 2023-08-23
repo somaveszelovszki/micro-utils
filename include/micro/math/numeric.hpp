@@ -12,7 +12,7 @@ template <typename T, typename partial = void>
 struct numeric_limits {};
 
 template <typename T>
-struct numeric_limits<T, typename std::enable_if<std::is_arithmetic<T>::value, void>::type> {
+struct numeric_limits<T, std::enable_if_t<std::is_arithmetic<T>::value>> {
     static constexpr T min()       { return std::numeric_limits<T>::min();       }
     static constexpr T max()       { return std::numeric_limits<T>::max();       }
     static constexpr T quiet_NaN() { return std::numeric_limits<T>::quiet_NaN(); }
@@ -270,12 +270,12 @@ inline constexpr Sign sgn(const T& value) {
 
 template <typename T>
 inline constexpr bool isinf(const T& value) {
-    return std::isinf(raw_type<T>::get(value));
+    return std::isinf(underlying_value(value));
 }
 
 template <typename T>
 inline constexpr bool isnan(const T& value) {
-    return std::isnan(raw_type<T>::get(value));
+    return std::isnan(underlying_value(value));
 }
 
 /**

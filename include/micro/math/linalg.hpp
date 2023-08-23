@@ -19,20 +19,20 @@ quaternion_t toQuaternion(const point3<radian_t>& euler);
 
 template <typename T>
 T distance(const line2<T>& line, const point2<T>& point) {
-    return T(abs(micro::raw_type<T>::get(line.a) * micro::raw_type<T>::get(point.X) + micro::raw_type<T>::get(line.b) * micro::raw_type<T>::get(point.Y) + micro::raw_type<T>::get(line.c)) * line.normFactor());
+    return T(abs(underlying_value(line.a) * underlying_value(point.X) + underlying_value(line.b) * underlying_value(point.Y) + underlying_value(line.c)) * line.normFactor());
 }
 
 template <typename T>
 T distanceNorm(const line2<T>& lineNorm, const point2<T>& point) {
-    return T(abs(micro::raw_type<T>::get(lineNorm.a) * micro::raw_type<T>::get(point.X) + micro::raw_type<T>::get(lineNorm.b) * micro::raw_type<T>::get(point.Y) + micro::raw_type<T>::get(lineNorm.c)));
+    return T(abs(underlying_value(lineNorm.a) * underlying_value(point.X) + underlying_value(lineNorm.b) * underlying_value(point.Y) + underlying_value(lineNorm.c)));
 }
 
 template <typename T>
 std::pair<point2<T>, point2<T>> lineCircle_intersection(const line2<T>& line, const point2<T>& circleCenter, const T& circleRadius) {
     float x_2 = 0, x_1 = 0, x_0 = 0;
 
-    const point2<float> circleCenterRaw = { micro::raw_type<T>::get(circleCenter.X), micro::raw_type<T>::get(circleCenter.Y) };
-    const float circleRadiusRaw = micro::raw_type<T>::get(circleRadius);
+    const point2<float> circleCenterRaw = { underlying_value(circleCenter.X), underlying_value(circleCenter.Y) };
+    const float circleRadiusRaw = underlying_value(circleRadius);
 
     if (isZero(line.b)) { // vertical line
         x_2 = 1;
@@ -70,8 +70,8 @@ template <typename T>
 point2<T> lineLine_intersection(const line2<T>& line1, const line2<T>& line2) {
     point2<T> intersection = { micro::numeric_limits<T>::infinity(), micro::numeric_limits<T>::infinity() };
 
-    const line2f line1Raw(micro::raw_type<T>::get(line1.a), micro::raw_type<T>::get(line1.b), micro::raw_type<T>::get(line1.c));
-    const line2f line2Raw(micro::raw_type<T>::get(line2.a), micro::raw_type<T>::get(line2.b), micro::raw_type<T>::get(line2.c));
+    const line2f line1Raw(underlying_value(line1.a), underlying_value(line1.b), underlying_value(line1.c));
+    const line2f line2Raw(underlying_value(line2.a), underlying_value(line2.b), underlying_value(line2.c));
     const float det = line2Raw.a * line1Raw.b - line1Raw.a * line2Raw.b;
 
     if (!isZero(det)) {

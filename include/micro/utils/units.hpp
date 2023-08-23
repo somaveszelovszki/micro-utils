@@ -51,13 +51,19 @@ template <typename T, typename partial = void>
 struct is_unit : std::false_type {};
 
 template <typename T>
-struct is_unit<T, typename std::enable_if<T::is_dim_class, void>::type> : std::true_type {};
+struct is_unit<T, std::enable_if_t<T::is_dim_class>> : std::true_type {};
+
+template <typename T>
+inline constexpr bool is_unit_v = is_unit<T>::value;
 
 template <typename T1, typename T2, typename partial = void>
 struct is_same_unit_dimension : std::false_type {};
 
 template <typename T1, typename T2>
-struct is_same_unit_dimension<T1, T2, typename std::enable_if<is_unit<T1>::value && is_unit<T2>::value && T1::dim == T2::dim, void>::type> : std::true_type {};
+struct is_same_unit_dimension<T1, T2, std::enable_if_t<is_unit_v<T1> && is_unit_v<T2> && T1::dim == T2::dim>> : std::true_type {};
+
+template <typename T1, typename T2>
+inline constexpr bool is_same_unit_dimension_v = is_same_unit_dimension<T1, T2>::value;
 
 namespace detail {
 
@@ -178,7 +184,7 @@ inline constexpr typename std::enable_if<from_unit_inst_t::dim == to_unit_inst_t
 template <Dimension _dim, typename unit_inst_t_ = unit_instance<_dim, Unit::one>, bool explicit_unit = false>
 class dim_class {
 public:
-    typedef float value_type;
+    using value_type = float;
     enum { is_dim_class = true };
     static constexpr Dimension dim = _dim;   // The dimension.
     typedef unit_inst_t_ unit_inst_t;
@@ -189,14 +195,14 @@ private:
     template <typename unit_inst_t2, bool explicit_unit2> using same_dim_class = dim_class<dim, unit_inst_t2, explicit_unit2>;
     template <Dimension dim2, typename unit_inst_t2, bool explicit_unit2> using other_dim_class = dim_class<dim2, unit_inst_t2, explicit_unit2>;
 
-    float value;   // The stored value.
+    value_type value;   // The stored value.
 
 public:
     /* @brief Constructor - sets value.
      * @tparam T Numeric type of the parameter value.
      * param value The value given in the unit instance.
      **/
-    constexpr explicit dim_class(value_type value, void*) : value(value) {}
+    constexpr explicit dim_class(const value_type value, void*) : value(value) {}
 
     /* @brief Default constructor - sets value to 0.
      **/
@@ -206,8 +212,8 @@ public:
      * @tparam T Numeric type of the parameter value.
      * param value The value given in the unit instance.
      **/
-    template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    constexpr dim_class(value_type value) : dim_class(value, nullptr) {}
+    template <bool enable = explicit_unit, class = std::enable_if_t<enable>>
+    constexpr dim_class(const value_type value) : dim_class(value, nullptr) {}
 
     /* @brief Constructor - sets value.
      * @tparam unit_inst_t Unit instance type.
@@ -224,17 +230,27 @@ public:
      * @tparam unit_inst_t The result unit instance type (e.g. milliseconds).
      * @returns The value in given unit.
      **/
-    template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
+    template <bool enable = explicit_unit, class = std::enable_if_t<enable>>
     constexpr float get() const {
         return this->value;
     }
 
-    template <bool enable = explicit_unit, class = typename std::enable_if<enable>::type>
-    void set(float value) {
+    template <bool enable = explicit_unit, class = std::enable_if_t<enable>>
+    constexpr const value_type& ref() const {
+        return this->value;
+    }
+
+    template <bool enable = explicit_unit, class = std::enable_if_t<enable>>
+    constexpr value_type& ref() {
+        return this->value;
+    }
+
+    template <bool enable = explicit_unit, class = std::enable_if_t<enable>>
+    void set(const value_type value) {
         this->value = value;
     }
 
-    template <typename T2, class = typename std::enable_if<std::is_arithmetic<T2>::value>::type>
+    template <typename T2, class = std::enable_if_t<std::is_arithmetic<T2>::value>>
     explicit operator T2() const {
         return T2(this->value);
     }

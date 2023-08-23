@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <type_traits>
+#include <utility>
 
 namespace micro {
 
@@ -9,10 +10,34 @@ namespace micro {
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
-template <typename T, typename std::enable_if<std::is_enum<T>::value, void>::type* = nullptr>
-typename std::underlying_type<T>::type underlying_value(const T& value) {
-    return static_cast<typename std::underlying_type<T>::type>(value);
+template <typename T, typename partial = void>
+struct underlying_type {};
+
+template <typename T>
+struct underlying_type<T, typename std::enable_if<std::is_arithmetic<T>::value, void>::type> {
+    using type = T;
+    static constexpr type value(const T& v) { return v; }
+    static constexpr const type& ref(const T& v) { return v; }
+    static constexpr type& ref(T& v) { return v; }
+};
+
+template <typename T>
+struct underlying_type<T, typename std::enable_if<std::is_enum<T>::value, void>::type> {
+    using type = std::underlying_type_t<T>;
+    static constexpr type value(const T& v) { return static_cast<type>(v); }
+    static constexpr const type& ref(const T& v) { return static_cast<const type&>(v); }
+    static constexpr type& ref(T& v) { return static_cast<type&>(v); }
+};
+
+template <typename T>
+auto underlying_value(const T& value) {
+    return underlying_type<T>::value(value);
 }
+
+template <typename T>
+auto&& underlying_ref(T&& value) {
+    return underlying_type<std::decay_t<T>>::ref(std::forward<T>(value));
+};
 
 /**
  * @brief Status for operations
