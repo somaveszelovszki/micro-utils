@@ -25,8 +25,8 @@ TEST(units, numeric_limits) {
     EXPECT_EQ(std::numeric_limits<float>::epsilon(), micro::numeric_limits<radian_t>::epsilon().get());
 }
 
-TEST(units, raw_type) {
-    EXPECT_EQ(-10.0f, raw_type<radian_t>::get(radian_t(-10.0f)));
+TEST(units, underlying_value) {
+    EXPECT_EQ(-10.0f, underlying_value(radian_t(-10.0f)));
 }
 
 TEST(units, base) {

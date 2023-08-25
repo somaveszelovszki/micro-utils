@@ -12,7 +12,8 @@
 #include <micro/utils/log.hpp>
 #include <micro/math/numeric.hpp>
 
-#include "serialize.hpp"
+#include <iostream>
+
 
 namespace micro {
 
@@ -53,7 +54,7 @@ public:
     template <typename T>
     void registerParam(const char *name, T& value) {
         std::scoped_lock lock{mutex_};
-        params_.insert({Name{name}, Param{value.get(), underlying_ref(value)}});
+        params_.insert({Name{name}, Param{value, underlying_ref(value)}});
     }
 
     Values update(const bool notifyAllParams = false, const Values& newValues = {});
