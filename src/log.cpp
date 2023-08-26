@@ -6,6 +6,7 @@
 
 #include <cstdarg>
 #include <cstring>
+#include <string>
 
 namespace micro {
 
@@ -30,8 +31,8 @@ void Log::vprint(level_t level, const char *format, va_list args) {
         const char *levelStr = to_string(level);
         uint32_t len = strncpy_until(msg, levelStr, strlen(levelStr));
         msg[len++] = ':';
-        len += vsprint(&msg[len], sizeof(message_t) - len - sizeof(SEPARATOR), format, args);
-        len += strncpy_until(&msg[len], SEPARATOR, sizeof(SEPARATOR));
+        len += vsprint(&msg[len], sizeof(message_t) - len - std::char_traits<char>::length(SEPARATOR), format, args);
+        len += strncpy_until(&msg[len], SEPARATOR, sizeof(message_t) - len);
         msg[len] = '\0';
         this->queue_.send(msg, millisecond_t(0));
     }
