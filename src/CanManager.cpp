@@ -57,7 +57,7 @@ CanManager::CanManager(const can_t& can)
 
 CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters) {
     std::lock_guard<criticalSection_t> lock(this->criticalSection_);
-    return this->subscribers_.emplace_back(this->subscribers_.size(), rxFilters, txFilters)->id;
+    return this->subscribers_.emplace_back(this->subscribers_.size(), rxFilters, txFilters).id;
 }
 
 bool CanManager::read(const CanSubscriber::id_t subscriberId, canFrame_t& frame) {
