@@ -1,10 +1,9 @@
 #include <micro/debug/ParamManager.hpp>
+#include <micro/utils/units.hpp>
 
 #include "utils.hpp"
 
 using namespace micro;
-
-
 
 TEST(ParamManager, all) {
     ParamManager params;
@@ -17,6 +16,7 @@ TEST(ParamManager, all) {
     uint16_t u16 = 160;
     uint32_t u32 = 320;
     float f = 1.0f;
+    meter_t m(10.0f);
 
     params.registerParam("b", b);
     params.registerParam("i8", i8);
@@ -26,6 +26,7 @@ TEST(ParamManager, all) {
     params.registerParam("u16", u16);
     params.registerParam("u32", u32);
     params.registerParam("f", f);
+    params.registerParam("m", m);
 
     const auto all = params.update(true);
     ASSERT_EQ(8, all.size());
@@ -37,6 +38,7 @@ TEST(ParamManager, all) {
     EXPECT_EQ(160, std::get<uint16_t>(all.at("u16")));
     EXPECT_EQ(320, std::get<uint32_t>(all.at("u32")));
     EXPECT_EQ(1.0f, std::get<float>(all.at("f")));
+    EXPECT_EQ(10.0f, std::get<underlying_type_t<meter_t>>(all.at("m")));
 }
 
 TEST(ParamManager, value_changed) {

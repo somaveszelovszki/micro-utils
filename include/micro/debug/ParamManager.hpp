@@ -54,7 +54,7 @@ public:
     template <typename T>
     void registerParam(const char *name, T& value) {
         std::scoped_lock lock{mutex_};
-        params_.insert({Name{name}, Param{value, underlying_ref(value)}});
+        params_.insert({Name{name}, Param{underlying_value(value), underlying_ref(value)}});
     }
 
     Values update(const bool notifyAllParams = false, const Values& newValues = {});

@@ -30,6 +30,9 @@ struct underlying_type<T, typename std::enable_if<std::is_enum<T>::value, void>:
 };
 
 template <typename T>
+using underlying_type_t = typename underlying_type<T>::type;
+
+template <typename T>
 auto underlying_value(const T& value) {
     return underlying_type<T>::value(value);
 }
