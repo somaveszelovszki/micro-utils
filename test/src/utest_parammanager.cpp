@@ -29,7 +29,7 @@ TEST(ParamManager, all) {
     params.registerParam("m", m);
 
     const auto all = params.update(true);
-    ASSERT_EQ(8, all.size());
+    ASSERT_EQ(9, all.size());
     EXPECT_EQ(false, std::get<bool>(all.at("b")));
     EXPECT_EQ(8, std::get<int8_t>(all.at("i8")));
     EXPECT_EQ(16, std::get<int16_t>(all.at("i16")));
