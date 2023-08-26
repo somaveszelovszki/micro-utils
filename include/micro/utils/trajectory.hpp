@@ -1,6 +1,7 @@
 #pragma once
 
-#include <micro/container/vec.hpp>
+#include <etl/vector.h>
+
 #include <micro/utils/CarProps.hpp>
 #include <micro/utils/ControlData.hpp>
 
@@ -21,7 +22,7 @@ public:
         m_per_sec_t speed;
     };
 
-    typedef vec<config_t, 500> configs_t;
+    typedef etl::vector<config_t, 500> configs_t;
 
     Trajectory()
         : sectionStartConfig_(this->configs_.end())
@@ -39,7 +40,7 @@ public:
     }
 
     config_t lastConfig() const {
-        return *this->configs_.back();
+        return this->configs_.back();
     }
 
     radian_t lastSpeedAngle() const;

@@ -1,4 +1,3 @@
-#include <micro/container/vec.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/math/numeric.hpp>
 #include <micro/port/task.hpp>

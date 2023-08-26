@@ -11,7 +11,7 @@ static constexpr meter_t TRAJECTORY_RESOLUTION = centimeter_t(1);
 
 radian_t Trajectory::lastSpeedAngle() const {
     return this->configs_.size() >= 2 ?
-        (this->configs_.back()->pose.pos - std::prev(this->configs_.back())->pose.pos).getAngle() :
+        (this->configs_.rend()->pose.pos - std::next(this->configs_.rend())->pose.pos).getAngle() :
         radian_t(0);
 }
 
@@ -24,7 +24,7 @@ void Trajectory::setStartConfig(const config_t& start, meter_t currentDist) {
 }
 
 void Trajectory::appendLine(const config_t& dest) {
-    const meter_t diff = dest.pose.pos.distance(this->configs_.back()->pose.pos);
+    const meter_t diff = dest.pose.pos.distance(this->configs_.back().pose.pos);
     if (diff >= TRAJECTORY_RESOLUTION) {
         this->length_ += diff;
         this->configs_.push_back(dest);
@@ -32,13 +32,13 @@ void Trajectory::appendLine(const config_t& dest) {
 }
 
 void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t destSpeed) {
-    const configs_t::const_iterator lastCfg = this->configs_.back();
-    const vec2m relativeVec = lastCfg->pose.pos - center;
+    const auto& lastCfg = this->configs_.back();
+    const vec2m relativeVec = lastCfg.pose.pos - center;
 
     const uint32_t numSections = (relativeVec.length() * abs(angle)) / TRAJECTORY_RESOLUTION;
 
     for (uint32_t i = 1; i <= numSections; ++i) {
-        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, destSpeed);
+        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg.speed, destSpeed);
         const vec2m currentRelativeVec = relativeVec.rotate(map<uint32_t, radian_t>(i, 0, numSections, radian_t(0), angle));
         const radian_t currentFwdAngle = currentRelativeVec.getAngle() + sgn(angle) * PI_2;
 
@@ -47,8 +47,8 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
 }
 
 void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientationUpdate_t orientationUpdate, radian_t sineStart, radian_t sineEnd) {
-    const configs_t::const_iterator lastCfg = this->configs_.back();
-    const point2m c1_ = lastCfg->pose.pos.rotate(-fwdAngle);
+    const auto& lastCfg = this->configs_.back();
+    const point2m c1_ = lastCfg.pose.pos.rotate(-fwdAngle);
     const point2m c2_ = dest.pose.pos.rotate(-fwdAngle);
 
     const meter_t dx = c2_.X - c1_.X;
@@ -56,14 +56,14 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
 
     const uint32_t numSections = (abs(dx) + abs(dy)) / TRAJECTORY_RESOLUTION;
 
-    configs_t::const_iterator prevCfg = lastCfg;
+    auto prevCfg = lastCfg;
 
     for (uint32_t i = 1; i <= numSections; ++i) {
         const meter_t x_ = c1_.X + static_cast<float>(i) / numSections * dx;
         const meter_t y_ = c1_.Y + dy * (1 - cos(map<float, radian_t>(i, 0, numSections, sineStart, sineEnd))) / 2;
         const point2m currentPoint     = point2m{ x_, y_ }.rotate(fwdAngle);
-        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg->speed, dest.speed);
-        const radian_t currentFwdAngle = orientationUpdate == orientationUpdate_t::FIX_ORIENTATION ? lastCfg->pose.angle : (currentPoint - prevCfg->pose.pos).getAngle();
+        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg.speed, dest.speed);
+        const radian_t currentFwdAngle = orientationUpdate == orientationUpdate_t::FIX_ORIENTATION ? lastCfg.pose.angle : (currentPoint - prevCfg.pose.pos).getAngle();
 
         this->appendLine(config_t{ { currentPoint, toCarOrientation(currentFwdAngle, currentSpeed) }, currentSpeed });
         prevCfg = this->configs_.back();
@@ -125,7 +125,7 @@ std::pair<Trajectory::configs_t::const_iterator, Trajectory::configs_t::const_it
 
     if (closestConfig == this->configs_.begin()) {
         otherConfig = std::next(closestConfig);
-    } else if (closestConfig == this->configs_.back()) {
+    } else if (closestConfig == std::prev(this->configs_.end())) {
         otherConfig = std::prev(closestConfig);
     } else {
         const configs_t::const_iterator prevConfig = std::prev(closestConfig);

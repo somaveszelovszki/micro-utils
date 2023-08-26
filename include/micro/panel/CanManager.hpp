@@ -1,5 +1,10 @@
 #pragma once
 
+#include <cstring>
+#include <functional>
+
+#include <etl/vector.h>
+
 #include <micro/container/map.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/port/can.hpp>
@@ -9,9 +14,6 @@
 #include <micro/utils/timer.hpp>
 
 #include "vehicleCanTypes.hpp"
-
-#include <cstring>
-#include <functional>
 
 namespace micro {
 
@@ -91,7 +93,7 @@ private:
 
     mutable criticalSection_t criticalSection_;
     can_t can_;
-    vec<CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
+    etl::vector<CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
 };
 
 class CanFrameHandler {
