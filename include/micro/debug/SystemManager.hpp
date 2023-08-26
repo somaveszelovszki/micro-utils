@@ -1,31 +1,25 @@
 #pragma once
 
-#if defined OS_FREERTOS // system manager is only supported if FreeRTOS is available
+#include <etl/map.h>
+#include <etl/vector.h>
 
 #include <micro/port/mutex.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/state.hpp>
 
-#include <FreeRTOS.h>
-#include <task.h>
-
 namespace micro {
 
 class SystemManager {
+    static constexpr size_t MAX_NUM_TASKS = 16;
 public:
     struct TaskState {
-        TaskStatus_t details;
+        TaskInfo info;
         state_t<bool> ok;
     };
 
-    struct TaskStateComparator {
-        constexpr bool operator()(const TaskState& a, const TaskState& b) const             { return a.details.xHandle < b.details.xHandle; };
-        constexpr bool operator()(const TaskState& state, const TaskHandle_t& handle) const { return state.details.xHandle < handle; };
-        constexpr bool operator()(const TaskHandle_t& handle, const TaskState& state) const { return handle < state.details.xHandle; };
-    };
-
     typedef uint8_t programState_t;
-    typedef sorted_vec<TaskState, 16, TaskStateComparator> TaskStates;
+
+    using TaskStates = etl::vector<TaskState, MAX_NUM_TASKS>;
 
     static SystemManager& instance();
 
@@ -43,10 +37,8 @@ private:
     SystemManager() : programState_(0) {}
 
     mutable mutex_t mutex_;
-    TaskStates taskStates_;
+    etl::map<taskId_t, TaskState, MAX_NUM_TASKS> taskStates_;
     programState_t programState_;
 };
 
 } // namespace micro
-
-#endif // OS_FREERTOS

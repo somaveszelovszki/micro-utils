@@ -6,11 +6,23 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
+extern void *pxCurrentTCB;
+
 namespace micro {
 
 #if !defined STM32
 context_t getContext() { return context_t::TASK; }
 #endif // !STM32
+
+taskId_t getCurrentTaskId() {
+    return static_cast<taskId_t>(reinterpret_cast<uintptr_t>(pxCurrentTCB));
+}
+
+TaskInfo getCurrentTaskInfo() {
+    TaskStatus_t status;
+    vTaskGetInfo(pxCurrentTCB, &status, pdFALSE, eInvalid);
+    return {getCurrentTaskId(), status.pcTaskName};
+}
 
 interruptStatus_t os_enterCritical() {
     interruptStatus_t status = 0;

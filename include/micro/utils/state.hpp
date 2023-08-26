@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    T value_;
+    T value_{};
     millisecond_t timestamp_;
 };
 

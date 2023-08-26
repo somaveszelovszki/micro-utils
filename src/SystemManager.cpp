@@ -1,11 +1,8 @@
-#if defined OS_FREERTOS // task monitor interface is only supported if FreeRTOS is available
-
+#include "micro/port/task.hpp"
 #include <micro/debug/SystemManager.hpp>
 #include <micro/utils/log.hpp>
 
 #include <mutex>
-
-extern void *pxCurrentTCB;
 
 namespace micro {
 
@@ -23,33 +20,27 @@ void SystemManager::setProgramState(const programState_t programState) {
 }
 
 void SystemManager::registerTask() {
-    std::lock_guard<mutex_t> lock(this->mutex_);
-
-    TaskState state;
-    vTaskGetInfo(pxCurrentTCB, &state.details, pdFALSE, eInvalid);
-    state.ok = false;
-    this->taskStates_.insert(state);
+    std::scoped_lock lock{mutex_};
+    const auto info = getCurrentTaskInfo();
+    this->taskStates_.insert(std::make_pair(info.id, TaskState{info, {false}}));
 }
 
 void SystemManager::notify(const bool state) {
-    std::lock_guard<mutex_t> lock(this->mutex_);
-    const TaskStates::iterator it = std::lower_bound(this->taskStates_.begin(), this->taskStates_.end(), pxCurrentTCB, TaskStateComparator{});
-    if (it->details.xHandle == pxCurrentTCB) {
-        it->ok = state;
+    std::scoped_lock lock{mutex_};
+    if (const auto it = taskStates_.find(getCurrentTaskId()); it != taskStates_.end()) {
+        it->second.ok = state;
     }
 }
 
-SystemManager::TaskStates SystemManager::failingTasks() const {
-    std::lock_guard<mutex_t> lock(this->mutex_);
+auto SystemManager::failingTasks() const -> TaskStates {
+    std::scoped_lock lock{mutex_};
     TaskStates result;
-    for (const TaskState& state : this->taskStates_) {
+    for (const auto& [id, state] : taskStates_) {
         if (getTime() - state.ok.timestamp() > millisecond_t(50) || !state.ok.value()) {
-            result.insert(state);
+            result.push_back(state);
         }
     }
     return result;
 }
 
 } // namespace micro
-
-#endif // OS_FREERTOS
