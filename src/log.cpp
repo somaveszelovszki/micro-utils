@@ -1,5 +1,3 @@
-#if defined OS_FREERTOS // logging is only supported if FreeRTOS is available
-
 #include <micro/container/vec.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/math/numeric.hpp>
@@ -29,12 +27,12 @@ void Log::setMinLevel(const level_t minLevel) {
 void Log::vprint(level_t level, const char *format, va_list args) {
     if (level >= this->minLevel_)
     {
-        char msg[LOG_MSG_MAX_SIZE];
+        message_t msg;
         const char *levelStr = to_string(level);
         uint32_t len = strncpy_until(msg, levelStr, strlen(levelStr));
         msg[len++] = ':';
-        len += vsprint(&msg[len], LOG_MSG_MAX_SIZE - len - strlen(LOG_SEPARATOR), format, args);
-        len += strncpy_until(&msg[len], LOG_SEPARATOR, strlen(LOG_SEPARATOR));
+        len += vsprint(&msg[len], sizeof(message_t) - len - sizeof(SEPARATOR), format, args);
+        len += strncpy_until(&msg[len], SEPARATOR, sizeof(SEPARATOR));
         msg[len] = '\0';
         this->queue_.send(msg, millisecond_t(0));
     }
@@ -64,5 +62,3 @@ const char* to_string(const Log::level_t& level) {
 }
 
 } // namespace micro
-
-#endif // OS_FREERTOS

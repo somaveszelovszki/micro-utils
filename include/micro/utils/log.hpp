@@ -1,7 +1,5 @@
 #pragma once
 
-#if defined OS_FREERTOS // logging is only supported if FreeRTOS is available
-
 #include <micro/port/queue.hpp>
 #include <micro/utils/types.hpp>
 
@@ -9,14 +7,11 @@
 
 namespace micro {
 
-inline constexpr char LOG_SEPARATOR[] = "\r\n";
-
-constexpr uint8_t LOG_MSG_MAX_SIZE   = 128;
-constexpr uint8_t LOG_QUEUE_MAX_SIZE = 16;
-
 class Log {
 public:
-    typedef char message_t[LOG_MSG_MAX_SIZE];
+    static constexpr char SEPARATOR[] = "\r\n";
+
+    typedef char message_t[128];
 
     enum class level_t : uint8_t {
         Debug   = 0x01,
@@ -50,24 +45,15 @@ public:
 private:
     Log() : minLevel_(level_t::Debug) {}
 
-    queue_t<message_t, LOG_QUEUE_MAX_SIZE> queue_;
+    queue_t<message_t, 16> queue_;
     level_t minLevel_;
 };
 
 const char* to_string(const Log::level_t& level);
 
+#define LOG_DEBUG(format, ...)   ::micro::Log::instance().print(::micro::Log::level_t::Debug,   format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)    ::micro::Log::instance().print(::micro::Log::level_t::Info,    format, ##__VA_ARGS__)
+#define LOG_WARN(format, ...)    ::micro::Log::instance().print(::micro::Log::level_t::Warning, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...)   ::micro::Log::instance().print(::micro::Log::level_t::Error,   format, ##__VA_ARGS__)
+
 } // namespace micro
-
-#define LOG_DEBUG(format, ...)   micro::Log::instance().print(micro::Log::level_t::Debug,   format, ##__VA_ARGS__)
-#define LOG_INFO(format, ...)    micro::Log::instance().print(micro::Log::level_t::Info,    format, ##__VA_ARGS__)
-#define LOG_WARN(format, ...)    micro::Log::instance().print(micro::Log::level_t::Warning, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...)   micro::Log::instance().print(micro::Log::level_t::Error,   format, ##__VA_ARGS__)
-
-#else
-
-#define LOG_DEBUG(format, ...)
-#define LOG_INFO(format, ...)
-#define LOG_WARN(format, ...)
-#define LOG_ERROR(format, ...)
-
-#endif // OS_FREERTOS

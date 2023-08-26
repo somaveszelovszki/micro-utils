@@ -1,27 +1,11 @@
 #pragma once
 
-#if defined STM32F4
-
 #include <micro/math/unit_utils.hpp>
+#include <micro/port/can.hpp>
 #include <micro/utils/LinePattern.hpp>
-
-#include <stm32f4xx_hal.h>
-#include <stm32f4xx_hal_can.h>
 
 namespace micro {
 namespace can {
-
-template <typename T>
-CAN_TxHeaderTypeDef buildHeader() {
-    CAN_TxHeaderTypeDef header;
-    header.StdId = T::id();
-    header.ExtId = 0;
-    header.IDE   = CAN_ID_STD;
-    header.RTR   = CAN_RTR_DATA;
-    header.DLC   = sizeof(T);
-    header.TransmitGlobalTime = DISABLE;
-    return header;
-}
 
 namespace detail {
 
@@ -190,5 +174,3 @@ struct MotorControlParams : public detail::MotorControlParams {
 
 } // namespace can
 } // namespace micro
-
-#endif // STM32F4

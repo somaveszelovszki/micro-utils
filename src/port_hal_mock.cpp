@@ -11,6 +11,7 @@ namespace micro {
 
 // CAN
 
+canFrame_t can_buildFrame(const canFrame_t::id_t, const uint8_t * const, const uint32_t) { return {}; }
 Status can_transmit(const can_t&, const canFrame_t&) { return Status::OK; }
 Status can_receive(const can_t&, canFrame_t& OUT) { return Status::OK; }
 

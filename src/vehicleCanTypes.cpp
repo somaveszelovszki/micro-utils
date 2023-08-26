@@ -1,7 +1,4 @@
 #include <micro/panel/vehicleCanTypes.hpp>
-
-#if defined STM32F4
-
 #include <micro/utils/types.hpp>
 
 namespace micro {
@@ -168,5 +165,3 @@ void LineDetectControl::acquire(bool& indicatorLedsEnabled, uint8_t& scanRangeRa
 
 } // namespace can
 } // namespace micro
-
-#endif // STM32F4

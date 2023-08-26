@@ -1,5 +1,7 @@
 #if defined STM32
 
+#include <cstring>
+
 #include <micro/math/numeric.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/gpio.hpp>
@@ -49,6 +51,18 @@ Status toStatus(HAL_StatusTypeDef status) {
 // CAN
 
 #if defined STM32F4
+
+canFrame_t can_buildFrame(const canFrame_t::id_t id, const uint8_t * const data, const uint32_t size) {
+    canFrame_t frame;
+    frame.header.tx.StdId = id;
+    frame.header.tx.ExtId = 0;
+    frame.header.tx.IDE   = CAN_ID_STD;
+    frame.header.tx.RTR   = CAN_RTR_DATA;
+    frame.header.tx.DLC   = sizeof(T);
+    frame.header.tx.TransmitGlobalTime = DISABLE;
+    memcpy(frame.data, data, size);
+    return frame;
+}
 
 Status can_transmit(const can_t& can, const canFrame_t& frame) {
     uint32_t txMailbox = 0;

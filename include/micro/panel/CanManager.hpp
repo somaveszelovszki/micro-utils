@@ -1,7 +1,5 @@
 #pragma once
 
-#if defined STM32F4
-
 #include <micro/container/map.hpp>
 #include <micro/container/ring_buffer.hpp>
 #include <micro/port/can.hpp>
@@ -85,9 +83,7 @@ private:
     void sendFrame(CanSubscriber::Filter *filter, Args&&... args) {
         if (filter) {
             const T data(std::forward<Args>(args)...);
-            canFrame_t frame;
-            frame.header.tx = can::buildHeader<T>();
-            memcpy(frame.data, reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+            const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
             can_transmit(this->can_, frame);
             filter->lastActivityTime = getTime();
         }
@@ -114,5 +110,3 @@ private:
 };
 
 }  // namespace micro
-
-#endif // STM32F4
