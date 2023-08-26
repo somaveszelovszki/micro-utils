@@ -12,16 +12,6 @@ constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
 constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
 constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
 
-uint32_t strnlen(const char * const s, uint32_t size) {
-    uint32_t len = 0;
-    for (; len < size; ++len) {
-        if ('\0' == s[len]) {
-            break;
-        }
-    }
-    return len;
-}
-
 uint32_t atoi(const char * const s, int32_t *pResult) {
     uint32_t idx = 0;
 
