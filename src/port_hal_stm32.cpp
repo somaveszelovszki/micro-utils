@@ -58,7 +58,7 @@ canFrame_t can_buildFrame(const canFrame_t::id_t id, const uint8_t * const data,
     frame.header.tx.ExtId = 0;
     frame.header.tx.IDE   = CAN_ID_STD;
     frame.header.tx.RTR   = CAN_RTR_DATA;
-    frame.header.tx.DLC   = sizeof(T);
+    frame.header.tx.DLC   = size;
     frame.header.tx.TransmitGlobalTime = DISABLE;
     memcpy(frame.data, data, size);
     return frame;
