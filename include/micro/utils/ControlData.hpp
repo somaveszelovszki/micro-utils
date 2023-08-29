@@ -17,4 +17,11 @@ struct ControlData {
     } lineControl;
 };
 
+#define EXPECT_EQ_MICRO_CONTROL_DATA(expected, result)                                     \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.speed, result.speed);                                \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.rampTime, result.rampTime);                          \
+    EXPECT_EQ(expected.rearSteerEnabled, result.rearSteerEnabled);                         \
+    EXPECT_EQ_MICRO_ORIENTED_LINE(expected.lineControl.actual, result.lineControl.actual); \
+    EXPECT_EQ_MICRO_ORIENTED_LINE(expected.lineControl.target, result.lineControl.target);
+
 } // namespace micro

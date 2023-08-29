@@ -53,4 +53,19 @@ struct CarProps  {
     vec2mps getSpeedVector(const meter_t frontRearPivotDist) const;
 };
 
+#define EXPECT_EQ_MICRO_POSE(expected, result)              \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.pos.X, result.pos.X); \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.pos.Y, result.pos.Y); \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.angle, result.angle)
+
+#define EXPECT_EQ_MICRO_CAR_PROPS(expected, result)                               \
+    EXPECT_EQ_MICRO_POSE(expected.pose, result.pose);                             \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.speed, result.speed);                       \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.distance, result.distance);                 \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.orientedDistance, result.orientedDistance); \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.frontWheelAngle, result.frontWheelAngle);   \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.rearWheelAngle, result.rearWheelAngle);     \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.yawRate, result.yawRate);                   \
+    EXPECT_EQ(expected.isRemoteControlled, result.isRemoteControlled)
+
 } // namespace micro

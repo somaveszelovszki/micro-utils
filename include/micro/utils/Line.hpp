@@ -54,4 +54,8 @@ bool areClose(const Lines& lines);
 
 bool areFar(const Lines& lines);
 
+#define EXPECT_EQ_MICRO_ORIENTED_LINE(expected, result) \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.pos, result.pos); \
+    EXPECT_NEAR_UNIT_DEFAULT(expected.angle, result.angle)
+
 } // namespace micro
