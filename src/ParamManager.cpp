@@ -1,7 +1,9 @@
+#include <exception>
 #include <utility>
 #include <variant>
 
 #include <micro/debug/ParamManager.hpp>
+#include <micro/math/numeric.hpp>
 
 namespace micro {
 
@@ -13,11 +15,21 @@ bool ParamManager::Param::updatePrev() {
 bool ParamManager::Param::setValue(const value_type newValue) {
     return std::visit(
         [this](const auto& v) {
-            if (auto *p = std::get_if<std::reference_wrapper<std::decay_t<decltype(v)>>>(&current)) {
-                p->get() = v;
-                return true;
-            };
-            return false;
+            return std::visit([&v](auto& c){
+                using V = std::decay_t<decltype(v)>;
+                using C = std::decay_t<decltype(c.get())>;
+
+                try {
+                    if constexpr (!std::is_constructible_v<C, V>) {
+                        return false;
+                    }
+                    c.get() = numeric_cast<C>(v);
+                    return true;
+
+                } catch (const std::exception&) {
+                    return false;
+                }
+            }, current);
         }, newValue);
 }
 
