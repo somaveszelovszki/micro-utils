@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 
 namespace micro {
 
@@ -24,6 +25,16 @@ template <typename T, typename partial = void> struct raw_type {
     typedef T type;
     static constexpr type get(const T& value) { return value; }
 };
+
+template<class R, class S>
+R numeric_cast(const S& value)
+{
+    const auto result = static_cast<R>(value);
+    if (static_cast<S>(result) != value) {
+        throw std::runtime_error("numeric_cast failed");
+    }
+    return result;
+}
 
 // ---------------------------------------- Type-independent functions (same implementation for unit classes) ----------------------------------------
 
