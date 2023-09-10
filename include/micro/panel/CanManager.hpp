@@ -4,9 +4,10 @@
 #include <functional>
 
 #include <etl/vector.h>
+#include <etl/map.h>
 
-#include <micro/container/map.hpp>
 #include <micro/container/ring_buffer.hpp>
+#include <micro/container/vec.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/queue.hpp>
@@ -20,7 +21,7 @@ namespace micro {
 #define MAX_NUM_CAN_SUBSCRIBERS 4
 #define MAX_NUM_CAN_FILTERS     12
 
-typedef sorted_vec<canFrame_t::id_t, MAX_NUM_CAN_FILTERS> CanFrameIds;
+using CanFrameIds = sorted_vec<canFrame_t::id_t, MAX_NUM_CAN_FILTERS>;
 
 struct CanSubscriber {
     typedef uint8_t id_t;
@@ -32,7 +33,7 @@ struct CanSubscriber {
         millisecond_t lastActivityTime;
     };
 
-    typedef sorted_map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS> Filters;
+    using Filters = etl::map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS>;
 
     id_t id;
     Filters rxFilters, txFilters;
@@ -107,8 +108,7 @@ public:
     CanFrameIds identifiers() const;
 
 private:
-    typedef sorted_map<canFrame_t::id_t, handler_fn_t, MAX_NUM_CAN_FILTERS> Handlers;
-    Handlers handlers_;
+    etl::map<canFrame_t::id_t, handler_fn_t, MAX_NUM_CAN_FILTERS> handlers_;
 };
 
 }  // namespace micro

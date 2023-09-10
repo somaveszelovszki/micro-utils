@@ -30,11 +30,11 @@ CanSubscriber::CanSubscriber(const id_t id, const CanFrameIds& rxFilters, const 
     : id(id) {
 
     for (const canFrame_t::id_t id : rxFilters) {
-        this->rxFilters.emplace(id, { id, millisecond_t(0) });
+        this->rxFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
     }
 
     for (const canFrame_t::id_t id : txFilters) {
-        this->txFilters.emplace(id, { id, millisecond_t(0) });
+        this->txFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
     }
 }
 
@@ -103,7 +103,7 @@ void CanFrameHandler::handleFrame(const canFrame_t& rxFrame) {
 
 CanFrameIds CanFrameHandler::identifiers() const {
     CanFrameIds ids;
-    for (const Handlers::entry_type& entry : this->handlers_) {
+    for (const auto& entry : this->handlers_) {
         ids.insert(entry.first);
     }
     return ids;
