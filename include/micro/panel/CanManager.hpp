@@ -22,7 +22,7 @@ namespace micro {
 #define MAX_NUM_CAN_SUBSCRIBERS 4
 #define MAX_NUM_CAN_FILTERS     12
 
-using CanFrameIds = etl::set<canFrame_t::id_t, MAX_NUM_CAN_FILTERS>;
+using CanFrameIds = etl::set<canFrameId_t, MAX_NUM_CAN_FILTERS>;
 
 struct CanSubscriber {
     typedef uint8_t id_t;
@@ -30,11 +30,11 @@ struct CanSubscriber {
     static constexpr id_t INVALID_ID = 0xff;
 
     struct Filter {
-        canFrame_t::id_t id;
+        canFrameId_t id;
         millisecond_t lastActivityTime;
     };
 
-    using Filters = etl::map<canFrame_t::id_t, Filter, MAX_NUM_CAN_FILTERS>;
+    using Filters = etl::map<canFrameId_t, Filter, MAX_NUM_CAN_FILTERS>;
 
     id_t id;
     Filters rxFilters, txFilters;
@@ -49,27 +49,27 @@ class CanManager {
 public:
     explicit CanManager(const can_t& can);
 
-    CanSubscriber::id_t registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters);
+    CanSubscriber::id_t registerSubscriber(const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds);
 
     bool read(const CanSubscriber::id_t subscriberId, canFrame_t& frame);
 
     template<typename T, typename ...Args>
     void send(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::scoped_lock lock(this->criticalSection_);
+        std::scoped_lock lock(criticalSection_);
 
-        if (this->isValid(subscriberId)) {
-            this->sendFrame<T>(this->subscribers_[subscriberId].txFilters.at(T::id()), std::forward<Args>(args)...);
+        if (isValid(subscriberId)) {
+            sendFrame<T>(subscribers_[subscriberId].txFilters.at(T::id()), std::forward<Args>(args)...);
         }
     }
 
     template<typename T, typename ...Args>
     void periodicSend(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::scoped_lock lock(this->criticalSection_);
+        std::scoped_lock lock(criticalSection_);
 
-        if (this->isValid(subscriberId)) {
-            CanSubscriber::Filter *filter = this->subscribers_[subscriberId].txFilters.at(T::id());
+        if (isValid(subscriberId)) {
+            CanSubscriber::Filter *filter = subscribers_[subscriberId].txFilters.at(T::id());
             if (filter && getTime() - filter->lastActivityTime >= T::period()) {
-                this->sendFrame<T>(filter, std::forward<Args>(args)...);
+                sendFrame<T>(filter, std::forward<Args>(args)...);
             }
         }
     }
@@ -80,7 +80,7 @@ public:
 
 private:
     bool isValid(const CanSubscriber::id_t subscriberId) const {
-        return subscriberId < this->subscribers_.size();
+        return subscriberId < subscribers_.size();
     }
 
     template<typename T, typename ...Args>
@@ -88,7 +88,7 @@ private:
         if (filter) {
             const T data(std::forward<Args>(args)...);
             const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
-            can_transmit(this->can_, frame);
+            can_transmit(can_, frame);
             filter->lastActivityTime = getTime();
         }
     }
@@ -102,14 +102,14 @@ class CanFrameHandler {
 public:
     typedef std::function<void(const uint8_t * const)> handler_fn_t;
 
-    void registerHandler(const canFrame_t::id_t frameId, const handler_fn_t& handler);
+    void registerHandler(const canFrameId_t frameId, const handler_fn_t& handler);
 
     void handleFrame(const canFrame_t& rxFrame);
 
     CanFrameIds identifiers() const;
 
 private:
-    etl::map<canFrame_t::id_t, handler_fn_t, MAX_NUM_CAN_FILTERS> handlers_;
+    etl::map<canFrameId_t, handler_fn_t, MAX_NUM_CAN_FILTERS> handlers_;
 };
 
 }  // namespace micro

@@ -1,15 +1,13 @@
-#include <micro/panel/CanManager.hpp>
-#include <micro/utils/algorithm.hpp>
-
 #include <mutex>
 
-#if defined STM32F4
+#include <micro/panel/CanManager.hpp>
+#include <micro/utils/algorithm.hpp>
 
 namespace micro {
 
 constexpr uint8_t CanSubscriber::INVALID_ID;
 
-millisecond_t timeout(const canFrame_t::id_t id) {
+millisecond_t timeout(const canFrameId_t id) {
     millisecond_t result(0);
 
     if      (can::LateralControl::id()        == id) result = can::LateralControl::timeout();
@@ -26,15 +24,15 @@ millisecond_t timeout(const canFrame_t::id_t id) {
     return result;
 }
 
-CanSubscriber::CanSubscriber(const id_t id, const CanFrameIds& rxFilters, const CanFrameIds& txFilters)
+CanSubscriber::CanSubscriber(const id_t id, const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds)
     : id(id) {
 
-    for (const canFrame_t::id_t id : rxFilters) {
-        this->rxFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
+    for (const auto id : rxFrameIds) {
+        rxFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
     }
 
-    for (const canFrame_t::id_t id : txFilters) {
-        this->txFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
+    for (const auto id : txFrameIds) {
+        txFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
     }
 }
 
@@ -42,7 +40,7 @@ bool CanSubscriber::hasTimedOut() const {
     bool timedOut = false;
     const millisecond_t now = getTime();
 
-    for (Filters::const_iterator it = this->rxFilters.begin(); it != this->rxFilters.end(); ++it) {
+    for (Filters::const_iterator it = rxFilters.begin(); it != rxFilters.end(); ++it) {
         if (now - it->second.lastActivityTime > timeout(it->second.id)) {
             timedOut = true;
             break;
@@ -56,59 +54,55 @@ CanManager::CanManager(const can_t& can)
     : can_(can) {}
 
 CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters) {
-    std::lock_guard<criticalSection_t> lock(this->criticalSection_);
-    return this->subscribers_.emplace_back(this->subscribers_.size(), rxFilters, txFilters).id;
+    std::scoped_lock lock(criticalSection_);
+    return subscribers_.emplace_back(subscribers_.size(), rxFilters, txFilters).id;
 }
 
 bool CanManager::read(const CanSubscriber::id_t subscriberId, canFrame_t& frame) {
-    std::lock_guard<criticalSection_t> lock(this->criticalSection_);
+    std::scoped_lock lock(criticalSection_);
 
     bool success = false;
-    if (this->isValid(subscriberId)) {
-        success = this->subscribers_[subscriberId].rxFrames.read(frame);
+    if (isValid(subscriberId)) {
+        success = subscribers_[subscriberId].rxFrames.read(frame);
     }
 
     return success;
 }
 
 void CanManager::onFrameReceived() {
-    std::lock_guard<criticalSection_t> lock(this->criticalSection_);
+    std::scoped_lock lock(criticalSection_);
 
     canFrame_t rxFrame;
-    if (isOk(can_receive(this->can_, rxFrame))) {
-        for (CanSubscriber& subscriber : this->subscribers_) {
-            CanSubscriber::Filter *filter = subscriber.rxFilters.at(rxFrame.header.rx.StdId);
-            if (filter) {
+    if (isOk(can_receive(can_, rxFrame))) {
+        for (auto& subscriber : subscribers_) {
+            if (auto it = subscriber.rxFilters.find(can_getId(rxFrame)); it != subscriber.rxFilters.end()) {
                 subscriber.rxFrames.write(rxFrame);
-                filter->lastActivityTime = getTime();
+                it->second.lastActivityTime = getTime();
             }
         }
     }
 }
 
 bool CanManager::hasTimedOut(const CanSubscriber::id_t subscriberId) const {
-    return this->isValid(subscriberId) && this->subscribers_[subscriberId].hasTimedOut();
+    return isValid(subscriberId) && subscribers_[subscriberId].hasTimedOut();
 }
 
-void CanFrameHandler::registerHandler(const canFrame_t::id_t frameId, const handler_fn_t& handler) {
-    this->handlers_.emplace(frameId, handler);
+void CanFrameHandler::registerHandler(const canFrameId_t frameId, const handler_fn_t& handler) {
+    handlers_.insert(std::make_pair(frameId, handler));
 }
 
 void CanFrameHandler::handleFrame(const canFrame_t& rxFrame) {
-    handler_fn_t * const handler = this->handlers_.at(rxFrame.header.rx.StdId);
-    if (handler) {
-        (*handler)(rxFrame.data);
+    if (auto it = handlers_.find(can_getId(rxFrame)); it != handlers_.end()) {
+        (it->second)(rxFrame.data);
     }
 }
 
 CanFrameIds CanFrameHandler::identifiers() const {
     CanFrameIds ids;
-    for (const auto& entry : this->handlers_) {
+    for (const auto& entry : handlers_) {
         ids.insert(entry.first);
     }
     return ids;
 }
 
 }  // namespace micro
-
-#endif // STM32F4

@@ -52,7 +52,11 @@ Status toStatus(HAL_StatusTypeDef status) {
 
 #if defined STM32F4
 
-canFrame_t can_buildFrame(const canFrame_t::id_t id, const uint8_t * const data, const uint32_t size) {
+canFrameId_t can_getId(const canFrame_t& frame) {
+    return frame.header.rx.StdId;
+}
+
+canFrame_t can_buildFrame(const canFrameId_t id, const uint8_t * const data, const uint32_t size) {
     canFrame_t frame;
     frame.header.tx.StdId = id;
     frame.header.tx.ExtId = 0;

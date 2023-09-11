@@ -9,6 +9,8 @@
 
 namespace micro {
 
+using canFrameId_t = uint32_t;
+
 #if defined STM32F4
 
 struct can_t {
@@ -28,8 +30,6 @@ struct txHeader_t {};
 #endif // !STM32F4
 
 struct canFrame_t {
-    typedef uint32_t id_t;
-
     union {
         rxHeader_t rx;
         txHeader_t tx;
@@ -37,7 +37,8 @@ struct canFrame_t {
     uint8_t data[8];
 };
 
-canFrame_t can_buildFrame(const canFrame_t::id_t id, const uint8_t * const data, const uint32_t size);
+canFrameId_t can_getId(const canFrame_t& frame);
+canFrame_t can_buildFrame(const canFrameId_t id, const uint8_t * const data, const uint32_t size);
 Status can_transmit(const can_t& can, const canFrame_t& frame);
 Status can_receive(const can_t& can, canFrame_t& OUT frame);
 
