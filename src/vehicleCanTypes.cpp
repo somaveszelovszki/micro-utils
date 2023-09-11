@@ -21,9 +21,10 @@ micro::can::detail::Lines convert(const micro::Lines& in) {
     micro::can::detail::Lines out;
     uint32_t i = 0;
 
-    for (; i < in.size(); ++i) {
-        out.values[i].pos_mm_9p4 = static_cast<int16_t>(in[i].pos.get() * SHIFT_4);
-        out.values[i].id = in[i].id;
+    for (const auto& line : in) {
+        out.values[i].pos_mm_9p4 = static_cast<int16_t>(line.pos.get() * SHIFT_4);
+        out.values[i].id = line.id;
+        i++;
     }
 
     for (; i < ARRAY_SIZE(out.values); ++i) {

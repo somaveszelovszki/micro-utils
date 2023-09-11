@@ -2,12 +2,13 @@
 
 #include <cstring>
 #include <functional>
+#include <mutex>
 
-#include <etl/vector.h>
 #include <etl/map.h>
+#include <etl/set.h>
+#include <etl/vector.h>
 
 #include <micro/container/ring_buffer.hpp>
-#include <micro/container/vec.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/queue.hpp>
@@ -21,7 +22,7 @@ namespace micro {
 #define MAX_NUM_CAN_SUBSCRIBERS 4
 #define MAX_NUM_CAN_FILTERS     12
 
-using CanFrameIds = sorted_vec<canFrame_t::id_t, MAX_NUM_CAN_FILTERS>;
+using CanFrameIds = etl::set<canFrame_t::id_t, MAX_NUM_CAN_FILTERS>;
 
 struct CanSubscriber {
     typedef uint8_t id_t;
@@ -54,7 +55,7 @@ public:
 
     template<typename T, typename ...Args>
     void send(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::lock_guard<criticalSection_t> lock(this->criticalSection_);
+        std::scoped_lock lock(this->criticalSection_);
 
         if (this->isValid(subscriberId)) {
             this->sendFrame<T>(this->subscribers_[subscriberId].txFilters.at(T::id()), std::forward<Args>(args)...);
@@ -63,7 +64,7 @@ public:
 
     template<typename T, typename ...Args>
     void periodicSend(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::lock_guard<criticalSection_t> lock(this->criticalSection_);
+        std::scoped_lock lock(this->criticalSection_);
 
         if (this->isValid(subscriberId)) {
             CanSubscriber::Filter *filter = this->subscribers_[subscriberId].txFilters.at(T::id());

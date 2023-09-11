@@ -1,6 +1,6 @@
 #pragma once
 
-#include <micro/container/vec.hpp>
+#include <etl/set.h>
 
 #include "units.hpp"
 
@@ -20,7 +20,7 @@ struct Line {
     bool operator>(const Line& other) const  { return this->pos > other.pos; }
 };
 
-typedef sorted_vec<Line, Line::MAX_NUM_LINES> Lines;
+using Lines = etl::set<Line, Line::MAX_NUM_LINES>;
 
 struct OrientedLine {
     millimeter_t pos;

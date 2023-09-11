@@ -1,8 +1,8 @@
+#include <algorithm>
+
 #include <micro/utils/Line.hpp>
 #include <micro/utils/timer.hpp>
 #include <micro/math/unit_utils.hpp>
-
-#include <algorithm>
 
 namespace micro {
 
@@ -67,20 +67,19 @@ void updateMainLine(const Lines& frontLines, const Lines& rearLines, MainLine& m
 }
 
 bool areClose(const Lines& lines) {
-    constexpr millimeter_t MAX_CLOSE_LINES_DISTANCE = centimeter_t(5.3f);
-
-    bool close = true;
-    for (uint32_t i = 1; i < lines.size(); ++i) {
-        if (lines[i].pos - lines[i - 1].pos > MAX_CLOSE_LINES_DISTANCE) {
-            close = false;
-            break;
-        }
+    if (lines.empty()) {
+        return true;
     }
-    return close;
+
+    millimeter_t prevPos = lines.begin()->pos;
+    return std::all_of(std::next(lines.begin()), lines.end(), [&prevPos](const auto& l){
+        constexpr millimeter_t MAX_CLOSE_LINES_DISTANCE = centimeter_t(5.3f);
+        return l.pos - std::exchange(prevPos, l.pos) <= MAX_CLOSE_LINES_DISTANCE;
+    });
 }
 
 bool areFar(const Lines& lines) {
-    return !areClose(lines);
+    return lines.empty() || !areClose(lines);
 }
 
 } // namespace micro
