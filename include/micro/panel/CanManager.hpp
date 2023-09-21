@@ -1,9 +1,10 @@
 #pragma once
 
-#include <cstring>
 #include <functional>
 #include <mutex>
+#include <optional>
 
+#include <etl/circular_buffer.h>
 #include <etl/map.h>
 #include <etl/set.h>
 #include <etl/vector.h>
@@ -38,7 +39,7 @@ struct CanSubscriber {
 
     id_t id;
     Filters rxFilters, txFilters;
-    ring_buffer<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
+    etl::circular_buffer<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
 
     CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
 
@@ -51,27 +52,16 @@ public:
 
     CanSubscriber::id_t registerSubscriber(const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds);
 
-    bool read(const CanSubscriber::id_t subscriberId, canFrame_t& frame);
+    std::optional<canFrame_t> read(const CanSubscriber::id_t subscriberId);
 
     template<typename T, typename ...Args>
     void send(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::scoped_lock lock(criticalSection_);
-
-        if (isValid(subscriberId)) {
-            sendFrame<T>(subscribers_[subscriberId].txFilters.at(T::id()), std::forward<Args>(args)...);
-        }
+        send<T>(subscriberId, false, std::forward<Args>(args)...);
     }
 
     template<typename T, typename ...Args>
     void periodicSend(const CanSubscriber::id_t subscriberId, Args&&... args) {
-        std::scoped_lock lock(criticalSection_);
-
-        if (isValid(subscriberId)) {
-            CanSubscriber::Filter *filter = subscribers_[subscriberId].txFilters.at(T::id());
-            if (filter && getTime() - filter->lastActivityTime >= T::period()) {
-                sendFrame<T>(filter, std::forward<Args>(args)...);
-            }
-        }
+        send<T>(subscriberId, true, std::forward<Args>(args)...);
     }
 
     void onFrameReceived();
@@ -84,12 +74,19 @@ private:
     }
 
     template<typename T, typename ...Args>
-    void sendFrame(CanSubscriber::Filter *filter, Args&&... args) {
-        if (filter) {
-            const T data(std::forward<Args>(args)...);
-            const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
-            can_transmit(can_, frame);
-            filter->lastActivityTime = getTime();
+    void send(const CanSubscriber::id_t subscriberId, const bool checkPeriod, Args&&... args) {
+        std::scoped_lock lock(criticalSection_);
+
+        if (isValid(subscriberId)) {
+            auto& txFilters = subscribers_[subscriberId].txFilters;
+            if (auto it = txFilters.find(T::id()); it != txFilters.end()) {
+                const auto now = getTime();
+                if (!checkPeriod || (getTime() - std::exchange(it->second.lastActivityTime, now) >= T::period())) {
+                    const T data(std::forward<Args>(args)...);
+                    const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+                    can_transmit(can_, frame);
+                }
+            }
         }
     }
 

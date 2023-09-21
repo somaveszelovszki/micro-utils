@@ -59,7 +59,7 @@ uint32_t atof(const char * const s, float *pResult) {
             uint32_t fracCount = atoi(&s[idx], &frac);
             if (fracCount > 0) {
                 idx += fracCount;
-                *pResult = dec + frac / powerOf(10.0f, fracCount);
+                *pResult = dec + frac / pow(10.0f, fracCount);
             } else {
                 idx = 0;    // if no fraction has been parsed, string is invalid
             }
@@ -123,7 +123,7 @@ uint32_t ftoa(float n, char * const s, uint32_t size, uint32_t padding) {
     }
 
     int32_t dec = static_cast<int32_t>(n);
-    int32_t frac = static_cast<int32_t>((n - static_cast<float>(dec)) * powerOf(10, padding));
+    int32_t frac = static_cast<int32_t>((n - static_cast<float>(dec)) * pow(10, padding));
     if ((decLen = itoa(dec, &s[idx], STR_MAX_LEN_FLOAT_DEC)) > 0) {
         idx += decLen;
         s[idx++] = '.';

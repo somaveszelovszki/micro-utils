@@ -4,9 +4,9 @@
 [submodule "thirdparty/etl"]
 	path = thirdparty/etl
 	url = https://github.com/ETLCPP/etl.git
-[submodule "thirdparty/ArduinoJson"]
-	path = thirdparty/ArduinoJson
-	url = https://github.com/bblanchon/ArduinoJson.git
 [submodule "thirdparty/googletest"]
 	path = thirdparty/googletest
 	url = https://github.com/google/googletest.git
+[submodule "thirdparty/tiny-json"]
+	path = thirdparty/tiny-json
+	url = https://github.com/rafagafe/tiny-json.git

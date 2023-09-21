@@ -1,11 +1,12 @@
 #pragma once
 
+#include <cmath>
+#include <limits>
+#include <optional>
+
 #include <micro/utils/types.hpp>
 #include <micro/utils/units.hpp>
 
-#include <cmath>
-#include <limits>
-#include <stdexcept>
 
 namespace micro {
 
@@ -27,11 +28,11 @@ template <typename T, typename partial = void> struct raw_type {
 };
 
 template<class R, class S>
-R numeric_cast(const S& value)
+std::optional<R> numeric_cast(const S& value)
 {
     const auto result = static_cast<R>(value);
     if (static_cast<S>(result) != value) {
-        throw std::runtime_error("numeric_cast failed");
+        return std::nullopt;
     }
     return result;
 }
@@ -331,13 +332,13 @@ inline constexpr int32_t round_up(const float value) {
 /**
  * @brief Calculates power.
  * @param value
- * @param pow
+ * @param power
  * @return
  */
 template <typename T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-inline T powerOf(const T& value, uint32_t pow) {
+inline T pow(const T& value, size_t power) {
     T result(1);
-    for (uint32_t i = 0; i < pow; ++i) {
+    while(power--) {
         result *= value;
     }
     return result;

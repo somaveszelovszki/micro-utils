@@ -19,16 +19,16 @@ bool ParamManager::Param::setValue(const value_type newValue) {
                 using V = std::decay_t<decltype(v)>;
                 using C = std::decay_t<decltype(c.get())>;
 
-                try {
-                    if constexpr (!std::is_constructible_v<C, V>) {
-                        return false;
-                    }
-                    c.get() = numeric_cast<C>(v);
-                    return true;
-
-                } catch (const std::exception&) {
+                if constexpr (!std::is_constructible_v<C, V>) {
                     return false;
                 }
+
+                if (const auto converted = numeric_cast<C>(v)) {
+                    c.get() = *converted;
+                    return true;
+                }
+
+                return false;
             }, current);
         }, newValue);
 }

@@ -58,15 +58,18 @@ CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters,
     return subscribers_.emplace_back(subscribers_.size(), rxFilters, txFilters).id;
 }
 
-bool CanManager::read(const CanSubscriber::id_t subscriberId, canFrame_t& frame) {
+std::optional<canFrame_t> CanManager::read(const CanSubscriber::id_t subscriberId) {
     std::scoped_lock lock(criticalSection_);
 
-    bool success = false;
-    if (isValid(subscriberId)) {
-        success = subscribers_[subscriberId].rxFrames.read(frame);
+    auto& rxFrames = subscribers_[subscriberId].rxFrames;
+
+    if (rxFrames.empty()) {
+        return std::nullopt;
     }
 
-    return success;
+    const auto frame = std::move(rxFrames.front());
+    rxFrames.pop();
+    return frame;
 }
 
 void CanManager::onFrameReceived() {
@@ -76,7 +79,7 @@ void CanManager::onFrameReceived() {
     if (isOk(can_receive(can_, rxFrame))) {
         for (auto& subscriber : subscribers_) {
             if (auto it = subscriber.rxFilters.find(can_getId(rxFrame)); it != subscriber.rxFilters.end()) {
-                subscriber.rxFrames.write(rxFrame);
+                subscriber.rxFrames.push(rxFrame);
                 it->second.lastActivityTime = getTime();
             }
         }
