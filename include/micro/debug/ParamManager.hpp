@@ -18,6 +18,8 @@ namespace micro {
 
 class ParamManager {
 public:
+    static constexpr size_t MAX_NUM_PARAMS = 32;
+
     using value_type = std::variant<
         bool,
         int8_t,
@@ -48,7 +50,7 @@ public:
         bool setValue(const value_type newValue);
     };
 
-    using Values = etl::map<Name, value_type, 128>;
+    using Values = etl::map<Name, value_type, MAX_NUM_PARAMS>;
 
     template <typename T>
     void registerParam(const char *name, T& value) {
@@ -60,7 +62,7 @@ public:
 
 private:
     mutex_t mutex_;
-    etl::map<Name, Param, 128> params_;
+    etl::map<Name, Param, MAX_NUM_PARAMS> params_;
 };
 
 #define REGISTER_PARAM(params, var) params.registerParam(#var, var)
