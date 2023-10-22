@@ -1,6 +1,6 @@
 #include <micro/utils/trajectory.hpp>
 
-#include "utils.hpp"
+#include <micro/test/utils.hpp>
 
 using namespace micro;
 

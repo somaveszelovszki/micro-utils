@@ -2,7 +2,7 @@
 #include <micro/format/format.hpp>
 #include <micro/utils/types.hpp>
 
-#include "utils.hpp"
+#include <micro/test/utils.hpp>
 
 TEST(format, format_false) {
     char result[100];

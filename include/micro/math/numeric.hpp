@@ -376,5 +376,20 @@ void normalize(float& a, float& b, float& c);
 
 void normalize(float& a, float& b, float& c, float& d);
 
+template <typename T>
+T normalize_into_periodic_interval(T value, const T lower, const T higher) {
+    const auto step = higher - lower;
+
+    while(value < lower) {
+        value += step;
+    }
+
+    while(value >= higher) {
+        value -= step;
+    }
+
+    return value;
+}
+
 } // namespace micro
 

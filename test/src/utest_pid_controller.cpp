@@ -1,7 +1,7 @@
 #include <micro/control/PID_Controller.hpp>
 #include <micro/sim/MotorSimulator.hpp>
 
-#include "utils.hpp"
+#include <micro/test/utils.hpp>
 
 #include <fstream>
 

@@ -104,9 +104,9 @@ ControlData Trajectory::update(const CarProps& car) {
     controlData.rampTime                 = millisecond_t(0);
     controlData.rearSteerEnabled         = true;
     controlData.lineControl.actual.pos   = lineSign * linePoint.distance(car.pose.pos);
-    controlData.lineControl.actual.angle = normalize(sectionLineAngle - car.pose.angle, PI, true);
+    controlData.lineControl.actual.angle = normalize_into_periodic_interval(sectionLineAngle - car.pose.angle, -PI_2, PI_2);
     controlData.lineControl.target.pos   = millimeter_t(0);
-    controlData.lineControl.target.angle = normalize(sectionLineAngle - targetFwdAngle, PI, true);
+    controlData.lineControl.target.angle = normalize_into_periodic_interval(sectionLineAngle - targetFwdAngle, -PI_2, PI_2);
 
     return controlData;
 }
