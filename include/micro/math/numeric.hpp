@@ -317,18 +317,6 @@ inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, T>::type 
     return static_cast<T>(std::sqrt(a * a + b * b + c * c));
 }
 
-inline constexpr int32_t round(const float value) {
-    return static_cast<int32_t>(value >= 0.0f ? value + 0.5f : value - 0.5f);
-}
-
-inline constexpr int32_t round_down(const float value) {
-    return value >= 0.0f ? round(value - 0.5f) : round(value + 0.5f);
-}
-
-inline constexpr int32_t round_up(const float value) {
-    return value >= 0.0f ? round(value + 0.49999f) : round(value - 0.49999f);
-}
-
 /**
  * @brief Calculates power.
  * @param value
@@ -343,20 +331,6 @@ inline T pow(const T& value, size_t power) {
     }
     return result;
 }
-
-struct average_t {
-    float weight1;
-    float weight2;
-
-    average_t(const float weight1, const float weight2)
-        : weight1(weight1)
-        , weight2(weight2) {}
-
-    template <typename T>
-    T calculate(const T& value1, const T& value2) const {
-        return (value1 * this->weight1 + value2 * this->weight2) / (this->weight1 + this->weight2);
-    }
-};
 
 uint32_t incr_overflow(uint32_t value, uint32_t incr, const uint32_t exclusive_max);
 uint32_t decr_underflow(uint32_t value, uint32_t decr, const uint32_t exclusive_max);
@@ -380,12 +354,35 @@ template <typename T>
 T normalize_into_periodic_interval(T value, const T lower, const T higher) {
     const auto step = higher - lower;
 
-    while(value < lower) {
-        value += step;
+    if (value < lower) {
+        value += step * (1 + static_cast<size_t>((lower - value) / step));
     }
 
-    while(value >= higher) {
-        value -= step;
+    if (value >= higher) {
+        value -= step * (1 + static_cast<size_t>((value - higher) / step));
+    }
+
+    return value;
+}
+
+template <typename T>
+bool equal_in_periodic_interval(const T& value, const T& ref, const T lower, const T higher, const T& eps) {
+    const auto _value = normalize_into_periodic_interval(value, lower, higher);
+    const auto _ref = normalize_into_periodic_interval(ref, lower, higher);
+    const auto diff = abs(_value - _ref);
+    return isZero(diff, eps) || eq(diff, higher - lower, eps);
+}
+
+template <typename T>
+T round_in_periodic_interval(const T& value, const T& step, const T lower, const T higher) {
+    const auto eps = step / 2;
+    const size_t num_steps = static_cast<size_t>((higher - lower) / step);
+
+    for (size_t i = 0; i < num_steps; i++) {
+        const auto ref = lower + step * i;
+        if (equal_in_periodic_interval(value, ref, lower, higher, eps)) {
+            return ref;
+        }
     }
 
     return value;

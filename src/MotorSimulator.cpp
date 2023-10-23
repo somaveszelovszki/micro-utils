@@ -1,5 +1,6 @@
 #include <micro/sim/MotorSimulator.hpp>
-#include <micro/math/numeric.hpp>
+
+#include <cmath>
 
 namespace micro {
 
@@ -23,7 +24,7 @@ void MotorSimulator::update(const float duty) {
 
     prevDuties_.push_back(duty);
 
-    const float outDuty = prevDuties_.peek_back(micro::round(deadTime_ / simStep_));
+    const float outDuty = prevDuties_.peek_back(std::lround(deadTime_ / simStep_));
 
     const m_per_sec2_t accelerationFwd = outDuty * this->accelerationFwdRatio_;
     const m_per_sec2_t accelerationBwd = this->speed_ / this->accelerationBwdRatio_;

@@ -1,7 +1,8 @@
 #if defined OS_FREERTOS
 
-#include <micro/math/numeric.hpp>
 #include <micro/port/task.hpp>
+
+#include <cmath>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -43,7 +44,7 @@ void os_exitCritical(const interruptStatus_t status) {
 }
 
 void os_sleep(const millisecond_t delay) {
-    vTaskDelay(static_cast<TickType_t>(micro::round(delay.get())));
+    vTaskDelay(static_cast<TickType_t>(std::lround(delay.get())));
 }
 
 } // namespace micro

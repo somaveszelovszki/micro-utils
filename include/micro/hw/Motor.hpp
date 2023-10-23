@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include <micro/math/numeric.hpp>
 #include <micro/port/gpio.hpp>
 #include <micro/port/timer.hpp>
@@ -37,7 +39,7 @@ public:
 
     void write(const T& value) override {
         this->value_ = micro::clamp(value, -this->maxValue_, this->maxValue_);
-        const uint32_t pwm = this->pwmOffset_ + micro::round(this->value_ / (this->value_ >= T(0) ? this->positiveTransferRate_ : this->negativeTransferRate_));
+        const uint32_t pwm = this->pwmOffset_ + std::lround(this->value_ / (this->value_ >= T(0) ? this->positiveTransferRate_ : this->negativeTransferRate_));
         timer_setCompare(this->timer_, this->chnl_, pwm);
     }
 

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cmath>
+
 #include <micro/math/unit_utils.hpp>
+
 #include "task.hpp"
 
 #if defined OS_FREERTOS
@@ -25,7 +28,7 @@ public:
             success = !!xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            success = !!xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
+            success = !!xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : std::lround(timeout.get()));
         }
         return success;
     }

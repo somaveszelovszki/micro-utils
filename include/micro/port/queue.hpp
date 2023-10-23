@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cmath>
+
 #include <micro/math/unit_utils.hpp>
+
 #include "task.hpp"
 
 #if defined OS_FREERTOS
@@ -20,11 +23,11 @@ public:
     }
 
     bool receive(T& value, const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
-        return xQueueReceive(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
+        return xQueueReceive(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : std::lround(timeout.get()));
     }
 
     bool peek(T& value, const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
-        return xQueuePeek(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
+        return xQueuePeek(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : std::lround(timeout.get()));
     }
 
     bool overwrite(const T& value) {
@@ -46,7 +49,7 @@ public:
             success = !!xQueueSendFromISR(this->handle(), &value, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            success = !!xQueueSend(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : micro::round(timeout.get()));
+            success = !!xQueueSend(this->handle(), &value, micro::isinf(timeout) ? portMAX_DELAY : std::lround(timeout.get()));
         }
         return success;
     }

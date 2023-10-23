@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 #include <micro/math/numeric.hpp>
 
 #include <micro/test/utils.hpp>
@@ -45,38 +46,79 @@ TEST(numeric, base) {
 }
 
 TEST(numeric, map) {
-    EXPECT_NEAR(10.0f, map(1.0f, 2.0f, 4.0f, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(10.0f, map(2.0f, 2.0f, 4.0f, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(13.0f, map(3.0f, 2.0f, 4.0f, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(4.0f, 2.0f, 4.0f, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(5.0f, 2.0f, 4.0f, 10.f, 16.0f), 0.0001f);
+    EXPECT_NEAR_DEFAULT(10.0f, map(1.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, map(2.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(13.0f, map(3.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, map(4.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, map(5.0f, 2.0f, 4.0f, 10.f, 16.0f));
 
-    EXPECT_NEAR(10.0f, map(1, 2, 4, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(10.0f, map(2, 2, 4, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(13.0f, map(3, 2, 4, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(4, 2, 4, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(5, 2, 4, 10.f, 16.0f), 0.0001f);
+    EXPECT_NEAR_DEFAULT(10.0f, map(1, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, map(2, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(13.0f, map(3, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, map(4, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, map(5, 2, 4, 10.f, 16.0f));
 
-    EXPECT_NEAR(10.0f, map(1u, 2u, 4u, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(10.0f, map(2u, 2u, 4u, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(13.0f, map(3u, 2u, 4u, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(4u, 2u, 4u, 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(5u, 2u, 4u, 10.f, 16.0f), 0.0001f);
+    EXPECT_NEAR_DEFAULT(10.0f, map(1u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, map(2u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(13.0f, map(3u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, map(4u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, map(5u, 2u, 4u, 10.f, 16.0f));
 
-    EXPECT_NEAR(10, map(1, 2, 4, 10, 16), 0.0001f);
-    EXPECT_NEAR(10, map(2, 2, 4, 10, 16), 0.0001f);
-    EXPECT_NEAR(13, map(3, 2, 4, 10, 16), 0.0001f);
-    EXPECT_NEAR(16, map(4, 2, 4, 10, 16), 0.0001f);
-    EXPECT_NEAR(16, map(5, 2, 4, 10, 16), 0.0001f);
+    EXPECT_NEAR_DEFAULT(10, map(1, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(10, map(2, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(13, map(3, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(16, map(4, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(16, map(5, 2, 4, 10, 16));
 
-    EXPECT_NEAR(10u, map(1u, 2u, 4u, 10u, 16u), 0.0001f);
-    EXPECT_NEAR(10u, map(2u, 2u, 4u, 10u, 16u), 0.0001f);
-    EXPECT_NEAR(13u, map(3u, 2u, 4u, 10u, 16u), 0.0001f);
-    EXPECT_NEAR(16u, map(4u, 2u, 4u, 10u, 16u), 0.0001f);
-    EXPECT_NEAR(16u, map(5u, 2u, 4u, 10u, 16u), 0.0001f);
+    EXPECT_NEAR_DEFAULT(10u, map(1u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(10u, map(2u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(13u, map(3u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(16u, map(4u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(16u, map(5u, 2u, 4u, 10u, 16u));
 
     EXPECT_EQ(10.0f, map(1.0f, 1.0f, 4.0f, 10.f, 16.0f));
     EXPECT_EQ(10.0f, map(1, 1, 1, 10.f, 16.0f));
     EXPECT_EQ(10,    map(1, 1, 1, 10, 16));
     EXPECT_EQ(10u,   map(1u, 1u, 1u, 10u, 16u));
+}
+
+TEST(numeric, normalize_into_periodic_interval) {
+    EXPECT_NEAR_DEFAULT(10.0, normalize_into_periodic_interval(-710.0, -180.0, 180.0));
+    EXPECT_NEAR_DEFAULT(10.0, normalize_into_periodic_interval(-350.0, -180.0, 180.0));
+    EXPECT_NEAR_DEFAULT(-170.0, normalize_into_periodic_interval(-170.0, -180.0, 180.0));
+    EXPECT_NEAR_DEFAULT(0.0, normalize_into_periodic_interval(0.0, -180.0, 180.0));
+    EXPECT_NEAR_DEFAULT(10.0, normalize_into_periodic_interval(10.0, -180.0, 180.0));
+    EXPECT_NEAR_DEFAULT(-170.0, normalize_into_periodic_interval(190.0, -180.0, 180.0));
+    EXPECT_NEAR_DEFAULT(-170.0, normalize_into_periodic_interval(550.0, -180.0, 180.0));
+}
+
+TEST(numeric, equal_in_periodic_interval) {
+    EXPECT_TRUE(equal_in_periodic_interval(0.0, -720.0, -180.0, 180.0, 0.0001));
+    EXPECT_TRUE(equal_in_periodic_interval(0.0, -360.0, -180.0, 180.0, 0.0001));
+    EXPECT_TRUE(equal_in_periodic_interval(0.0, 0.0, -180.0, 180.0, 0.0001));
+    EXPECT_TRUE(equal_in_periodic_interval(0.0, 360.0, -180.0, 180.0, 0.0001));
+    EXPECT_TRUE(equal_in_periodic_interval(0.0, 720.0, -180.0, 180.0, 0.0001));
+    EXPECT_FALSE(equal_in_periodic_interval(0.0, 10.0, -180.0, 180.0, 0.0001));
+    EXPECT_TRUE(equal_in_periodic_interval(-350.0, 10.0, -180.0, 180.0, 0.0001));
+    EXPECT_TRUE(equal_in_periodic_interval(-170.0, 190.0, -180.0, 180.0, 0.0001));
+    EXPECT_TRUE(equal_in_periodic_interval(-10.0, 0.0, 0.0, 100.0, 20.0));
+    EXPECT_TRUE(equal_in_periodic_interval(10.0, 0.0, 0.0, 100.0, 20.0));
+}
+
+TEST(numeric, round_in_periodic_interval) {
+    EXPECT_NEAR_DEFAULT(0.0, round_in_periodic_interval(-40.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(0.0, round_in_periodic_interval(0.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(0.0, round_in_periodic_interval(40.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(90.0, round_in_periodic_interval(50.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(90.0, round_in_periodic_interval(90.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(90.0, round_in_periodic_interval(130.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(180.0, round_in_periodic_interval(140.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(180.0, round_in_periodic_interval(180.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(180.0, round_in_periodic_interval(220.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(270.0, round_in_periodic_interval(230.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(270.0, round_in_periodic_interval(270.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(270.0, round_in_periodic_interval(310.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(0.0, round_in_periodic_interval(320.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(0.0, round_in_periodic_interval(360.0, 90.0, 0.0, 360.0));
+    EXPECT_NEAR_DEFAULT(0.0, round_in_periodic_interval(400.0, 90.0, 0.0, 360.0));
 }

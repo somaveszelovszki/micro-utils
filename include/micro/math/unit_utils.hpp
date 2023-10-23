@@ -132,61 +132,15 @@ inline radian_t normalize180(radian_t value) {
 }
 
 inline bool eqWithOverflow360(radian_t value, radian_t ref, radian_t eps) {
-    return abs(normalizePM180(value - ref)) <= eps;
-}
-
-inline bool eqWithOverflow180(radian_t value, radian_t ref, radian_t eps) {
-    return eq(value, ref, eps) || eq(value + PI, ref, eps) || eq(value - PI, ref, eps);
+    return equal_in_periodic_interval(value, ref, radian_t(0), 2 * PI, eps);
 }
 
 inline radian_t round45(radian_t value) {
-    static constexpr radian_t EPS = PI_4 / 2;
-    radian_t result;
-
-    if (eqWithOverflow360(value, PI_4, EPS)) {
-        result = PI_4;
-    } else if (eqWithOverflow360(value, PI_2, EPS)) {
-        result = PI_2;
-    } else if (eqWithOverflow360(value, 3 * PI_4, EPS)) {
-        result = 3 * PI_4;
-    } else if (eqWithOverflow360(value, PI, EPS)) {
-        result = PI;
-    } else if (eqWithOverflow360(value, 5 * PI_4, EPS)) {
-        result = 5 * PI_4;
-    } else if (eqWithOverflow360(value, 3 * PI_2, EPS)) {
-        result = 3 * PI_2;
-    } else if (eqWithOverflow360(value, 7 * PI_4, EPS)) {
-        result = 7 * PI_4;
-    } else {
-        result = radian_t(0);
-    }
-
-    return result;
+    return round_in_periodic_interval(value, PI_4, radian_t(0), 2 * PI);
 }
 
 inline radian_t round90(radian_t value) {
-    static constexpr radian_t EPS = PI_4;
-    radian_t result;
-
-    if (eqWithOverflow360(value, PI_2, EPS)) {
-        result = PI_2;
-    } else if (eqWithOverflow360(value, PI, EPS)) {
-        result = PI;
-    } else if (eqWithOverflow360(value, 3 * PI_2, EPS)) {
-        result = 3 * PI_2;
-    } else {
-        result = radian_t(0);
-    }
-
-    return result;
-}
-
-inline bool isMultipleOf90(radian_t value, radian_t eps) {
-
-    return eqWithOverflow360(value, radian_t(0), eps)
-        || eqWithOverflow360(value, PI_2, eps)
-        || eqWithOverflow360(value, PI, eps)
-        || eqWithOverflow360(value, 3 * PI_2, eps);
+    return round_in_periodic_interval(value, PI_2, radian_t(0), 2 * PI);
 }
 
 /* @brief Calculates square of the vector length using the Pythagorean theory.

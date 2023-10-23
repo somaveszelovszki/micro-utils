@@ -1,7 +1,8 @@
 #if defined STM32
 
-#include <micro/math/numeric.hpp>
 #include <micro/port/task.hpp>
+
+#include <cmath>
 
 #if defined STM32F4
 #include <stm32f446xx.h>
@@ -35,7 +36,7 @@ void os_exitCritical(const interruptStatus_t) {
 }
 
 void os_sleep(const millisecond_t delay) {
-    HAL_Delay(static_cast<uint32_t>(micro::round(delay.get())));
+    HAL_Delay(static_cast<uint32_t>(std::lround(delay.get())));
 }
 
 #endif // !OS_FREERTOS
