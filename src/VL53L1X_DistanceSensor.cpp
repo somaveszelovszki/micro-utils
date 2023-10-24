@@ -1,7 +1,6 @@
 #include <micro/hw/VL53L1X_DistanceSensor.hpp>
 #include <micro/math/unit_utils.hpp>
 #include <micro/port/task.hpp>
-#include <micro/utils/log.hpp>
 #include <micro/utils/timer.hpp>
 
 #define SOFT_RESET                                                          0x0000

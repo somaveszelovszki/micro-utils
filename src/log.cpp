@@ -1,63 +1,30 @@
-#include <micro/math/numeric.hpp>
-#include <micro/port/task.hpp>
-#include <micro/utils/log.hpp>
-#include <micro/utils/str_utils.hpp>
+#include <micro/log/log.hpp>
 
-#include <cstdarg>
-#include <cstring>
-#include <string>
+#include <micro/port/task.hpp>
 
 namespace micro {
 
-constexpr uint32_t STR_MAX_LEN_INT        = 1 + 10;         // sign + decimal
-constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
-constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
-constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
+const char* to_string(const LogLevel level) {
+    switch (level) {
+        case LogLevel::Debug:   return "D";
+        case LogLevel::Info:    return "I";
+        case LogLevel::Warning: return "W";
+        case LogLevel::Error:   return "E";
+        default:                return "?";
+    }
+}
 
 Log& Log::instance() {
     static Log instance_;
     return instance_;
 }
 
-void Log::setMinLevel(const level_t minLevel) {
-    this->minLevel_ = minLevel;
+void Log::setMinLevel(const LogLevel minLevel) {
+    minLevel_ = minLevel;
 }
 
-void Log::vprint(level_t level, const char *format, va_list args) {
-    if (level >= this->minLevel_)
-    {
-        message_t msg;
-        const char *levelStr = to_string(level);
-        uint32_t len = strncpy_until(msg, levelStr, strlen(levelStr));
-        msg[len++] = ':';
-        len += vsprint(&msg[len], sizeof(message_t) - len - std::char_traits<char>::length(SEPARATOR), format, args);
-        len += strncpy_until(&msg[len], SEPARATOR, sizeof(message_t) - len);
-        msg[len] = '\0';
-        this->queue_.send(msg, millisecond_t(0));
-    }
-}
-
-void Log::print(level_t level, const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    this->vprint(level, format, args);
-    va_end(args);
-}
-
-bool Log::receive(message_t& msg) {
-    return this->queue_.receive(msg, millisecond_t(0));
-}
-
-const char* to_string(const Log::level_t& level) {
-    const char *result = nullptr;
-    switch (level) {
-        case Log::level_t::Debug:   result = "D"; break;
-        case Log::level_t::Info:    result = "I"; break;
-        case Log::level_t::Warning: result = "W"; break;
-        case Log::level_t::Error:   result = "E"; break;
-        default:                    result = "?"; break;
-    }
-    return result;
+bool Log::receive(Message& msg){
+    return queue_.receive(msg, millisecond_t(0));
 }
 
 } // namespace micro

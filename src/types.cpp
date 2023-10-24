@@ -1,5 +1,4 @@
 #include <micro/utils/types.hpp>
-#include <micro/utils/log.hpp>
 
 namespace micro {
 

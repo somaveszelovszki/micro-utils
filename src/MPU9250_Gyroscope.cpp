@@ -2,9 +2,9 @@
 
 #ifdef STM32F4
 
+#include <micro/log/log.hpp>
 #include <micro/math/unit_utils.hpp>
 #include <micro/port/task.hpp>
-#include <micro/utils/log.hpp>
 #include <micro/utils/arrays.hpp>
 #include <micro/utils/timer.hpp>
 
@@ -505,7 +505,7 @@ void MPU9250_Gyroscope::initialize() {
     this->reset();
     this->initMPU9250();
     this->calibrateGyro();
-    LOG_DEBUG("Gyro initialized. Bias:  %f, %f, %f", this->gyroBias.X, this->gyroBias.Y, this->gyroBias.Z);
+    LOG_DEBUG("Gyro initialized. Bias:  {}, {}, {}", this->gyroBias.X, this->gyroBias.Y, this->gyroBias.Z);
 }
 
 void MPU9250_Gyroscope::onCommFinished() {

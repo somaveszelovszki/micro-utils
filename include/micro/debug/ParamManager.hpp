@@ -7,8 +7,8 @@
 #include <etl/map.h>
 #include <etl/string.h>
 
+#include <micro/log/log.hpp>
 #include <micro/port/mutex.hpp>
-#include <micro/utils/log.hpp>
 #include <micro/math/numeric.hpp>
 
 #include <iostream>

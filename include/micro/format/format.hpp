@@ -33,6 +33,17 @@ struct buffer_sweeper {
 template <typename T, typename = void>
 struct formatter;
 
+template <typename T>
+struct formatter_type : public std::decay<T> {};
+
+template <>
+struct formatter_type<const char*> {
+    using type = char*;
+};
+
+template <typename T>
+using formatter_type_t = typename formatter_type<T>::type;
+
 struct format_context {
     buffer_sweeper<char> output;
     buffer_sweeper<const char> formatStr;
@@ -80,7 +91,7 @@ struct format_context {
 
     template <typename T>
     void format(const T& value) {
-        formatter<std::decay_t<T>>().format(value, *this);
+        formatter<formatter_type_t<T>>().format(value, *this);
         skip_until_format_block_end();
         copy_until_format_block_begin();
     }
@@ -113,7 +124,7 @@ struct formatter<char> {
 };
 
 template <>
-struct formatter<const char*> {
+struct formatter<char*> {
     void format(const char * const value, format_context& ctx) const {
         for (size_t i = 0; !ctx.output.empty() && value[i] != '\0'; i++) {
             ctx.output.append(value[i]);

@@ -1,6 +1,7 @@
-#include "micro/port/task.hpp"
 #include <micro/debug/SystemManager.hpp>
-#include <micro/utils/log.hpp>
+
+#include <micro/log/log.hpp>
+#include <micro/port/task.hpp>
 
 #include <mutex>
 

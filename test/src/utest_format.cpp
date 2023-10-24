@@ -4,6 +4,18 @@
 
 #include <micro/test/utils.hpp>
 
+TEST(format, format_empty) {
+    char result[100];
+    micro::format_to_n(result, ARRAY_SIZE(result), "");
+    EXPECT_STREQ("", result);
+}
+
+TEST(format, format_no_args) {
+    char result[100];
+    micro::format_to_n(result, ARRAY_SIZE(result), "Hello");
+    EXPECT_STREQ("Hello", result);
+}
+
 TEST(format, format_false) {
     char result[100];
     micro::format_to_n(result, ARRAY_SIZE(result), "Value is {}.", false);
@@ -38,4 +50,10 @@ TEST(format, format_negative_float) {
     char result[100];
     micro::format_to_n(result, ARRAY_SIZE(result), "Value is {}.", -12.3400f);
     EXPECT_STREQ("Value is -12.3400.", result);
+}
+
+TEST(format, format_string) {
+    char result[100];
+    micro::format_to_n(result, ARRAY_SIZE(result), "Value is {}.", "hello");
+    EXPECT_STREQ("Value is hello.", result);
 }
