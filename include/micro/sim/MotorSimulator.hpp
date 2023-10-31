@@ -1,6 +1,7 @@
 #pragma once
 
-#include <micro/container/infinite_buffer.hpp>
+#include <etl/circular_buffer.h>
+
 #include <micro/utils/units.hpp>
 
 namespace micro {
@@ -21,7 +22,7 @@ private:
 
     const microsecond_t simStep_;
 
-    infinite_buffer<float, 200> prevDuties_;
+    etl::circular_buffer<float, 200> prevDuties_;
     m_per_sec_t speed_;
 };
 
