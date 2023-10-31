@@ -9,7 +9,6 @@
 #include <etl/set.h>
 #include <etl/vector.h>
 
-#include <micro/container/ring_buffer.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/queue.hpp>
