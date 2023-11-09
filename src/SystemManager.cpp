@@ -1,9 +1,10 @@
 #include <micro/debug/SystemManager.hpp>
 
+#include <algorithm>
+#include <mutex>
+
 #include <micro/log/log.hpp>
 #include <micro/port/task.hpp>
-
-#include <mutex>
 
 namespace micro {
 
@@ -21,27 +22,24 @@ void SystemManager::setProgramState(const programState_t programState) {
 }
 
 void SystemManager::registerTask() {
-    std::scoped_lock lock{mutex_};
-    const auto info = getCurrentTaskInfo();
-    this->taskStates_.insert(std::make_pair(info.id, TaskState{info, {false}}));
+    {
+        std::scoped_lock lock{registerMutex_};
+        this->taskStates_.insert(std::make_pair(getCurrentTaskId(), false));
+    }
+    os_sleep(millisecond_t(200));
 }
 
 void SystemManager::notify(const bool state) {
-    std::scoped_lock lock{mutex_};
     if (const auto it = taskStates_.find(getCurrentTaskId()); it != taskStates_.end()) {
-        it->second.ok = state;
+        it->second = state;
     }
 }
 
-auto SystemManager::failingTasks() const -> TaskStates {
-    std::scoped_lock lock{mutex_};
-    TaskStates result;
-    for (const auto& [id, state] : taskStates_) {
-        if (getTime() - state.ok.timestamp() > millisecond_t(50) || !state.ok.value()) {
-            result.push_back(state);
-        }
-    }
-    return result;
+bool SystemManager::ok() const {
+    return std::all_of(taskStates_.begin(), taskStates_.end(), [now = getTime()](const auto& entry){
+        const auto& state = entry.second;
+        return now - state.timestamp() < millisecond_t(50) && state.value();
+    });
 }
 
 } // namespace micro

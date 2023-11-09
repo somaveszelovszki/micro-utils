@@ -12,14 +12,7 @@ namespace micro {
 class SystemManager {
     static constexpr size_t MAX_NUM_TASKS = 16;
 public:
-    struct TaskState {
-        TaskInfo info;
-        state_t<bool> ok;
-    };
-
     typedef uint8_t programState_t;
-
-    using TaskStates = etl::vector<TaskState, MAX_NUM_TASKS>;
 
     static SystemManager& instance();
 
@@ -31,13 +24,13 @@ public:
 
     void notify(const bool state);
 
-    TaskStates failingTasks() const;
+    bool ok() const;
 
 private:
     SystemManager() : programState_(0) {}
 
-    mutable mutex_t mutex_;
-    etl::map<taskId_t, TaskState, MAX_NUM_TASKS> taskStates_;
+    mutex_t registerMutex_;
+    etl::map<taskId_t, state_t<bool>, MAX_NUM_TASKS> taskStates_;
     programState_t programState_;
 };
 
