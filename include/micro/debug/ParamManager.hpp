@@ -11,9 +11,6 @@
 #include <micro/port/mutex.hpp>
 #include <micro/math/numeric.hpp>
 
-#include <iostream>
-
-
 namespace micro {
 
 class ParamManager {
