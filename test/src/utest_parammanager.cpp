@@ -28,7 +28,7 @@ TEST(ParamManager, all) {
     params.registerParam("f", f);
     params.registerParam("m", m);
 
-    const auto all = params.update(true);
+    const auto all = params.getAll();
     ASSERT_EQ(9, all.size());
     EXPECT_EQ(false, std::get<bool>(all.at("b")));
     EXPECT_EQ(8, std::get<int8_t>(all.at("i8")));
@@ -49,14 +49,14 @@ TEST(ParamManager, value_changed) {
 
     i32 = 2;
 
-    const auto changed1 = params.update();
+    const auto changed1 = params.sync();
     ASSERT_EQ(1, changed1.size());
     EXPECT_EQ(2, std::get<int32_t>(changed1.at("i32")));
 
-    const auto changed2 = params.update();
+    const auto changed2 = params.sync();
     ASSERT_EQ(0, changed2.size());
 
-    const auto all = params.update(true);
+    const auto all = params.getAll();
     ASSERT_EQ(1, all.size());
     EXPECT_EQ(2, std::get<int32_t>(all.at("i32")));
 }
@@ -70,12 +70,12 @@ TEST(ParamManager, new_values) {
     params.registerParam("i32", i32);
     params.registerParam("u32", u32);
 
-    const auto changed = params.update(false, {{"i32", static_cast<int32_t>(2)}});
+    const auto changed = params.update({{"i32", static_cast<int32_t>(2)}});
     ASSERT_EQ(1, changed.size());
     EXPECT_EQ(2, std::get<int32_t>(changed.at("i32")));
 
-    const auto all = params.update(true, {{"u32", static_cast<uint32_t>(20)}});
+    const auto all = params.getAll();
     ASSERT_EQ(2, all.size());
     EXPECT_EQ(2, std::get<int32_t>(all.at("i32")));
-    EXPECT_EQ(20, std::get<uint32_t>(all.at("u32")));
+    EXPECT_EQ(10, std::get<uint32_t>(all.at("u32")));
 }

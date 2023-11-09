@@ -39,14 +39,16 @@ public:
 
     using Name = etl::string<32>;
 
+private:
     struct Param {
         value_type prev;
         reference_type current;
 
-        bool updatePrev();
-        bool setValue(const value_type newValue);
+        bool sync();
+        bool setCurrent(const value_type newValue);
     };
 
+public:
     using Values = etl::map<Name, value_type, MAX_NUM_PARAMS>;
 
     template <typename T>
@@ -55,10 +57,12 @@ public:
         params_.insert({Name{name}, Param{underlying_value(value), underlying_ref(value)}});
     }
 
-    Values update(const bool notifyAllParams = false, const Values& newValues = {});
+    Values update(const Values& newValues);
+    Values sync();
+    Values getAll() const;
 
 private:
-    mutex_t mutex_;
+    mutable mutex_t mutex_;
     etl::map<Name, Param, MAX_NUM_PARAMS> params_;
 };
 

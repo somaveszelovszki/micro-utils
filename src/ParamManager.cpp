@@ -7,12 +7,12 @@
 
 namespace micro {
 
-bool ParamManager::Param::updatePrev() {
+bool ParamManager::Param::sync() {
     const auto newValue = std::visit([](const auto& v) -> value_type { return v.get(); }, current);
     return std::exchange(prev, newValue) != newValue;
 }
 
-bool ParamManager::Param::setValue(const value_type newValue) {
+bool ParamManager::Param::setCurrent(const value_type newValue) {
     return std::visit(
         [this](const auto& v) {
             return std::visit([&v](auto& c){
@@ -33,21 +33,41 @@ bool ParamManager::Param::setValue(const value_type newValue) {
         }, newValue);
 }
 
-auto ParamManager::update(const bool notifyAllParams, const Values& newValues) -> Values {
+auto ParamManager::update(const Values& newValues) -> Values {
     std::scoped_lock lock{mutex_};
-    Values result;
+
+    Values changed;
     for (auto& [name, param] : params_) {
         if (const auto it = newValues.find(name); it != newValues.end()) {
-            if (!param.setValue(it->second)) {
-                continue;
+            if (param.setCurrent(it->second) && param.sync()) {
+                changed.insert({name, param.prev});
             }
         }
+    }
+    return changed;
+}
 
-        if (param.updatePrev() || notifyAllParams) {
-            result.insert({name, param.prev});
+auto ParamManager::sync() -> Values {
+    std::scoped_lock lock{mutex_};
+
+    Values changed;
+    for (auto& [name, param] : params_) {
+        if (param.sync()) {
+            changed.insert({name, param.prev});
         }
     }
-    return result;
+    return changed;
 }
+
+auto ParamManager::getAll() const -> Values {
+    std::scoped_lock lock{mutex_};
+
+    Values values;
+    for (auto& [name, param] : params_) {
+        values.insert({name, param.prev});
+    }
+    return values;
+}
+
 
 } // namespace micro
