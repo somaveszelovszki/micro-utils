@@ -5,8 +5,6 @@
 
 namespace micro {
 
-constexpr uint8_t CanSubscriber::INVALID_ID;
-
 millisecond_t timeout(const canFrameId_t id) {
     millisecond_t result(0);
 
@@ -24,9 +22,7 @@ millisecond_t timeout(const canFrameId_t id) {
     return result;
 }
 
-CanSubscriber::CanSubscriber(const id_t id, const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds)
-    : id(id) {
-
+CanSubscriber::CanSubscriber(const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds) {
     for (const auto id : rxFrameIds) {
         rxFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
     }
@@ -53,13 +49,18 @@ bool CanSubscriber::hasTimedOut() const {
 CanManager::CanManager(const can_t& can)
     : can_(can) {}
 
-CanSubscriber::id_t CanManager::registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters) {
+CanSubscriber::Id CanManager::registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters) {
     std::scoped_lock lock(criticalSection_);
-    return subscribers_.emplace_back(subscribers_.size(), rxFilters, txFilters).id;
+    subscribers_.emplace_back(rxFilters, txFilters);
+    return static_cast<CanSubscriber::Id>(subscribers_.size() - 1);
 }
 
-std::optional<canFrame_t> CanManager::read(const CanSubscriber::id_t subscriberId) {
+std::optional<canFrame_t> CanManager::read(const CanSubscriber::Id subscriberId) {
     std::scoped_lock lock(criticalSection_);
+
+    if (!isValid(subscriberId)) {
+        return std::nullopt;
+    }
 
     auto& rxFrames = subscribers_[subscriberId].rxFrames;
 
@@ -86,7 +87,7 @@ void CanManager::onFrameReceived() {
     }
 }
 
-bool CanManager::hasTimedOut(const CanSubscriber::id_t subscriberId) const {
+bool CanManager::hasTimedOut(const CanSubscriber::Id subscriberId) const {
     return isValid(subscriberId) && subscribers_[subscriberId].hasTimedOut();
 }
 

@@ -25,9 +25,8 @@ namespace micro {
 using CanFrameIds = etl::set<canFrameId_t, MAX_NUM_CAN_FILTERS>;
 
 struct CanSubscriber {
-    typedef uint8_t id_t;
-
-    static constexpr id_t INVALID_ID = 0xff;
+    using Id = uint8_t;
+    static constexpr Id INVALID_ID = 0xff;
 
     struct Filter {
         canFrameId_t id;
@@ -36,11 +35,10 @@ struct CanSubscriber {
 
     using Filters = etl::map<canFrameId_t, Filter, MAX_NUM_CAN_FILTERS>;
 
-    id_t id;
     Filters rxFilters, txFilters;
     etl::circular_buffer<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
 
-    CanSubscriber(const id_t id = INVALID_ID, const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
+    CanSubscriber(const CanFrameIds& rxFilters = {}, const CanFrameIds& txFilters = {});
 
     bool hasTimedOut() const;
 };
@@ -49,42 +47,44 @@ class CanManager {
 public:
     explicit CanManager(const can_t& can);
 
-    CanSubscriber::id_t registerSubscriber(const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds);
+    CanSubscriber::Id registerSubscriber(const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds);
 
-    std::optional<canFrame_t> read(const CanSubscriber::id_t subscriberId);
+    std::optional<canFrame_t> read(const CanSubscriber::Id subscriberId);
 
     template<typename T, typename ...Args>
-    void send(const CanSubscriber::id_t subscriberId, Args&&... args) {
+    void send(const CanSubscriber::Id subscriberId, Args&&... args) {
         send<T>(subscriberId, false, std::forward<Args>(args)...);
     }
 
     template<typename T, typename ...Args>
-    void periodicSend(const CanSubscriber::id_t subscriberId, Args&&... args) {
+    void periodicSend(const CanSubscriber::Id subscriberId, Args&&... args) {
         send<T>(subscriberId, true, std::forward<Args>(args)...);
     }
 
     void onFrameReceived();
 
-    bool hasTimedOut(const CanSubscriber::id_t subscriberId) const;
+    bool hasTimedOut(const CanSubscriber::Id subscriberId) const;
 
 private:
-    bool isValid(const CanSubscriber::id_t subscriberId) const {
+    bool isValid(const CanSubscriber::Id subscriberId) const {
         return subscriberId < subscribers_.size();
     }
 
     template<typename T, typename ...Args>
-    void send(const CanSubscriber::id_t subscriberId, const bool checkPeriod, Args&&... args) {
+    void send(const CanSubscriber::Id subscriberId, const bool checkPeriod, Args&&... args) {
         std::scoped_lock lock(criticalSection_);
 
-        if (isValid(subscriberId)) {
-            auto& txFilters = subscribers_[subscriberId].txFilters;
-            if (auto it = txFilters.find(T::id()); it != txFilters.end()) {
-                const auto now = getTime();
-                if (!checkPeriod || (getTime() - std::exchange(it->second.lastActivityTime, now) >= T::period())) {
-                    const T data(std::forward<Args>(args)...);
-                    const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
-                    can_transmit(can_, frame);
-                }
+        if (!isValid(subscriberId)) {
+            return;
+        }
+
+        auto& txFilters = subscribers_[subscriberId].txFilters;
+        if (auto it = txFilters.find(T::id()); it != txFilters.end()) {
+            const auto now = getTime();
+            if (!checkPeriod || (getTime() - std::exchange(it->second.lastActivityTime, now) >= T::period())) {
+                const T data(std::forward<Args>(args)...);
+                const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+                can_transmit(can_, frame);
             }
         }
     }
