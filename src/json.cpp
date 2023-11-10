@@ -2,16 +2,20 @@
 
 namespace micro {
 
+bool JSONValue::exists() const {
+    return !!delegate_;
+}
+
 const char* JSONValue::key() const {
-    return delegate_ ? json_getName(delegate_) : nullptr;
+    return exists() ? json_getName(delegate_) : nullptr;
 }
 
 bool JSONValue::isObject() const {
-    return delegate_ && json_getType(delegate_) == JSON_OBJ;
+    return exists() && json_getType(delegate_) == JSON_OBJ;
 }
 
 bool JSONValue::isArray() const {
-    return delegate_ && json_getType(delegate_) == JSON_ARRAY;
+    return exists() && json_getType(delegate_) == JSON_ARRAY;
 }
 
 JSONValue JSONValue::operator[](const size_t index) const {

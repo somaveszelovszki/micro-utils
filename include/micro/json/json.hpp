@@ -21,8 +21,8 @@ public:
 
     explicit JSONValue(const json_t* delegate) : delegate_{delegate} {}
 
+    bool exists() const;
     const char* key() const;
-
     bool isObject() const;
     bool isArray() const;
 
