@@ -50,6 +50,7 @@ private:
 
 public:
     using Values = etl::map<Name, value_type, MAX_NUM_PARAMS>;
+    using NamedParam = std::pair<Name, value_type>;
 
     template <typename T>
     void registerParam(const char *name, T& value) {
