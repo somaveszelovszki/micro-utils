@@ -58,7 +58,7 @@ public:
         params_.insert({Name{name}, Param{underlying_value(value), underlying_ref(value)}});
     }
 
-    Values update(const Values& newValues);
+    bool update(const Name& name, const value_type& value);
     Values sync();
     Values getAll() const;
 

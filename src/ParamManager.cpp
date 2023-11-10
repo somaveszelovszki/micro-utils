@@ -33,18 +33,11 @@ bool ParamManager::Param::setCurrent(const value_type newValue) {
         }, newValue);
 }
 
-auto ParamManager::update(const Values& newValues) -> Values {
+bool ParamManager::update(const Name& name, const value_type& value) {
     std::scoped_lock lock{mutex_};
 
-    Values changed;
-    for (auto& [name, param] : params_) {
-        if (const auto it = newValues.find(name); it != newValues.end()) {
-            if (param.setCurrent(it->second) && param.sync()) {
-                changed.insert({name, param.prev});
-            }
-        }
-    }
-    return changed;
+    const auto it = params_.find(name);
+    return it != params_.end() && it->second.setCurrent(value) && it->second.sync();
 }
 
 auto ParamManager::sync() -> Values {
