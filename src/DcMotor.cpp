@@ -29,7 +29,7 @@ void BridgeDcMotor::start() {
 }
 
 void BridgeDcMotor::write(const float& duty) {
-    const float duty1 = map(duty, -1.0f, 1.0f, 1.0f - this->maxDuty_, this->maxDuty_);
+    const float duty1 = micro::lerp(duty, -1.0f, 1.0f, 1.0f - this->maxDuty_, this->maxDuty_);
 
     criticalSection_t criticalSection;
     criticalSection.lock();
@@ -55,7 +55,7 @@ BidirectionalPwmDcMotor::BidirectionalPwmDcMotor(const micro::timer_t& timer, co
 void BidirectionalPwmDcMotor::start() {}
 
 void BidirectionalPwmDcMotor::write(const float& duty) {
-    const float clampedDuty = map(duty, -1.0f, 1.0f, 1.0f - this->maxDuty_, this->maxDuty_);
+    const float clampedDuty = micro::lerp(duty, -1.0f, 1.0f, 1.0f - this->maxDuty_, this->maxDuty_);
 
     criticalSection_t criticalSection;
     criticalSection.lock();

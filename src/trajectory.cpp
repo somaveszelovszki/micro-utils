@@ -38,8 +38,8 @@ void Trajectory::appendCircle(const point2m& center, radian_t angle, m_per_sec_t
     const uint32_t numSections = (relativeVec.length() * abs(angle)) / TRAJECTORY_RESOLUTION;
 
     for (uint32_t i = 1; i <= numSections; ++i) {
-        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg.speed, destSpeed);
-        const vec2m currentRelativeVec = relativeVec.rotate(map<uint32_t, radian_t>(i, 0, numSections, radian_t(0), angle));
+        const m_per_sec_t currentSpeed = micro::lerp<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg.speed, destSpeed);
+        const vec2m currentRelativeVec = relativeVec.rotate(micro::lerp<uint32_t, radian_t>(i, 0, numSections, radian_t(0), angle));
         const radian_t currentFwdAngle = currentRelativeVec.getAngle() + sgn(angle) * PI_2;
 
         this->appendLine(config_t{ { center + currentRelativeVec, toCarOrientation(currentFwdAngle, currentSpeed) }, currentSpeed });
@@ -60,9 +60,9 @@ void Trajectory::appendSineArc(const config_t& dest, radian_t fwdAngle, orientat
 
     for (uint32_t i = 1; i <= numSections; ++i) {
         const meter_t x_ = c1_.X + static_cast<float>(i) / numSections * dx;
-        const meter_t y_ = c1_.Y + dy * (1 - cos(map<float, radian_t>(i, 0, numSections, sineStart, sineEnd))) / 2;
+        const meter_t y_ = c1_.Y + dy * (1 - cos(micro::lerp<float, radian_t>(i, 0, numSections, sineStart, sineEnd))) / 2;
         const point2m currentPoint     = point2m{ x_, y_ }.rotate(fwdAngle);
-        const m_per_sec_t currentSpeed = map<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg.speed, dest.speed);
+        const m_per_sec_t currentSpeed = micro::lerp<uint32_t, m_per_sec_t>(i, 0, numSections, lastCfg.speed, dest.speed);
         const radian_t currentFwdAngle = orientationUpdate == orientationUpdate_t::FIX_ORIENTATION ? lastCfg.pose.angle : (currentPoint - prevCfg.pose.pos).getAngle();
 
         this->appendLine(config_t{ { currentPoint, toCarOrientation(currentFwdAngle, currentSpeed) }, currentSpeed });
@@ -97,10 +97,10 @@ ControlData Trajectory::update(const CarProps& car) {
     const meter_t sectionLength    = sectionBoundaries.first->pose.pos.distance(sectionBoundaries.second->pose.pos);
 
     const radian_t fwdAngleDiff   = normalizePM180(sectionBoundaries.second->pose.angle - sectionBoundaries.first->pose.angle);
-    const radian_t targetFwdAngle = sectionBoundaries.first->pose.angle + map(sectionStartDist.get(), 0.0f, sectionLength.get(), radian_t(0), fwdAngleDiff);
+    const radian_t targetFwdAngle = sectionBoundaries.first->pose.angle + micro::lerp(sectionStartDist.get(), 0.0f, sectionLength.get(), radian_t(0), fwdAngleDiff);
 
     ControlData controlData;
-    controlData.speed                    = map(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionBoundaries.first->speed, sectionBoundaries.second->speed);
+    controlData.speed                    = micro::lerp(sectionStartDist.get(), 0.0f, sectionLength.get(), sectionBoundaries.first->speed, sectionBoundaries.second->speed);
     controlData.rampTime                 = millisecond_t(0);
     controlData.rearSteerEnabled         = true;
     controlData.lineControl.actual.pos   = lineSign * linePoint.distance(car.pose.pos);

@@ -42,6 +42,22 @@ auto&& underlying_ref(T&& value) {
     return underlying_type<std::decay_t<T>>::ref(std::forward<T>(value));
 };
 
+template <typename T>
+struct remove_const_key {};
+
+template <typename K, typename V>
+struct remove_const_key<std::pair<K, V>> {
+    using type = std::pair<K, V>;
+};
+
+template <typename K, typename V>
+struct remove_const_key<std::pair<const K, V>> {
+    using type = std::pair<K, V>;
+};
+
+template <typename T>
+using remove_const_key_t = typename remove_const_key<T>::type;
+
 /**
  * @brief Status for operations
  */

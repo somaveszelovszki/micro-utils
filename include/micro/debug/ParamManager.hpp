@@ -4,9 +4,9 @@
 #include <mutex>
 #include <variant>
 
-#include <etl/map.h>
 #include <etl/string.h>
 
+#include <micro/container/map.hpp>
 #include <micro/log/log.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/math/numeric.hpp>
@@ -40,16 +40,17 @@ public:
     using Name = etl::string<32>;
 
 private:
+    static constexpr bool PLACEHOLDER = false;
     struct Param {
-        value_type prev;
-        reference_type current;
+        value_type prev{PLACEHOLDER};
+        reference_type current{std::ref(const_cast<bool&>(PLACEHOLDER))};
 
         bool sync();
         bool setCurrent(const value_type newValue);
     };
 
 public:
-    using Values = etl::map<Name, value_type, MAX_NUM_PARAMS>;
+    using Values = micro::map<Name, value_type, MAX_NUM_PARAMS>;
     using NamedParam = std::pair<Name, value_type>;
 
     template <typename T>
@@ -64,7 +65,7 @@ public:
 
 private:
     mutable mutex_t mutex_;
-    etl::map<Name, Param, MAX_NUM_PARAMS> params_;
+    micro::map<Name, Param, MAX_NUM_PARAMS> params_;
 };
 
 #define REGISTER_PARAM(params, var) params.registerParam(#var, var)

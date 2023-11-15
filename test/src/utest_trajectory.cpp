@@ -156,9 +156,9 @@ void test_straight_line_multiple_segments_perfect_follow(const Sign speedSign) {
 
         m_per_sec_t expectedTargetSpeed;
         if (dist < meter_t(1)) {
-            expectedTargetSpeed = map(dist, meter_t(0), meter_t(1), m_per_sec_t(1.0f), m_per_sec_t(1.5f));
+            expectedTargetSpeed = micro::lerp(dist, meter_t(0), meter_t(1), m_per_sec_t(1.0f), m_per_sec_t(1.5f));
         } else if (dist < meter_t(2)) {
-            expectedTargetSpeed = map(dist, meter_t(1), meter_t(2), m_per_sec_t(1.5f), m_per_sec_t(3.0f));
+            expectedTargetSpeed = micro::lerp(dist, meter_t(1), meter_t(2), m_per_sec_t(1.5f), m_per_sec_t(3.0f));
         } else {
             expectedTargetSpeed = m_per_sec_t(3.0f);
         }

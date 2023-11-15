@@ -5,10 +5,10 @@
 #include <optional>
 
 #include <etl/circular_buffer.h>
-#include <etl/map.h>
 #include <etl/set.h>
 #include <etl/vector.h>
 
+#include <micro/container/map.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/queue.hpp>
@@ -33,7 +33,7 @@ struct CanSubscriber {
         millisecond_t lastActivityTime;
     };
 
-    using Filters = etl::map<canFrameId_t, Filter, MAX_NUM_CAN_FILTERS>;
+    using Filters = micro::map<canFrameId_t, Filter, MAX_NUM_CAN_FILTERS>;
 
     Filters rxFilters, txFilters;
     etl::circular_buffer<canFrame_t, MAX_NUM_CAN_FILTERS> rxFrames;
@@ -105,7 +105,7 @@ public:
     CanFrameIds identifiers() const;
 
 private:
-    etl::map<canFrameId_t, handler_fn_t, MAX_NUM_CAN_FILTERS> handlers_;
+    micro::map<canFrameId_t, handler_fn_t, MAX_NUM_CAN_FILTERS> handlers_;
 };
 
 }  // namespace micro

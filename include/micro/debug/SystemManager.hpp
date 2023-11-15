@@ -1,8 +1,6 @@
 #pragma once
 
-#include <etl/map.h>
-#include <etl/vector.h>
-
+#include <micro/container/map.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/state.hpp>
@@ -30,7 +28,7 @@ private:
     SystemManager() : programState_(0) {}
 
     mutex_t registerMutex_;
-    etl::map<taskId_t, state_t<bool>, MAX_NUM_TASKS> taskStates_;
+    micro::map<taskId_t, state_t<bool>, MAX_NUM_TASKS> taskStates_;
     programState_t programState_;
 };
 

@@ -79,22 +79,22 @@ TEST(units, normalize360) {
     EXPECT_NEAR_UNIT_DEFAULT(degree_t(10), normalize360(degree_t(370)));
 }
 
-TEST(units, map) {
-    EXPECT_NEAR(10.0f, map(radian_t(1.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(10.0f, map(radian_t(2.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(13.0f, map(radian_t(3.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(radian_t(4.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
-    EXPECT_NEAR(16.0f, map(radian_t(5.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
+TEST(units, lerp) {
+    EXPECT_NEAR(10.0f, lerp(radian_t(1.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
+    EXPECT_NEAR(10.0f, lerp(radian_t(2.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
+    EXPECT_NEAR(13.0f, lerp(radian_t(3.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
+    EXPECT_NEAR(16.0f, lerp(radian_t(4.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
+    EXPECT_NEAR(16.0f, lerp(radian_t(5.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
 
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), map(1.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), map(2.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f), map(3.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), map(4.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), map(5.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(1.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(2.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f), lerp(3.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(4.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(5.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
 
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), map(m_per_sec_t(1.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), map(m_per_sec_t(2.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f), map(m_per_sec_t(3.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), map(m_per_sec_t(4.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), map(m_per_sec_t(5.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(m_per_sec_t(1.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(m_per_sec_t(2.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f), lerp(m_per_sec_t(3.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(m_per_sec_t(4.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(m_per_sec_t(5.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
 }

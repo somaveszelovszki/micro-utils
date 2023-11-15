@@ -19,7 +19,7 @@ public:
         }
 
         return this->duration_ != microsecond_t(0) ?
-            map(getExactTime(), this->startTime_, this->startTime_ + this->duration_, this->start_, this->target_) :
+            micro::lerp(getExactTime(), this->startTime_, this->startTime_ + this->duration_, this->start_, this->target_) :
             this->target_;
     }
 

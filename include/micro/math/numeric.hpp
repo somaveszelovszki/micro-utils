@@ -159,53 +159,53 @@ inline constexpr bool isZero(const T& value) {
 }
 
 /**
- * @brief Maps value from from a given range to another.
+ * @brief Interpolates value from from a given range to another.
  * @tparam S Numeric type of the source value and the source range boundaries.
  * @tparam R Numeric type of the result value and the result range boundaries.
- * @param value The value to map.
+ * @param value The value to interpolate.
  * @param from1 First boundary of the source range.
  * @param from2 Second boundary of the source range.
  * @param to1 First boundary of the destination range.
  * @param to2 Second boundary of the destination range.
- * @returns The mapped value.
+ * @returns The interpolated value.
  */
 template <typename S, typename R>
 inline constexpr typename std::enable_if<!std::is_integral<S>::value && !std::is_unsigned<S>::value && !std::is_unsigned<R>::value, R>::type
-map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
+lerp(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
     return isZero(from2 - from1) ? to1 : to1 + (clamp(value, from1, from2) - from1) / (from2 - from1) * (to2 - to1);
 }
 
 /**
- * @brief Maps value from from a given range to another.
+ * @brief Interpolates value from from a given range to another.
  * @tparam S Numeric type of the source value and the source range boundaries.
  * @tparam R Numeric type of the result value and the result range boundaries.
- * @param value The value to map.
+ * @param value The value to interpolate.
  * @param from1 First boundary of the source range.
  * @param from2 Second boundary of the source range.
  * @param to1 First boundary of the destination range.
  * @param to2 Second boundary of the destination range.
- * @returns The mapped value.
+ * @returns The interpolated value.
  */
 template <typename S, typename R>
 inline constexpr typename std::enable_if<std::is_integral<S>::value && !std::is_unsigned<S>::value && !std::is_unsigned<R>::value, R>::type
-map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
+lerp(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
     return from1 == from2 ? to1 : to1 + (clamp(value, from1, from2) - from1) * (to2 - to1) / (from2 - from1);
 }
 
 /**
- * @brief Maps value from from a given range to another.
+ * @brief Interpolates value from from a given range to another.
  * @tparam S Numeric type of the source value and the source range boundaries.
  * @tparam R Numeric type of the result value and the result range boundaries.
- * @param value The value to map.
+ * @param value The value to interpolate.
  * @param from1 First boundary of the source range.
  * @param from2 Second boundary of the source range.
  * @param to1 First boundary of the destination range.
  * @param to2 Second boundary of the destination range.
- * @returns The mapped value.
+ * @returns The interpolated value.
  */
 template <typename S, typename R>
 inline constexpr typename std::enable_if<std::is_unsigned<S>::value || std::is_unsigned<R>::value, R>::type
-map(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
+lerp(const S& value, const S& from1, const S& from2, const R& to1, const R& to2) {
 
     const S clamped = clamp(value, from1, from2);
     R result = to1;

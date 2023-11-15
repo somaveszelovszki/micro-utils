@@ -45,41 +45,41 @@ TEST(numeric, base) {
     EXPECT_FALSE(isInRange(13, 10, 0.2f));
 }
 
-TEST(numeric, map) {
-    EXPECT_NEAR_DEFAULT(10.0f, map(1.0f, 2.0f, 4.0f, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(10.0f, map(2.0f, 2.0f, 4.0f, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(13.0f, map(3.0f, 2.0f, 4.0f, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(16.0f, map(4.0f, 2.0f, 4.0f, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(16.0f, map(5.0f, 2.0f, 4.0f, 10.f, 16.0f));
+TEST(numeric, lerp) {
+    EXPECT_NEAR_DEFAULT(10.0f, lerp(1.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, lerp(2.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(13.0f, lerp(3.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, lerp(4.0f, 2.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, lerp(5.0f, 2.0f, 4.0f, 10.f, 16.0f));
 
-    EXPECT_NEAR_DEFAULT(10.0f, map(1, 2, 4, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(10.0f, map(2, 2, 4, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(13.0f, map(3, 2, 4, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(16.0f, map(4, 2, 4, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(16.0f, map(5, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, lerp(1, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, lerp(2, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(13.0f, lerp(3, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, lerp(4, 2, 4, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, lerp(5, 2, 4, 10.f, 16.0f));
 
-    EXPECT_NEAR_DEFAULT(10.0f, map(1u, 2u, 4u, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(10.0f, map(2u, 2u, 4u, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(13.0f, map(3u, 2u, 4u, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(16.0f, map(4u, 2u, 4u, 10.f, 16.0f));
-    EXPECT_NEAR_DEFAULT(16.0f, map(5u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, lerp(1u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(10.0f, lerp(2u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(13.0f, lerp(3u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, lerp(4u, 2u, 4u, 10.f, 16.0f));
+    EXPECT_NEAR_DEFAULT(16.0f, lerp(5u, 2u, 4u, 10.f, 16.0f));
 
-    EXPECT_NEAR_DEFAULT(10, map(1, 2, 4, 10, 16));
-    EXPECT_NEAR_DEFAULT(10, map(2, 2, 4, 10, 16));
-    EXPECT_NEAR_DEFAULT(13, map(3, 2, 4, 10, 16));
-    EXPECT_NEAR_DEFAULT(16, map(4, 2, 4, 10, 16));
-    EXPECT_NEAR_DEFAULT(16, map(5, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(10, lerp(1, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(10, lerp(2, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(13, lerp(3, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(16, lerp(4, 2, 4, 10, 16));
+    EXPECT_NEAR_DEFAULT(16, lerp(5, 2, 4, 10, 16));
 
-    EXPECT_NEAR_DEFAULT(10u, map(1u, 2u, 4u, 10u, 16u));
-    EXPECT_NEAR_DEFAULT(10u, map(2u, 2u, 4u, 10u, 16u));
-    EXPECT_NEAR_DEFAULT(13u, map(3u, 2u, 4u, 10u, 16u));
-    EXPECT_NEAR_DEFAULT(16u, map(4u, 2u, 4u, 10u, 16u));
-    EXPECT_NEAR_DEFAULT(16u, map(5u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(10u, lerp(1u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(10u, lerp(2u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(13u, lerp(3u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(16u, lerp(4u, 2u, 4u, 10u, 16u));
+    EXPECT_NEAR_DEFAULT(16u, lerp(5u, 2u, 4u, 10u, 16u));
 
-    EXPECT_EQ(10.0f, map(1.0f, 1.0f, 4.0f, 10.f, 16.0f));
-    EXPECT_EQ(10.0f, map(1, 1, 1, 10.f, 16.0f));
-    EXPECT_EQ(10,    map(1, 1, 1, 10, 16));
-    EXPECT_EQ(10u,   map(1u, 1u, 1u, 10u, 16u));
+    EXPECT_EQ(10.0f, lerp(1.0f, 1.0f, 4.0f, 10.f, 16.0f));
+    EXPECT_EQ(10.0f, lerp(1, 1, 1, 10.f, 16.0f));
+    EXPECT_EQ(10,    lerp(1, 1, 1, 10, 16));
+    EXPECT_EQ(10u,   lerp(1u, 1u, 1u, 10u, 16u));
 }
 
 TEST(numeric, normalize_into_periodic_interval) {

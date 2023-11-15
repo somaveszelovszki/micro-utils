@@ -53,7 +53,7 @@ void ramp(const m_per_sec_t target) {
 
     while (now < SIMULATION_LENGTH) {
 
-        speedController.target = micro::map<microsecond_t, m_per_sec_t>(now, second_t(0), second_t(2), m_per_sec_t(0), target).get();
+        speedController.target = micro::lerp<microsecond_t, m_per_sec_t>(now, second_t(0), second_t(2), m_per_sec_t(0), target).get();
 
         const float actual = motor.speed().get();
         speedController.update(actual);

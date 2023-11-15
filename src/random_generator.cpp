@@ -20,7 +20,7 @@ float random_generator::get() {
 }
 
 uint16_t random_generator::get(const uint16_t inclusiveLow, const uint16_t exclusiveHigh) {
-    return map(this->get(), 0.0f, 1.0f, inclusiveLow, exclusiveHigh);
+    return micro::lerp(this->get(), 0.0f, 1.0f, inclusiveLow, exclusiveHigh);
 }
 
 

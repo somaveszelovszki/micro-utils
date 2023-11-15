@@ -2,14 +2,13 @@
 
 #include <optional>
 
-#include <etl/map.h>
-
+#include <micro/container/map.hpp>
 #include <micro/math/numeric.hpp>
 
 namespace micro {
 
 template <typename K, typename V, const size_t N, typename Compare = etl::less<K>>
-auto bounds(const etl::map<K, V, N, Compare>& m, const K& key) {
+auto bounds(const micro::map<K, V, N, Compare>& m, const K& key) {
     auto lower = m.end();
     auto upper = m.upper_bound(key);
 
@@ -26,13 +25,13 @@ auto bounds(const etl::map<K, V, N, Compare>& m, const K& key) {
 }
 
 template <typename K, typename V, const size_t N, typename Compare = etl::less<K>>
-std::optional<V> lerp(const etl::map<K, V, N, Compare>& m, const K& key) {
+std::optional<V> lerp(const micro::map<K, V, N, Compare>& m, const K& key) {
     if (m.empty()) {
         return std::nullopt;
     }
     
     const auto [lower, upper] = bounds(m, key);
-    return map(key, lower->first, upper->first, lower->second, upper->second);
+    return micro::lerp(key, lower->first, upper->first, lower->second, upper->second);
 }
 
 } // namespace micro
