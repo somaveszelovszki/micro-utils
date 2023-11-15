@@ -6,9 +6,9 @@
 
 #include <etl/circular_buffer.h>
 #include <etl/set.h>
-#include <etl/vector.h>
 
 #include <micro/container/map.hpp>
+#include <micro/container/vector.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/queue.hpp>
@@ -91,7 +91,7 @@ private:
 
     mutable criticalSection_t criticalSection_;
     can_t can_;
-    etl::vector<CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
+    micro::vector<CanSubscriber, MAX_NUM_CAN_SUBSCRIBERS> subscribers_;
 };
 
 class CanFrameHandler {

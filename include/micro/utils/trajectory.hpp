@@ -1,7 +1,6 @@
 #pragma once
 
-#include <etl/vector.h>
-
+#include <micro/container/vector.hpp>
 #include <micro/utils/CarProps.hpp>
 #include <micro/utils/ControlData.hpp>
 
@@ -22,7 +21,7 @@ public:
         m_per_sec_t speed;
     };
 
-    typedef etl::vector<config_t, 500> configs_t;
+    typedef micro::vector<config_t, 500> configs_t;
 
     Trajectory()
         : sectionStartConfig_(this->configs_.end())
