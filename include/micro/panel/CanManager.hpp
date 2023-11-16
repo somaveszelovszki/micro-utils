@@ -5,9 +5,9 @@
 #include <optional>
 
 #include <etl/circular_buffer.h>
-#include <etl/set.h>
 
 #include <micro/container/map.hpp>
+#include <micro/container/set.hpp>
 #include <micro/container/vector.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/mutex.hpp>
@@ -22,7 +22,7 @@ namespace micro {
 #define MAX_NUM_CAN_SUBSCRIBERS 4
 #define MAX_NUM_CAN_FILTERS     12
 
-using CanFrameIds = etl::set<canFrameId_t, MAX_NUM_CAN_FILTERS>;
+using CanFrameIds = micro::set<canFrameId_t, MAX_NUM_CAN_FILTERS>;
 
 struct CanSubscriber {
     using Id = uint8_t;

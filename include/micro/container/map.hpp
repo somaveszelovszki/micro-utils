@@ -39,14 +39,14 @@ public:
 
     map& operator=(const map& other)
     {
-      static_cast<base&>(*this) = other;
-      return *this;
+        static_cast<base&>(*this) = other;
+        return *this;
     }
 
     map& operator=(map&& other)
     {
-      static_cast<base&>(*this) = std::move(other);
-      return *this;
+        static_cast<base&>(*this) = std::move(other);
+        return *this;
     }
 
 private:

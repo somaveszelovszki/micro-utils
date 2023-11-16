@@ -1,8 +1,7 @@
 #pragma once
 
-#include <etl/set.h>
-
-#include "units.hpp"
+#include <micro/container/set.hpp>
+#include <micro/utils/units.hpp>
 
 namespace micro {
 
@@ -20,7 +19,7 @@ struct Line {
     bool operator>(const Line& other) const  { return this->pos > other.pos; }
 };
 
-using Lines = etl::set<Line, Line::MAX_NUM_LINES>;
+using Lines = micro::set<Line, Line::MAX_NUM_LINES>;
 
 struct OrientedLine {
     millimeter_t pos;
