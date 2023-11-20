@@ -7,7 +7,7 @@
 
 namespace micro {
 
-template <typename T, const size_t N>
+template <typename T, size_t N>
 class vector : public etl::vector_ext<T> {
     using base = etl::vector_ext<T>;
 public:

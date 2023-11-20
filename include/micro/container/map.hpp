@@ -5,11 +5,12 @@
 
 #include <etl/flat_map.h>
 
+#include <micro/container/aligned_storage.hpp>
 #include <micro/utils/types.hpp>
 
 namespace micro {
 
-template <typename Key, typename Value, const size_t N, typename Compare = std::less<Key>>
+template <typename Key, typename Value, size_t N, typename Compare = std::less<Key>>
 class map : public etl::flat_map_ext<Key, Value> {
     using base = etl::flat_map_ext<Key, Value>;
 public:
@@ -50,7 +51,8 @@ public:
     }
 
 private:
-    remove_const_key_t<typename base::node_t> storageBuffer_[N];
+    using stored_type = remove_const_key_t<typename base::node_t>;
+    typename std::conditional<sizeof(stored_type) < 8, aligned_storage<stored_type>, stored_type>::type storageBuffer_[N];
     typename base::node_ptr_t lookupBuffer_[N];
 };
 

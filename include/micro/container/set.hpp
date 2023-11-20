@@ -5,9 +5,11 @@
 
 #include <etl/flat_set.h>
 
+#include <micro/container/aligned_storage.hpp>
+
 namespace micro {
 
-template <typename T, const size_t N, typename Compare = std::less<T>>
+template <typename T, size_t N, typename Compare = std::less<T>>
 class set : public etl::flat_set_ext<T> {
     using base = etl::flat_set_ext<T>;
 public:
@@ -48,7 +50,7 @@ public:
     }
 
 private:
-    T storageBuffer_[N];
+    typename std::conditional<sizeof(T) < 8, aligned_storage<T>, T>::type storageBuffer_[N];
     typename base::node_ptr_t lookupBuffer_[N];
 };
 
