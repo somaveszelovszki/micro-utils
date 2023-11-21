@@ -51,8 +51,7 @@ public:
     }
 
 private:
-    using stored_type = remove_const_key_t<typename base::node_t>;
-    typename std::conditional<sizeof(stored_type) < 8, aligned_storage<stored_type>, stored_type>::type storageBuffer_[N];
+    aligned_storage_t<remove_const_key_t<typename base::node_t>> storageBuffer_[N];
     typename base::node_ptr_t lookupBuffer_[N];
 };
 

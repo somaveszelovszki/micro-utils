@@ -50,7 +50,7 @@ public:
     }
 
 private:
-    typename std::conditional<sizeof(T) < 8, aligned_storage<T>, T>::type storageBuffer_[N];
+    aligned_storage_t<T> storageBuffer_[N];
     typename base::node_ptr_t lookupBuffer_[N];
 };
 
