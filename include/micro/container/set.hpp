@@ -50,7 +50,7 @@ public:
     }
 
 private:
-    aligned_storage_t<T> storageBuffer_[N];
+    aligned_storage_t<T, sizeof(uintptr_t)> storageBuffer_[N];
     typename base::node_ptr_t lookupBuffer_[N];
 };
 
