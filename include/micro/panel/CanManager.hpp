@@ -80,8 +80,10 @@ private:
 
         auto& txFilters = subscribers_[subscriberId].txFilters;
         if (auto it = txFilters.find(T::id()); it != txFilters.end()) {
+            auto& filter = it->second;
             const auto now = getTime();
-            if (!checkPeriod || (getTime() - std::exchange(it->second.lastActivityTime, now) >= T::period())) {
+            if (!checkPeriod || (now - filter.lastActivityTime) >= T::period()) {
+                filter.lastActivityTime = now;
                 const T data(std::forward<Args>(args)...);
                 const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
                 can_transmit(can_, frame);
