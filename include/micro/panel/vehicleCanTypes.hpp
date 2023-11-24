@@ -65,7 +65,7 @@ struct LongitudinalControl {
 
 struct FrontLines {
     static constexpr uint16_t id() { return 0x401; }
-    static constexpr millisecond_t period()  { return millisecond_t(3); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t(20); }
 
     detail::Lines lines;
@@ -77,7 +77,7 @@ struct FrontLines {
 
 struct RearLines {
     static constexpr uint16_t id() { return 0x402; }
-    static constexpr millisecond_t period()  { return millisecond_t(3); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t(20); }
 
     detail::Lines lines;
@@ -117,7 +117,7 @@ struct LongitudinalState {
 
 struct FrontLinePattern {
     static constexpr uint16_t id() { return 0x405; }
-    static constexpr millisecond_t period()  { return millisecond_t(3); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t(20); }
 
     detail::LinePattern pattern;
@@ -129,7 +129,7 @@ struct FrontLinePattern {
 
 struct RearLinePattern {
     static constexpr uint16_t id() { return 0x406; }
-    static constexpr millisecond_t period()  { return millisecond_t(3); }
+    static constexpr millisecond_t period()  { return micro::numeric_limits<millisecond_t>::infinity(); }
     static constexpr millisecond_t timeout() { return millisecond_t(20); }
 
     detail::LinePattern pattern;
