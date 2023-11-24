@@ -57,7 +57,7 @@ private:
 
 class semaphore_t {
 public:
-    bool take(const millisecond_t) { return true; }
+    bool take(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
     void give() {}
 };
 

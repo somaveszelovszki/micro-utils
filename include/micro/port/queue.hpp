@@ -68,10 +68,10 @@ public:
 template <typename T, uint32_t>
 class queue_t {
 public:
-    bool receive(T&, const millisecond_t) { return true; }
-    bool peek(T&, const millisecond_t) { return true; }
+    bool receive(T&, const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
+    bool peek(T&, const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
     void overwrite(const T&) {}
-    void send(const T&, const millisecond_t) {}
+    void send(const T&, const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) {}
 };
 
 #endif // !OS_FREERTOS
