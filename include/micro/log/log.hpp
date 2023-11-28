@@ -19,7 +19,7 @@ const char* to_string(const LogLevel level);
 
 class Log {
 public:
-    static constexpr char SEPARATOR[] = "\r\n";
+    static constexpr char SEPARATOR = '\n';
     static constexpr size_t MAX_MESSAGE_SIZE = 128;
 
     using Message = char[MAX_MESSAGE_SIZE];
@@ -42,7 +42,7 @@ public:
     static void format_to(Message& buffer, const LogLevel level, const char * const formatStr, Args&&... args) {
         auto idx = format_to_n(buffer, MAX_MESSAGE_SIZE, "{}:", to_string(level));
         idx += format_to_n(&buffer[idx], MAX_MESSAGE_SIZE - idx, formatStr, std::forward<Args>(args)...);
-        format_to_n(&buffer[idx], MAX_MESSAGE_SIZE - idx, SEPARATOR);
+        format_to_n(&buffer[idx], MAX_MESSAGE_SIZE - idx, "{}", SEPARATOR);
     }
 
 private:
