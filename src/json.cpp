@@ -1,5 +1,7 @@
 #include <micro/json/json.hpp>
 
+#include <iterator>
+
 namespace micro {
 
 bool JSONValue::exists() const {
@@ -46,6 +48,14 @@ auto JSONValue::begin() const -> const_iterator {
 
 auto JSONValue::end() const -> const_iterator {
     return const_iterator(JSONValue(nullptr));
+}
+
+size_t JSONValue::size() const {
+    return std::distance(begin(), end());
+}
+
+bool JSONValue::empty() const {
+    return size() == 0;
 }
 
 JSONParser::JSONParser(char * const str, const size_t length)

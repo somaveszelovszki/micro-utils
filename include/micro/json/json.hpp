@@ -79,6 +79,8 @@ public:
 
     const_iterator begin() const;
     const_iterator end() const;
+    size_t size() const;
+    bool empty() const;
 
 private:
     const json_t* delegate_{nullptr};
