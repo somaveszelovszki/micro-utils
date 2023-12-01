@@ -10,9 +10,8 @@ namespace micro {
 
 void TaskMonitor::registerInitializedTask() {
     const auto event = [this](){
-        const auto info = getCurrentTaskInfo();
         std::scoped_lock lock{registerMutex_};
-        taskStates_.insert(std::make_pair(info.id, State{info.name, false}));
+        taskStates_.insert(std::make_pair(getCurrentTaskId(), false));
         return (1 << (taskStates_.size() - 1));
     }();
 
@@ -20,14 +19,12 @@ void TaskMonitor::registerInitializedTask() {
 }
 
 void TaskMonitor::notify(const bool state) {
-    if (const auto it = taskStates_.find(getCurrentTaskId()); it != taskStates_.end()) {
-        it->second.ok = state;
-    }
+	taskStates_.at(getCurrentTaskId()) = state;
 }
 
 bool TaskMonitor::ok() const {
     return std::all_of(taskStates_.begin(), taskStates_.end(), [now = getTime()](const auto& entry){
-        const auto& state = entry.second.ok;
+        const auto& state = entry.second;
         return now - state.timestamp() < millisecond_t(50) && state.value();
     });
 }

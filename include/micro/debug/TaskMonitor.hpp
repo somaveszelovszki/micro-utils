@@ -1,7 +1,5 @@
 #pragma once
 
-#include <etl/string.h>
-
 #include <micro/container/map.hpp>
 #include <micro/port/mutex.hpp>
 #include <micro/port/sync_barrier.hpp>
@@ -21,14 +19,9 @@ public:
     bool ok() const;
 
 private:
-    struct State {
-        etl::string<64> name;
-        state_t<bool> ok;
-    };
-
     mutex_t registerMutex_;
     sync_barrier_t initializationBarrier_;
-    micro::map<taskId_t, State, 16> taskStates_;
+    micro::map<taskId_t, state_t<bool>, 16> taskStates_;
 };
 
 } // namespace micro
