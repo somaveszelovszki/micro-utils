@@ -133,7 +133,7 @@ public:
     JSONValue root() const { return root_; }
 
 private:
-    json_t pool_[512];
+    json_t pool_[20];
     JSONValue root_;
 };
 
