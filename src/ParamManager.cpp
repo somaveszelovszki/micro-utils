@@ -1,4 +1,3 @@
-#include <exception>
 #include <utility>
 #include <variant>
 
@@ -34,32 +33,26 @@ bool ParamManager::Param::setCurrent(const value_type newValue) {
 }
 
 bool ParamManager::update(const Name& name, const value_type& value) {
-    std::scoped_lock lock{mutex_};
-
     const auto it = params_.find(name);
     return it != params_.end() && it->second.setCurrent(value) && it->second.sync();
 }
 
-auto ParamManager::sync() -> Values {
-    std::scoped_lock lock{mutex_};
+void ParamManager::sync(Values& OUT changedValues) {
+	changedValues.clear();
 
-    Values changed;
     for (auto& [name, param] : params_) {
         if (param.sync()) {
-            changed.insert({name, param.prev});
+        	changedValues.insert({name, param.prev});
         }
     }
-    return changed;
 }
 
-auto ParamManager::getAll() const -> Values {
-    std::scoped_lock lock{mutex_};
+void ParamManager::getAll(Values& OUT values) const {
+	values.clear();
 
-    Values values;
     for (auto& [name, param] : params_) {
         values.insert({name, param.prev});
     }
-    return values;
 }
 
 

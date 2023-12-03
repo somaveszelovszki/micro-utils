@@ -55,16 +55,16 @@ public:
 
     template <typename T>
     void registerParam(const char *name, T& value) {
-        std::scoped_lock lock{mutex_};
+        std::scoped_lock lock{registerMutex_};
         params_.insert({Name{name}, Param{underlying_value(value), underlying_ref(value)}});
     }
 
     bool update(const Name& name, const value_type& value);
-    Values sync();
-    Values getAll() const;
+    void sync(Values& OUT changedValues);
+    void getAll(Values& OUT values) const;
 
 private:
-    mutable mutex_t mutex_;
+    mutex_t registerMutex_;
     micro::map<Name, Param, MAX_NUM_PARAMS> params_;
 };
 
