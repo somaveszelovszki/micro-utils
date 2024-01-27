@@ -132,6 +132,13 @@ struct formatter<char*> {
     }
 };
 
+template <size_t N>
+struct formatter<etl::string<N>> {
+    void format(const etl::string<N>& value, format_context& ctx) const {
+        formatter<char*>().format(value.c_str(), ctx);
+    }
+};
+
 template <typename T>
 struct formatter<T, std::enable_if_t<!std::is_same_v<T, bool> && std::is_integral_v<T>>> {
     void format(const T& value, format_context& ctx) const {
