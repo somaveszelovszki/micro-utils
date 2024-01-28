@@ -36,6 +36,7 @@ class fixed_number_generator : public micro::irandom_generator {
 public:
     explicit fixed_number_generator(const float value) : value_{value} {}
     float operator()() override { return value_; }
+    void setValue(const float value) { value_ = value; }
 
 private:
     float value_{};
