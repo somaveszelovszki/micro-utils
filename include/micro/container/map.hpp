@@ -11,8 +11,8 @@
 namespace micro {
 
 template <typename Key, typename Value, size_t N, typename Compare = std::less<Key>>
-class map : public etl::flat_map_ext<Key, Value> {
-    using base = etl::flat_map_ext<Key, Value>;
+class map : public etl::flat_map_ext<Key, Value, Compare> {
+    using base = etl::flat_map_ext<Key, Value, Compare>;
 public:
     map() : base(lookupBuffer_, storageBuffer_, N) {}
 

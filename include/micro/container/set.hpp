@@ -10,8 +10,8 @@
 namespace micro {
 
 template <typename T, size_t N, typename Compare = std::less<T>>
-class set : public etl::flat_set_ext<T> {
-    using base = etl::flat_set_ext<T>;
+class set : public etl::flat_set_ext<T, Compare> {
+    using base = etl::flat_set_ext<T, Compare>;
 public:
     set() : base(lookupBuffer_, storageBuffer_, N) {}
 
