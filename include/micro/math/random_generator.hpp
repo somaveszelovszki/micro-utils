@@ -4,19 +4,29 @@
 
 namespace micro {
 
-class random_generator {
+class irandom_generator {
 public:
-    explicit random_generator(const uint16_t seed = 0);
-
-    void seed(const uint16_t seed);
+    virtual ~irandom_generator() = default;
 
     /**
      * Gets random value.
      * @return A random value in range [0 1)
      */
-    float get();
+    virtual float operator()() = 0;
+};
 
-    uint16_t get(const uint16_t inclusiveLow, const uint16_t exclusiveHigh);
+class random_generator : public irandom_generator {
+public:
+    explicit random_generator(const uint16_t seed = 0);
+    random_generator(const random_generator&) = default;
+    random_generator(random_generator&&) = default;
+    random_generator& operator=(const random_generator&) = default;
+    random_generator& operator=(random_generator&&) = default;
+    ~random_generator() = default;
+
+    void seed(const uint16_t seed);
+
+    float operator()() override;
 
 private:
     uint16_t lfsr_;
