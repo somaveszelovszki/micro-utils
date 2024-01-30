@@ -15,7 +15,7 @@ namespace micro {
 
 class ParamManager {
 public:
-    static constexpr size_t MAX_NUM_PARAMS = 32;
+    static constexpr size_t MAX_NUM_PARAMS = 12;
 
     using value_type = std::variant<
         bool,
@@ -37,7 +37,7 @@ public:
         std::reference_wrapper<uint32_t>,
         std::reference_wrapper<float>>;
 
-    using Name = etl::string<32>;
+    using Name = etl::string<20>;
 
 private:
     static constexpr bool PLACEHOLDER = false;

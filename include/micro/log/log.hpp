@@ -49,7 +49,7 @@ private:
     Log() = default;
 
 private:
-    queue_t<Message, 16> queue_;
+    queue_t<Message, 12> queue_;
     LogLevel minLevel_{LogLevel::Debug};
 };
 
