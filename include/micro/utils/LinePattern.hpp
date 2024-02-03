@@ -54,4 +54,9 @@ struct LineDetectControl {
 
 const char* to_string(const LinePattern::type_t& type);
 
+#define EXPECT_EQ_MICRO_LINE_PATTERN(expected, result) \
+    EXPECT_EQ(expected.type, result.type);             \
+    EXPECT_EQ(expected.dir, result.dir);               \
+    EXPECT_EQ(expected.side, result.side)
+
 } // namespace micro
