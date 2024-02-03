@@ -8,7 +8,7 @@ namespace micro {
 /* @brief Stores data of a detected line.
  **/
 struct Line {
-    static constexpr uint8_t MAX_NUM_LINES = 3;
+    static constexpr uint8_t MAX_NUM_LINES = 4;
 
     millimeter_t pos; ///< The line position at the front sensor line (relative to car vertical middle axis).
     uint8_t id = 0;   ///< The line id @note 0 means unknown line id
