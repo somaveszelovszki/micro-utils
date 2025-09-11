@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <micro/math/numeric.hpp>
-
 #include <micro/test/utils.hpp>
 
 using namespace micro;
@@ -78,8 +77,8 @@ TEST(numeric, lerp) {
 
     EXPECT_EQ(10.0f, lerp(1.0f, 1.0f, 4.0f, 10.f, 16.0f));
     EXPECT_EQ(10.0f, lerp(1, 1, 1, 10.f, 16.0f));
-    EXPECT_EQ(10,    lerp(1, 1, 1, 10, 16));
-    EXPECT_EQ(10u,   lerp(1u, 1u, 1u, 10u, 16u));
+    EXPECT_EQ(10, lerp(1, 1, 1, 10, 16));
+    EXPECT_EQ(10u, lerp(1u, 1u, 1u, 10u, 16u));
 }
 
 TEST(numeric, normalize_into_periodic_interval) {

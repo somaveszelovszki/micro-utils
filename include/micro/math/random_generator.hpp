@@ -5,7 +5,7 @@
 namespace micro {
 
 class irandom_generator {
-public:
+  public:
     virtual ~irandom_generator() = default;
 
     /**
@@ -16,31 +16,30 @@ public:
 };
 
 class random_generator : public irandom_generator {
-public:
+  public:
     explicit random_generator(const uint16_t seed = 0);
-    random_generator(const random_generator&) = default;
-    random_generator(random_generator&&) = default;
+    random_generator(const random_generator&)            = default;
+    random_generator(random_generator&&)                 = default;
     random_generator& operator=(const random_generator&) = default;
-    random_generator& operator=(random_generator&&) = default;
-    ~random_generator() = default;
+    random_generator& operator=(random_generator&&)      = default;
+    ~random_generator()                                  = default;
 
     void seed(const uint16_t seed);
 
     float operator()() override;
 
-private:
+  private:
     uint16_t lfsr_;
 };
 
 class fixed_number_generator : public micro::irandom_generator {
-public:
+  public:
     explicit fixed_number_generator(const float value) : value_{value} {}
     float operator()() override { return value_; }
     void setValue(const float value) { value_ = value; }
 
-private:
+  private:
     float value_{};
 };
 
 } // namespace micro
-

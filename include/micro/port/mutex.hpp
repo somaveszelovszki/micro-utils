@@ -1,10 +1,9 @@
 #pragma once
 
-#include <cmath>
-
-#include <micro/math/unit_utils.hpp>
-
 #include "task.hpp"
+
+#include <cmath>
+#include <micro/math/unit_utils.hpp>
 
 #if defined OS_FREERTOS
 #include <FreeRTOS.h>
@@ -16,10 +15,8 @@ namespace micro {
 #if defined OS_FREERTOS
 
 class mutex_t {
-public:
-    mutex_t() {
-        xSemaphoreCreateMutexStatic(&this->semphrBuffer_);
-    }
+  public:
+    mutex_t() { xSemaphoreCreateMutexStatic(&this->semphrBuffer_); }
 
     bool lock(const millisecond_t timeout = micro::numeric_limits<millisecond_t>::infinity()) {
         bool success = false;
@@ -28,7 +25,8 @@ public:
             success = !!xSemaphoreTakeFromISR(this->handle(), &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         } else {
-            success = !!xSemaphoreTake(this->handle(), micro::isinf(timeout) ? portMAX_DELAY : std::lround(timeout.get()));
+            success = !!xSemaphoreTake(
+                this->handle(), micro::isinf(timeout) ? portMAX_DELAY : std::lround(timeout.get()));
         }
         return success;
     }
@@ -45,10 +43,8 @@ public:
         return success;
     }
 
-private:
-    SemaphoreHandle_t handle() {
-        return &this->semphrBuffer_;
-    }
+  private:
+    SemaphoreHandle_t handle() { return &this->semphrBuffer_; }
 
     StaticSemaphore_t semphrBuffer_;
 };
@@ -56,8 +52,10 @@ private:
 #else // !OS_FREERTOS
 
 class mutex_t {
-public:
-    bool lock(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) { return true; }
+  public:
+    bool lock(const millisecond_t = micro::numeric_limits<millisecond_t>::infinity()) {
+        return true;
+    }
     void unlock() {}
 };
 

@@ -25,25 +25,19 @@ panelVersion_t getPanelVersion(void) {
 
 #if defined STM32F0
         gpio_t PINS[NUM_VERSION_BITS] = {
-            micro::gpio_t{ GPIOA, GPIO_PIN_0  },
-            micro::gpio_t{ GPIOA, GPIO_PIN_1  },
-            micro::gpio_t{ GPIOA, GPIO_PIN_12 },
-            micro::gpio_t{ GPIOA, GPIO_PIN_15 }
-        };
+            micro::gpio_t{GPIOA, GPIO_PIN_0}, micro::gpio_t{GPIOA, GPIO_PIN_1},
+            micro::gpio_t{GPIOA, GPIO_PIN_12}, micro::gpio_t{GPIOA, GPIO_PIN_15}};
         __HAL_RCC_GPIOA_CLK_ENABLE();
 
 #elif defined STM32F4
         gpio_t PINS[NUM_VERSION_BITS] = {
-            micro::gpio_t{ GPIOB, GPIO_PIN_12 },
-            micro::gpio_t{ GPIOB, GPIO_PIN_13 },
-            micro::gpio_t{ GPIOB, GPIO_PIN_14 },
-            micro::gpio_t{ GPIOB, GPIO_PIN_15 }
-        };
+            micro::gpio_t{GPIOB, GPIO_PIN_12}, micro::gpio_t{GPIOB, GPIO_PIN_13},
+            micro::gpio_t{GPIOB, GPIO_PIN_14}, micro::gpio_t{GPIOB, GPIO_PIN_15}};
         __HAL_RCC_GPIOB_CLK_ENABLE();
 #endif
 
         for (uint8_t i = 0; i < NUM_VERSION_BITS; ++i) {
-            GPIO_InitStruct.Pin = PINS[i].pin;
+            GPIO_InitStruct.Pin  = PINS[i].pin;
             GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
             GPIO_InitStruct.Pull = GPIO_NOPULL;
             HAL_GPIO_Init(reinterpret_cast<GPIO_TypeDef*>(PINS[i].instance), &GPIO_InitStruct);
@@ -61,10 +55,10 @@ panelVersion_t getPanelVersion(void) {
             }
         }
 
-        version = candidates[0] == candidates[1] ? candidates[0] :
-                  candidates[0] == candidates[2] ? candidates[0] :
-                  candidates[1] == candidates[2] ? candidates[1] :
-                  VERSION_INVALID;
+        version = candidates[0] == candidates[1]   ? candidates[0]
+                  : candidates[0] == candidates[2] ? candidates[0]
+                  : candidates[1] == candidates[2] ? candidates[1]
+                                                   : VERSION_INVALID;
     }
 #endif // STM2
 

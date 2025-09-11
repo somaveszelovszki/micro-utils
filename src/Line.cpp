@@ -1,13 +1,12 @@
 #include <algorithm>
-
+#include <micro/math/unit_utils.hpp>
 #include <micro/utils/Line.hpp>
 #include <micro/utils/timer.hpp>
-#include <micro/math/unit_utils.hpp>
 
 namespace micro {
 
 Lines::const_iterator findClosestLine(const Lines& lines, millimeter_t pos) {
-    millimeter_t minDist = micro::numeric_limits<millimeter_t>::infinity();
+    millimeter_t minDist          = micro::numeric_limits<millimeter_t>::infinity();
     Lines::const_iterator closest = lines.end();
 
     for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it) {
@@ -26,7 +25,8 @@ Lines::const_iterator findLine(const Lines& lines, const uint32_t id) {
 }
 
 MainLine::MainLine(const meter_t carFrontRearSensorRowDist)
-    : carFrontRearSensorRowDist(carFrontRearSensorRowDist) {}
+    : carFrontRearSensorRowDist(carFrontRearSensorRowDist) {
+}
 
 void MainLine::updateFrontRearLines() {
     const meter_t diff     = (this->carFrontRearSensorRowDist / 2) * tan(this->centerLine.angle);
@@ -72,7 +72,7 @@ bool areClose(const Lines& lines) {
     }
 
     millimeter_t prevPos = lines.begin()->pos;
-    return std::all_of(std::next(lines.begin()), lines.end(), [&prevPos](const auto& l){
+    return std::all_of(std::next(lines.begin()), lines.end(), [&prevPos](const auto& l) {
         constexpr millimeter_t MAX_CLOSE_LINES_DISTANCE = centimeter_t(5.3f);
         return l.pos - std::exchange(prevPos, l.pos) <= MAX_CLOSE_LINES_DISTANCE;
     });

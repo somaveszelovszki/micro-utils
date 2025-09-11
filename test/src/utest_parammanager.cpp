@@ -1,21 +1,20 @@
 #include <micro/debug/ParamManager.hpp>
-#include <micro/utils/units.hpp>
-
 #include <micro/test/utils.hpp>
+#include <micro/utils/units.hpp>
 
 using namespace micro;
 
 TEST(ParamManager, all) {
     ParamManager params;
 
-    bool b = false;
-    int8_t i8 = 8;
-    int16_t i16 = 16;
-    int32_t i32 = 32;
-    uint8_t u8 = 80;
+    bool b       = false;
+    int8_t i8    = 8;
+    int16_t i16  = 16;
+    int32_t i32  = 32;
+    uint8_t u8   = 80;
     uint16_t u16 = 160;
     uint32_t u32 = 320;
-    float f = 1.0f;
+    float f      = 1.0f;
     meter_t m(10.0f);
 
     params.registerParam("b", b);
@@ -67,7 +66,7 @@ TEST(ParamManager, value_changed) {
 TEST(ParamManager, update) {
     ParamManager params;
 
-    int32_t i32 = 1;
+    int32_t i32  = 1;
     uint32_t u32 = 10;
 
     params.registerParam("i32", i32);

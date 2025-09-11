@@ -1,5 +1,4 @@
 #include <micro/container/ring_buffer.hpp>
-
 #include <micro/test/utils.hpp>
 
 using namespace micro;
@@ -12,7 +11,7 @@ TEST(ring_buffer, constructor) {
 
 TEST(ring_buffer, write_read) {
     ring_buffer<uint16_t, 2> buffer;
-    
+
     EXPECT_TRUE(buffer.write(1));
     uint16_t result = 0;
     EXPECT_TRUE(buffer.read(result));
@@ -21,7 +20,7 @@ TEST(ring_buffer, write_read) {
 
 TEST(ring_buffer, multiple_write_read) {
     ring_buffer<uint16_t, 2> buffer;
-    
+
     for (uint16_t i = 1; i < buffer.capacity() * 4; ++i) {
         EXPECT_TRUE(buffer.write(i));
         uint16_t result = 0;
@@ -32,7 +31,7 @@ TEST(ring_buffer, multiple_write_read) {
 
 TEST(ring_buffer, overflow_write_read) {
     ring_buffer<uint16_t, 2> buffer;
-    
+
     for (uint16_t i = 0; i < buffer.capacity(); ++i) {
         EXPECT_TRUE(buffer.write(i));
     }
@@ -53,12 +52,12 @@ TEST(ring_buffer, overflow_write_read) {
 TEST(ring_buffer, start_finish_write_read) {
     ring_buffer<uint16_t, 2> buffer;
 
-        uint16_t * const writePtr = buffer.startWrite();
-        ASSERT_NE(nullptr, writePtr);
-        *writePtr = 1;
-        buffer.finishWrite();
+    uint16_t* const writePtr = buffer.startWrite();
+    ASSERT_NE(nullptr, writePtr);
+    *writePtr = 1;
+    buffer.finishWrite();
 
-        const uint16_t * const readPtr = buffer.startRead();
-        ASSERT_NE(nullptr, readPtr);
-        EXPECT_EQ(1, *readPtr);
+    const uint16_t* const readPtr = buffer.startRead();
+    ASSERT_NE(nullptr, readPtr);
+    EXPECT_EQ(1, *readPtr);
 }

@@ -7,27 +7,20 @@ namespace hw {
 /* @brief Controls a DC motor using a timer configured in PWM mode.
  **/
 class Encoder {
-
-public:
+  public:
     explicit Encoder(const timer_t& timer);
 
     void initialize();
 
     void update();
 
-    int64_t absPos() const {
-        return this->absPos_;
-    }
+    int64_t absPos() const { return this->absPos_; }
 
-    uint64_t numIncr() const {
-        return this->numIncr_;
-    }
+    uint64_t numIncr() const { return this->numIncr_; }
 
-    int32_t lastDiff() const {
-        return this->lastDiff_;
-    }
+    int32_t lastDiff() const { return this->lastDiff_; }
 
-private:
+  private:
     uint32_t timerPos();
 
     const timer_t timer_;

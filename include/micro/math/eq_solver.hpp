@@ -1,8 +1,7 @@
 #pragma once
 
-#include <micro/math/numeric.hpp>
-
 #include <limits>
+#include <micro/math/numeric.hpp>
 #include <utility>
 
 namespace micro {
@@ -10,11 +9,11 @@ namespace micro {
 /**
  * @brief Solves quadratic equation which is in form: A*x^2 + B*x + C
  */
-template <typename T>
-std::pair<T, T> solve_quadratic(const T& A, const T& B, const T& C) {
+template <typename T> std::pair<T, T> solve_quadratic(const T& A, const T& B, const T& C) {
     const T det = B * B - 4 * A * C;
 
-    std::pair<T, T> result = { std::numeric_limits<T>::quiet_NaN(), std::numeric_limits<T>::quiet_NaN() };
+    std::pair<T, T> result = {std::numeric_limits<T>::quiet_NaN(),
+                              std::numeric_limits<T>::quiet_NaN()};
 
     if (isZero(det)) {
         result.first = -B / (2 * A);
@@ -29,4 +28,3 @@ std::pair<T, T> solve_quadratic(const T& A, const T& B, const T& C) {
 }
 
 } // namespace micro
-

@@ -5,23 +5,22 @@
 
 namespace micro {
 
-constexpr radian_t PI = radian_t(3.14159265358979323846);
+constexpr radian_t PI   = radian_t(3.14159265358979323846);
 constexpr radian_t PI_2 = PI / 2;
 constexpr radian_t PI_4 = PI / 4;
 
-const m_per_sec2_t G = m_per_sec2_t(9.81f);  // Gravitational acceleration.
+const m_per_sec2_t G = m_per_sec2_t(9.81f); // Gravitational acceleration.
 
 template <typename T>
 struct numeric_limits<T, typename std::enable_if<is_unit<T>::value, void>::type> {
-    static constexpr T min()       { return { numeric_limits<typename T::value_type>::min()       }; }
-    static constexpr T max()       { return { numeric_limits<typename T::value_type>::max()       }; }
-    static constexpr T quiet_NaN() { return { numeric_limits<typename T::value_type>::quiet_NaN() }; }
-    static constexpr T infinity()  { return { numeric_limits<typename T::value_type>::infinity()  }; }
-    static constexpr T epsilon()   { return { numeric_limits<typename T::value_type>::epsilon()   }; }
+    static constexpr T min() { return {numeric_limits<typename T::value_type>::min()}; }
+    static constexpr T max() { return {numeric_limits<typename T::value_type>::max()}; }
+    static constexpr T quiet_NaN() { return {numeric_limits<typename T::value_type>::quiet_NaN()}; }
+    static constexpr T infinity() { return {numeric_limits<typename T::value_type>::infinity()}; }
+    static constexpr T epsilon() { return {numeric_limits<typename T::value_type>::epsilon()}; }
 };
 
-template <typename T>
-struct underlying_type<T, std::enable_if_t<is_unit_v<T>>> {
+template <typename T> struct underlying_type<T, std::enable_if_t<is_unit_v<T>>> {
     using type = typename T::value_type;
     static constexpr type value(const T& v) { return v.template get<true>(); }
     static constexpr const type& ref(const T& v) { return v.template ref<true>(); }
@@ -37,7 +36,8 @@ struct underlying_type<T, std::enable_if_t<is_unit_v<T>>> {
  * @returns The length of the hypotenuse of the triangle.
  */
 template <typename T1, typename T2>
-inline typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value, T1>::type pythag(const T1& a, const T2& b) {
+inline typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value, T1>::type
+pythag(const T1& a, const T2& b) {
     const float _a = a.template get<true>();
     const float _b = static_cast<T1>(b).template get<true>();
     return T1(std::sqrt(_a * _a + _b * _b), nullptr);
@@ -53,7 +53,9 @@ inline typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value, T1>
  * @returns The length of the vector.
  */
 template <typename T1, typename T2, typename T3>
-inline typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value && micro::is_same_unit_dimension<T1, T3>::value, T1>::type
+inline typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value &&
+                                   micro::is_same_unit_dimension<T1, T3>::value,
+                               T1>::type
 pythag(const T1& a, const T2& b, const T3& c) {
     const float _a = a.template get<true>();
     const float _b = static_cast<T1>(b).template get<true>();
@@ -74,7 +76,7 @@ inline constexpr float sin(const radian_t& value) {
  * @returns The arc-sine of the value.
  **/
 inline constexpr radian_t asin(float value) {
-    return radian_t(std::asin(value)) ;
+    return radian_t(std::asin(value));
 }
 
 /* @brief Calculates cosine of given angle.
@@ -82,7 +84,7 @@ inline constexpr radian_t asin(float value) {
  * @returns The cosine of the angle.
  **/
 inline constexpr float cos(const radian_t& value) {
-    return std::cos(value.template get<true>()) ;
+    return std::cos(value.template get<true>());
 }
 
 /* @brief Calculates arc-cosine of given value.
@@ -90,7 +92,7 @@ inline constexpr float cos(const radian_t& value) {
  * @returns The arc-cosine of the value.
  **/
 inline constexpr radian_t acos(float value) {
-    return radian_t(std::acos(value)) ;
+    return radian_t(std::acos(value));
 }
 
 /* @brief Calculates tangent of given angle.
@@ -110,12 +112,15 @@ inline constexpr radian_t atan(float value) {
 }
 
 template <typename T>
-inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, radian_t>::type atan2(const T& y, const T& x) {
+inline constexpr typename std::enable_if<std::is_arithmetic<T>::value, radian_t>::type
+atan2(const T& y, const T& x) {
     return radian_t(std::atan2(static_cast<float>(y), static_cast<float>(x)));
 }
 
 template <typename T1, typename T2>
-inline constexpr typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value, radian_t>::type atan2(const T1& y, const T2& x) {
+inline constexpr
+    typename std::enable_if<micro::is_same_unit_dimension<T1, T2>::value, radian_t>::type
+    atan2(const T1& y, const T2& x) {
     return radian_t(atan2(y.template get<true>(), static_cast<T1>(x).template get<true>()));
 }
 
@@ -182,4 +187,3 @@ inline meter_t pythag(meter_t a, meter_t b, meter_t c) {
 }
 
 } // namespace micro
-

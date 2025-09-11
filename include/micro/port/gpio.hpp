@@ -15,8 +15,8 @@ namespace micro {
 #if defined STM32
 
 struct gpio_t {
-    GPIO_TypeDef *instance = nullptr;
-    uint16_t pin = 0;
+    GPIO_TypeDef* instance = nullptr;
+    uint16_t pin           = 0;
 };
 
 #else // !STM32
@@ -25,10 +25,7 @@ struct gpio_t {};
 
 #endif // !STM32
 
-enum class gpioPinState_t : uint8_t {
-    RESET = 0,
-    SET   = 1
-};
+enum class gpioPinState_t : uint8_t { RESET = 0, SET = 1 };
 
 inline gpioPinState_t operator!(const gpioPinState_t& state) {
     return state == gpioPinState_t::SET ? gpioPinState_t::RESET : gpioPinState_t::SET;

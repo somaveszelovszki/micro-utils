@@ -7,19 +7,16 @@
 
 #include <algorithm>
 #include <cctype>
+#include <etl/string.h>
 #include <iterator>
+#include <micro/math/numeric.hpp>
 #include <type_traits>
 #include <utility>
 
-#include <etl/string.h>
-
-#include <micro/math/numeric.hpp>
-
 namespace micro {
 
-template <typename T>
-struct buffer_sweeper {
-    T *buffer{nullptr};
+template <typename T> struct buffer_sweeper {
+    T* buffer{nullptr};
     size_t capacity{};
     size_t index{};
 
@@ -30,19 +27,15 @@ struct buffer_sweeper {
     void append(const T& value) { buffer[index++] = std::move(value); }
 };
 
-template <typename T, typename = void>
-struct formatter;
+template <typename T, typename = void> struct formatter;
 
-template <typename T>
-struct formatter_type : public std::decay<T> {};
+template <typename T> struct formatter_type : public std::decay<T> {};
 
-template <>
-struct formatter_type<const char*> {
+template <> struct formatter_type<const char*> {
     using type = char*;
 };
 
-template <typename T>
-using formatter_type_t = typename formatter_type<T>::type;
+template <typename T> using formatter_type_t = typename formatter_type<T>::type;
 
 struct format_context {
     buffer_sweeper<char> output;
@@ -61,7 +54,7 @@ struct format_context {
     void copy_until_format_block_begin() {
         const auto isSpecial = [](const auto it) { return *it == '{' || *it == '}'; };
 
-        char prevSpecialChar = '\0';
+        char prevSpecialChar    = '\0';
         const auto isBlockBegin = [&prevSpecialChar](const auto it) {
             return *it == '{' && prevSpecialChar != '{' && *std::next(it) != '{';
         };
@@ -89,16 +82,14 @@ struct format_context {
         }
     }
 
-    template <typename T>
-    void format(const T& value) {
+    template <typename T> void format(const T& value) {
         formatter<formatter_type_t<T>>().format(value, *this);
         skip_until_format_block_end();
         copy_until_format_block_begin();
     }
 };
 
-template <>
-struct formatter<bool> {
+template <> struct formatter<bool> {
     void format(const bool value, format_context& ctx) const {
         if (ctx.output.empty()) {
             return;
@@ -111,9 +102,7 @@ struct formatter<bool> {
     }
 };
 
-
-template <>
-struct formatter<char> {
+template <> struct formatter<char> {
     void format(const char value, format_context& ctx) const {
         if (ctx.output.empty()) {
             return;
@@ -123,17 +112,15 @@ struct formatter<char> {
     }
 };
 
-template <>
-struct formatter<char*> {
-    void format(const char * const value, format_context& ctx) const {
+template <> struct formatter<char*> {
+    void format(const char* const value, format_context& ctx) const {
         for (size_t i = 0; !ctx.output.empty() && value[i] != '\0'; i++) {
             ctx.output.append(value[i]);
         }
     }
 };
 
-template <size_t N>
-struct formatter<etl::string<N>> {
+template <size_t N> struct formatter<etl::string<N>> {
     void format(const etl::string<N>& value, format_context& ctx) const {
         formatter<char*>().format(value.c_str(), ctx);
     }
@@ -165,9 +152,9 @@ struct formatter<T, std::enable_if_t<!std::is_same_v<T, bool> && std::is_integra
             if (paddingCount != 0) {
                 paddingCount--;
             }
-        } while ((value /= T(10)) > T(0) && !output.empty()) ;
+        } while ((value /= T(10)) > T(0) && !output.empty());
 
-        while(paddingCount-- != 0 && !output.empty()) {
+        while (paddingCount-- != 0 && !output.empty()) {
             output.append('0');
         }
 
@@ -179,21 +166,15 @@ struct formatter<T, std::enable_if_t<!std::is_same_v<T, bool> && std::is_integra
 
         const auto start = ctx.formatStr.begin();
 
-        if (ctx.formatStr.size() < 3
-            || *start != ':'
-            || !std::isdigit(*std::next(start))) {
+        if (ctx.formatStr.size() < 3 || *start != ':' || !std::isdigit(*std::next(start))) {
             return std::make_pair('0', 0);
         }
 
-        return std::make_pair(
-            *std::next(start),
-            static_cast<size_t>(*std::next(start, 2) - '0')
-        );
+        return std::make_pair(*std::next(start), static_cast<size_t>(*std::next(start, 2) - '0'));
     }
 };
 
-template <typename T>
-struct formatter<T, std::enable_if_t<std::is_floating_point_v<T>>> {
+template <typename T> struct formatter<T, std::enable_if_t<std::is_floating_point_v<T>>> {
     void format(const T& value, format_context& ctx) const {
         if (ctx.output.empty()) {
             return;
@@ -207,11 +188,12 @@ struct formatter<T, std::enable_if_t<std::is_floating_point_v<T>>> {
 
         const auto precision = this->parsePrecision(ctx);
 
-        const int32_t dec = static_cast<int32_t>(value);
-        const int32_t frac = static_cast<int32_t>(std::lround((value - static_cast<T>(dec)) * micro::pow(10, precision)));
+        const int32_t dec  = static_cast<int32_t>(value);
+        const int32_t frac = static_cast<int32_t>(
+            std::lround((value - static_cast<T>(dec)) * micro::pow(10, precision)));
 
         formatter<int32_t>().format(dec, ctx.output, std::make_pair('_', 0));
-        
+
         if (ctx.output.size() < 1 + precision) {
             return;
         }
@@ -227,11 +209,8 @@ struct formatter<T, std::enable_if_t<std::is_floating_point_v<T>>> {
 
         const auto start = ctx.formatStr.begin();
 
-        if (ctx.formatStr.size() < 4
-            || *start != ':'
-            || *std::next(start) != '.'
-            || !std::isdigit(*std::next(start, 2))
-            || *std::next(start, 3) != 'f') {
+        if (ctx.formatStr.size() < 4 || *start != ':' || *std::next(start) != '.' ||
+            !std::isdigit(*std::next(start, 2)) || *std::next(start, 3) != 'f') {
             return kDefaultPrecision;
         }
 
@@ -239,8 +218,9 @@ struct formatter<T, std::enable_if_t<std::is_floating_point_v<T>>> {
     }
 };
 
-template <typename ...Args>
-size_t format_to_n(char * const output, const size_t size, const char * const formatStr, Args&&... args) {
+template <typename... Args>
+size_t format_to_n(char* const output, const size_t size, const char* const formatStr,
+                   Args&&... args) {
     if (size == 0) {
         return 0;
     }
@@ -249,7 +229,7 @@ size_t format_to_n(char * const output, const size_t size, const char * const fo
     ctx.copy_until_format_block_begin();
     (ctx.format(std::forward<Args>(args)), ...);
 
-    ctx.output.index = std::min(ctx.output.index, ctx.output.capacity - 1);
+    ctx.output.index                    = std::min(ctx.output.index, ctx.output.capacity - 1);
     ctx.output.buffer[ctx.output.index] = '\0';
     return ctx.output.index;
 }

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <functional>
-#include <mutex>
-#include <optional>
+#include "vehicleCanTypes.hpp"
 
 #include <etl/circular_buffer.h>
-
+#include <functional>
 #include <micro/container/map.hpp>
 #include <micro/container/set.hpp>
 #include <micro/container/vector.hpp>
@@ -14,18 +12,18 @@
 #include <micro/port/queue.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/timer.hpp>
-
-#include "vehicleCanTypes.hpp"
+#include <mutex>
+#include <optional>
 
 namespace micro {
 
 #define MAX_NUM_CAN_SUBSCRIBERS 4
-#define MAX_NUM_CAN_FILTERS     12
+#define MAX_NUM_CAN_FILTERS 12
 
 using CanFrameIds = micro::set<canFrameId_t, MAX_NUM_CAN_FILTERS>;
 
 struct CanSubscriber {
-    using Id = uint8_t;
+    using Id                       = uint8_t;
     static constexpr Id INVALID_ID = 0xff;
 
     struct Filter {
@@ -44,19 +42,20 @@ struct CanSubscriber {
 };
 
 class CanManager {
-public:
+  public:
     explicit CanManager(const can_t& can);
 
-    CanSubscriber::Id registerSubscriber(const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds);
+    CanSubscriber::Id registerSubscriber(const CanFrameIds& rxFrameIds,
+                                         const CanFrameIds& txFrameIds);
 
     std::optional<canFrame_t> read(const CanSubscriber::Id subscriberId);
 
-    template<typename T, typename ...Args>
+    template <typename T, typename... Args>
     void send(const CanSubscriber::Id subscriberId, Args&&... args) {
         send<T>(subscriberId, false, std::forward<Args>(args)...);
     }
 
-    template<typename T, typename ...Args>
+    template <typename T, typename... Args>
     void periodicSend(const CanSubscriber::Id subscriberId, Args&&... args) {
         send<T>(subscriberId, true, std::forward<Args>(args)...);
     }
@@ -65,12 +64,12 @@ public:
 
     bool hasTimedOut(const CanSubscriber::Id subscriberId) const;
 
-private:
+  private:
     bool isValid(const CanSubscriber::Id subscriberId) const {
         return subscriberId < subscribers_.size();
     }
 
-    template<typename T, typename ...Args>
+    template <typename T, typename... Args>
     void send(const CanSubscriber::Id subscriberId, const bool checkPeriod, Args&&... args) {
         std::scoped_lock lock(criticalSection_);
 
@@ -80,12 +79,13 @@ private:
 
         auto& txFilters = subscribers_[subscriberId].txFilters;
         if (auto it = txFilters.find(T::id()); it != txFilters.end()) {
-            auto& filter = it->second;
+            auto& filter   = it->second;
             const auto now = getTime();
             if (!checkPeriod || (now - filter.lastActivityTime) >= T::period()) {
                 filter.lastActivityTime = now;
                 const T data(std::forward<Args>(args)...);
-                const auto frame = can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+                const auto frame =
+                    can_buildFrame(T::id(), reinterpret_cast<const uint8_t*>(&data), sizeof(T));
                 can_transmit(can_, frame);
             }
         }
@@ -97,8 +97,8 @@ private:
 };
 
 class CanFrameHandler {
-public:
-    typedef std::function<void(const uint8_t * const)> handler_fn_t;
+  public:
+    typedef std::function<void(const uint8_t* const)> handler_fn_t;
 
     void registerHandler(const canFrameId_t frameId, const handler_fn_t& handler);
 
@@ -106,8 +106,8 @@ public:
 
     CanFrameIds identifiers() const;
 
-private:
+  private:
     micro::map<canFrameId_t, handler_fn_t, MAX_NUM_CAN_FILTERS> handlers_;
 };
 
-}  // namespace micro
+} // namespace micro

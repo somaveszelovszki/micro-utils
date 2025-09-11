@@ -9,16 +9,15 @@
 namespace micro {
 
 class TaskMonitor {
-public:
+  public:
     explicit TaskMonitor(const size_t numTasks)
-        : initializationBarrier_{static_cast<uint32_t>((1 << numTasks) - 1)}
-    {}
+        : initializationBarrier_{static_cast<uint32_t>((1 << numTasks) - 1)} {}
 
     void registerInitializedTask();
     void notify(const bool ok);
     bool ok() const;
 
-private:
+  private:
     mutex_t registerMutex_;
     sync_barrier_t initializationBarrier_;
     micro::map<taskId_t, state_t<bool>, 16> taskStates_;

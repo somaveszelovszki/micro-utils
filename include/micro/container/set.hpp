@@ -1,10 +1,8 @@
 #pragma once
 
+#include <etl/flat_set.h>
 #include <functional>
 #include <initializer_list>
-
-#include <etl/flat_set.h>
-
 #include <micro/container/aligned_storage.hpp>
 
 namespace micro {
@@ -12,7 +10,8 @@ namespace micro {
 template <typename T, size_t N, typename Compare = std::less<T>>
 class set : public etl::flat_set_ext<T, Compare> {
     using base = etl::flat_set_ext<T, Compare>;
-public:
+
+  public:
     set() : base(lookupBuffer_, storageBuffer_, N) {}
 
     set(const set& other) : base(lookupBuffer_, storageBuffer_, N) {
@@ -20,9 +19,8 @@ public:
     }
 
     set(set&& other) : base(lookupBuffer_, storageBuffer_, N) {
-        if (&other != this)
-        {
-          this->move_container(std::move(other));
+        if (&other != this) {
+            this->move_container(std::move(other));
         }
     }
 
@@ -37,19 +35,17 @@ public:
 
     ~set() = default;
 
-    set& operator=(const set& other)
-    {
+    set& operator=(const set& other) {
         static_cast<base&>(*this) = other;
         return *this;
     }
 
-    set& operator=(set&& other)
-    {
+    set& operator=(set&& other) {
         static_cast<base&>(*this) = std::move(other);
         return *this;
     }
 
-private:
+  private:
     aligned_storage_t<T, sizeof(uintptr_t)> storageBuffer_[N];
     typename base::node_ptr_t lookupBuffer_[N];
 };

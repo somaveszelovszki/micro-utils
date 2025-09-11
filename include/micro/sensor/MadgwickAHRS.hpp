@@ -10,16 +10,17 @@
 #pragma once
 
 #include <micro/math/numeric.hpp>
-#include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
+#include <micro/utils/units.hpp>
 
 namespace micro {
 
 class MadgwickAHRS {
-public:
+  public:
     explicit MadgwickAHRS(const float beta);
 
-    void update(const millisecond_t sampleTime, const point3<rad_per_sec_t>& gyro, const point3<m_per_sec2_t>& accel, const point3<gauss_t>& mag = point3<gauss_t>());
+    void update(const millisecond_t sampleTime, const point3<rad_per_sec_t>& gyro,
+                const point3<m_per_sec2_t>& accel, const point3<gauss_t>& mag = point3<gauss_t>());
 
     radian_t roll() const;
     radian_t pitch() const;
@@ -27,10 +28,11 @@ public:
     point3<radian_t> angles() const;
 
     void reset(const point3<radian_t>& angles);
-private:
-    const float beta;       // algorithm gain
+
+  private:
+    const float beta; // algorithm gain
     millisecond_t prevSampleTime;
-    quaternion_t q;   // quaternion of sensor frame relative to auxiliary frame
+    quaternion_t q; // quaternion of sensor frame relative to auxiliary frame
 };
 
 } // namespace micro

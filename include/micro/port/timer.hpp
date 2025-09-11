@@ -15,7 +15,7 @@ namespace micro {
 #if defined STM32
 
 struct timer_t {
-    TIM_HandleTypeDef *handle = nullptr;
+    TIM_HandleTypeDef* handle = nullptr;
 };
 
 #else // !STM32

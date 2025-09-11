@@ -1,17 +1,14 @@
-#include <micro/sim/MotorSimulator.hpp>
-
 #include <cmath>
 #include <iterator>
+#include <micro/sim/MotorSimulator.hpp>
 
 namespace micro {
 
-MotorSimulator::MotorSimulator(const m_per_sec2_t accelerationFwdRatio, const millisecond_t accelerationBwdRatio, const millisecond_t deadTime,
-    const microsecond_t simStep)
-    : accelerationFwdRatio_(accelerationFwdRatio)
-    , accelerationBwdRatio_(accelerationBwdRatio)
-    , deadTime_(deadTime)
-    , simStep_(simStep) {
-
+MotorSimulator::MotorSimulator(const m_per_sec2_t accelerationFwdRatio,
+                               const millisecond_t accelerationBwdRatio,
+                               const millisecond_t deadTime, const microsecond_t simStep)
+    : accelerationFwdRatio_(accelerationFwdRatio), accelerationBwdRatio_(accelerationBwdRatio),
+      deadTime_(deadTime), simStep_(simStep) {
     for (uint32_t i = 0; i < prevDuties_.capacity(); ++i) {
         prevDuties_.push(0.0f);
     }

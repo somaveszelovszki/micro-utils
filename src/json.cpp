@@ -1,6 +1,5 @@
-#include <micro/json/json.hpp>
-
 #include <iterator>
+#include <micro/json/json.hpp>
 
 namespace micro {
 
@@ -26,17 +25,15 @@ JSONValue JSONValue::operator[](const size_t index) const {
     }
 
     size_t i = 0;
-    return *std::find_if(begin(), end(), [&i, &index](const auto& child){
-        return i++ == index;
-    });
+    return *std::find_if(begin(), end(), [&i, &index](const auto& child) { return i++ == index; });
 }
 
-JSONValue JSONValue::operator[](const char * const key) const {
+JSONValue JSONValue::operator[](const char* const key) const {
     if (!isObject()) {
         return JSONValue(nullptr);
     }
 
-    return *std::find_if(begin(), end(), [&key](const auto& child){
+    return *std::find_if(begin(), end(), [&key](const auto& child) {
         const auto k = child.key();
         return k && !etl::strcmp(k, key);
     });
@@ -58,9 +55,11 @@ bool JSONValue::empty() const {
     return size() == 0;
 }
 
-JSONParser::JSONParser(char * const str, const size_t length)
-    : root_{json_create(str, pool_, ETL_ARRAY_SIZE(pool_))} {}
+JSONParser::JSONParser(char* const str, const size_t length)
+    : root_{json_create(str, pool_, ETL_ARRAY_SIZE(pool_))} {
+}
 
-JSONParser::JSONParser(char * const str) : JSONParser(str, etl::strlen(str)) {}
+JSONParser::JSONParser(char* const str) : JSONParser(str, etl::strlen(str)) {
+}
 
 } // namespace micro

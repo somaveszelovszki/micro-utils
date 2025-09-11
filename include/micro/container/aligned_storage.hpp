@@ -2,10 +2,9 @@
 
 namespace micro {
 
-template <typename T, size_t Alignment>
-struct aligned_storage {
+template <typename T, size_t Alignment> struct aligned_storage {
     struct type {
-        alignas (Alignment) T value;
+        alignas(Alignment) T value;
     };
 };
 

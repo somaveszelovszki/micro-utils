@@ -1,5 +1,4 @@
 #include <micro/math/unit_utils.hpp>
-
 #include <micro/test/utils.hpp>
 
 using namespace micro;
@@ -7,7 +6,8 @@ using namespace micro;
 TEST(units, constructors) {
     EXPECT_EQ(0.0f, meter_t().get());
     EXPECT_EQ(10.0f, meter_t(10.0f).get());
-    EXPECT_EQ(micro::numeric_limits<float>::infinity(), micro::numeric_limits<radian_t>::infinity().get());
+    EXPECT_EQ(micro::numeric_limits<float>::infinity(),
+              micro::numeric_limits<radian_t>::infinity().get());
 }
 
 TEST(units, arithmetics) {
@@ -21,8 +21,10 @@ TEST(units, numeric_limits) {
     EXPECT_EQ(std::numeric_limits<float>::min(), micro::numeric_limits<millimeter_t>::min().get());
     EXPECT_EQ(std::numeric_limits<float>::max(), micro::numeric_limits<m_per_sec_t>::max().get());
     EXPECT_TRUE(micro::isnan(micro::numeric_limits<celsius_t>::quiet_NaN()));
-    EXPECT_EQ(std::numeric_limits<float>::infinity(), micro::numeric_limits<mm_per_sec2_t>::infinity().get());
-    EXPECT_EQ(std::numeric_limits<float>::epsilon(), micro::numeric_limits<radian_t>::epsilon().get());
+    EXPECT_EQ(std::numeric_limits<float>::infinity(),
+              micro::numeric_limits<mm_per_sec2_t>::infinity().get());
+    EXPECT_EQ(std::numeric_limits<float>::epsilon(),
+              micro::numeric_limits<radian_t>::epsilon().get());
 }
 
 TEST(units, underlying_value) {
@@ -86,15 +88,30 @@ TEST(units, lerp) {
     EXPECT_NEAR(16.0f, lerp(radian_t(4.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
     EXPECT_NEAR(16.0f, lerp(radian_t(5.0f), radian_t(2.0f), radian_t(4.0f), 10.f, 16.0f), 0.0001f);
 
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(1.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(2.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f), lerp(3.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(4.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(5.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f),
+                             lerp(1.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f),
+                             lerp(2.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f),
+                             lerp(3.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f),
+                             lerp(4.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f),
+                             lerp(5.0f, 2.0f, 4.0f, radian_t(10.f), radian_t(16.0f)));
 
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(m_per_sec_t(1.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f), lerp(m_per_sec_t(2.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f), lerp(m_per_sec_t(3.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(m_per_sec_t(4.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
-    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f), lerp(m_per_sec_t(5.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f), radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f),
+                             lerp(m_per_sec_t(1.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f),
+                                  radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(10.0f),
+                             lerp(m_per_sec_t(2.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f),
+                                  radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(13.0f),
+                             lerp(m_per_sec_t(3.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f),
+                                  radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f),
+                             lerp(m_per_sec_t(4.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f),
+                                  radian_t(10.f), radian_t(16.0f)));
+    EXPECT_NEAR_UNIT_DEFAULT(radian_t(16.0f),
+                             lerp(m_per_sec_t(5.0f), m_per_sec_t(2.0f), m_per_sec_t(4.0f),
+                                  radian_t(10.f), radian_t(16.0f)));
 }

@@ -1,10 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <etl/char_traits.h>
 #include <iterator>
 #include <optional>
-
-#include <etl/char_traits.h>
 #include <tiny-json.h>
 
 namespace micro {
@@ -16,7 +15,7 @@ class JSONValueConstIterator;
 class JSONValue {
     friend class detail::JSONValueConstIterator;
 
-public:
+  public:
     using const_iterator = detail::JSONValueConstIterator;
 
     explicit JSONValue(const json_t* delegate) : delegate_{delegate} {}
@@ -26,8 +25,7 @@ public:
     bool isObject() const;
     bool isArray() const;
 
-    template <typename T>
-    bool is() const {
+    template <typename T> bool is() const {
         if (!delegate_) {
             return false;
         }
@@ -47,8 +45,7 @@ public:
         return false;
     }
 
-    template <typename T>
-    std::optional<T> as() const {
+    template <typename T> std::optional<T> as() const {
         if (!is<T>()) {
             return std::nullopt;
         }
@@ -69,26 +66,26 @@ public:
     }
 
     JSONValue operator[](const size_t index) const;
-    JSONValue operator[](const char * const key) const;
+    JSONValue operator[](const char* const key) const;
 
-    template <typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, size_t>>* = nullptr>
+    template <typename T,
+              std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, size_t>>* = nullptr>
     JSONValue operator[](const T index) const {
         return (*this)[static_cast<size_t>(index)];
     }
-
 
     const_iterator begin() const;
     const_iterator end() const;
     size_t size() const;
     bool empty() const;
 
-private:
+  private:
     const json_t* delegate_{nullptr};
 };
 
 namespace detail {
 class JSONValueConstIterator {
-public:
+  public:
     using iterator_category = std::forward_iterator_tag;
     using difference_type   = std::ptrdiff_t;
     using value_type        = JSONValue;
@@ -101,9 +98,7 @@ public:
         return value_.delegate_ == other.value_.delegate_;
     }
 
-    bool operator!=(const JSONValueConstIterator& other) const {
-        return !(*this == other);
-    }
+    bool operator!=(const JSONValueConstIterator& other) const { return !(*this == other); }
 
     reference operator*() const { return value_; }
     pointer operator->() { return &value_; }
@@ -111,7 +106,7 @@ public:
     JSONValueConstIterator& operator++() {
         value_ = JSONValue(json_getSibling(value_.delegate_));
         return *this;
-    }  
+    }
 
     JSONValueConstIterator operator++(int) {
         const auto tmp = *this;
@@ -119,20 +114,20 @@ public:
         return tmp;
     }
 
-private:
+  private:
     JSONValue value_;
 };
 
-} // namesapce detail
+} // namespace detail
 
 class JSONParser {
-public:
-    explicit JSONParser(char * const str, const size_t length);
-    explicit JSONParser(char * const str);
+  public:
+    explicit JSONParser(char* const str, const size_t length);
+    explicit JSONParser(char* const str);
 
     JSONValue root() const { return root_; }
 
-private:
+  private:
     json_t pool_[20];
     JSONValue root_;
 };

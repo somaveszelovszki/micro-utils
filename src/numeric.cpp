@@ -27,10 +27,10 @@ uint32_t diff_overflow(uint32_t a, uint32_t b, const uint32_t exclusive_max) {
 float invSqrt(float x) {
     if (x != 0.0f) {
         float halfx = 0.5f * x;
-        long i = *(long*)&x;
-        i = 0x5f3759df - (i >> 1);
-        x = *(float*)&i;
-        x = x * (1.5f - (halfx * x * x));
+        long i      = *(long*)&x;
+        i           = 0x5f3759df - (i >> 1);
+        x           = *(float*)&i;
+        x           = x * (1.5f - (halfx * x * x));
     }
     return x;
 }

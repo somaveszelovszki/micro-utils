@@ -6,19 +6,15 @@
 namespace micro {
 namespace hw {
 class VL53L1X_DistanceSensor {
-public:
+  public:
     VL53L1X_DistanceSensor(const i2c_t& i2c, uint16_t deviceId);
 
     void initialize();
 
     meter_t readDistance();
 
-private:
-    enum class distanceMode_t {
-        Unknown = 0,
-        Short   = 1,
-        Long    = 2
-    };
+  private:
+    enum class distanceMode_t { Unknown = 0, Short = 1, Long = 2 };
 
     uint16_t readTimingBudgetMs();
     void setTimingBudgetMs(const uint16_t budget);
@@ -34,8 +30,8 @@ private:
     Status readByte(const uint16_t reg, uint8_t& rxData);
     Status readWord(const uint16_t reg, uint16_t& rxData);
 
-    Status writeBytes(const uint16_t reg, const uint8_t *txData, const uint8_t size);
-    Status readBytes(const uint16_t reg, uint8_t *rxData, const uint8_t size);
+    Status writeBytes(const uint16_t reg, const uint8_t* txData, const uint8_t size);
+    Status readBytes(const uint16_t reg, uint8_t* rxData, const uint8_t size);
 
     const i2c_t i2c_;
     const uint16_t deviceId_;

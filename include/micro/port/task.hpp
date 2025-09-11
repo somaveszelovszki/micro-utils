@@ -1,18 +1,14 @@
 #pragma once
 
 #include <etl/string.h>
-
 #include <micro/utils/units.hpp>
 
 namespace micro {
 
-enum class context_t : uint8_t {
-    TASK,
-    ISR
-};
+enum class context_t : uint8_t { TASK, ISR };
 
 using interruptStatus_t = uint32_t;
-using taskId_t = uint64_t;
+using taskId_t          = uint64_t;
 
 struct TaskInfo {
     taskId_t id{};
@@ -27,7 +23,7 @@ void os_exitCritical(const interruptStatus_t savedInterruptStatus);
 void os_sleep(const millisecond_t delay);
 
 class criticalSection_t {
-public:
+  public:
     bool lock() {
         this->interruptStatus_ = os_enterCritical();
         return true;
@@ -38,7 +34,7 @@ public:
         return true;
     }
 
-private:
+  private:
     uint32_t interruptStatus_{};
 };
 

@@ -1,39 +1,48 @@
-#include <mutex>
-
 #include <micro/panel/CanManager.hpp>
 #include <micro/utils/algorithm.hpp>
+#include <mutex>
 
 namespace micro {
 
 millisecond_t timeout(const canFrameId_t id) {
     millisecond_t result(0);
 
-    if      (can::LateralControl::id()        == id) result = can::LateralControl::timeout();
-    else if (can::LongitudinalControl::id()   == id) result = can::LongitudinalControl::timeout();
-    else if (can::FrontLines::id()            == id) result = can::FrontLines::timeout();
-    else if (can::RearLines::id()             == id) result = can::RearLines::timeout();
-    else if (can::LateralState::id()          == id) result = can::LateralState::timeout();
-    else if (can::LongitudinalState::id()     == id) result = can::LongitudinalState::timeout();
-    else if (can::FrontLinePattern::id()      == id) result = can::FrontLinePattern::timeout();
-    else if (can::RearLinePattern::id()       == id) result = can::RearLinePattern::timeout();
-    else if (can::LineDetectControl::id()     == id) result = can::LineDetectControl::timeout();
-    else if (can::SetMotorControlParams::id() == id) result = can::SetMotorControlParams::timeout();
+    if (can::LateralControl::id() == id)
+        result = can::LateralControl::timeout();
+    else if (can::LongitudinalControl::id() == id)
+        result = can::LongitudinalControl::timeout();
+    else if (can::FrontLines::id() == id)
+        result = can::FrontLines::timeout();
+    else if (can::RearLines::id() == id)
+        result = can::RearLines::timeout();
+    else if (can::LateralState::id() == id)
+        result = can::LateralState::timeout();
+    else if (can::LongitudinalState::id() == id)
+        result = can::LongitudinalState::timeout();
+    else if (can::FrontLinePattern::id() == id)
+        result = can::FrontLinePattern::timeout();
+    else if (can::RearLinePattern::id() == id)
+        result = can::RearLinePattern::timeout();
+    else if (can::LineDetectControl::id() == id)
+        result = can::LineDetectControl::timeout();
+    else if (can::SetMotorControlParams::id() == id)
+        result = can::SetMotorControlParams::timeout();
 
     return result;
 }
 
 CanSubscriber::CanSubscriber(const CanFrameIds& rxFrameIds, const CanFrameIds& txFrameIds) {
     for (const auto id : rxFrameIds) {
-        rxFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
+        rxFilters.insert(std::make_pair(id, Filter{id, millisecond_t(0)}));
     }
 
     for (const auto id : txFrameIds) {
-        txFilters.insert(std::make_pair(id, Filter{ id, millisecond_t(0) }));
+        txFilters.insert(std::make_pair(id, Filter{id, millisecond_t(0)}));
     }
 }
 
 bool CanSubscriber::hasTimedOut() const {
-    bool timedOut = false;
+    bool timedOut           = false;
     const millisecond_t now = getTime();
 
     for (Filters::const_iterator it = rxFilters.begin(); it != rxFilters.end(); ++it) {
@@ -46,10 +55,11 @@ bool CanSubscriber::hasTimedOut() const {
     return timedOut;
 }
 
-CanManager::CanManager(const can_t& can)
-    : can_(can) {}
+CanManager::CanManager(const can_t& can) : can_(can) {
+}
 
-CanSubscriber::Id CanManager::registerSubscriber(const CanFrameIds& rxFilters, const CanFrameIds& txFilters) {
+CanSubscriber::Id CanManager::registerSubscriber(const CanFrameIds& rxFilters,
+                                                 const CanFrameIds& txFilters) {
     std::scoped_lock lock(criticalSection_);
     subscribers_.emplace_back(rxFilters, txFilters);
     return static_cast<CanSubscriber::Id>(subscribers_.size() - 1);
@@ -79,7 +89,8 @@ void CanManager::onFrameReceived() {
     canFrame_t rxFrame;
     if (isOk(can_receive(can_, rxFrame))) {
         for (auto& subscriber : subscribers_) {
-            if (auto it = subscriber.rxFilters.find(can_getId(rxFrame)); it != subscriber.rxFilters.end()) {
+            if (auto it = subscriber.rxFilters.find(can_getId(rxFrame));
+                it != subscriber.rxFilters.end()) {
                 subscriber.rxFrames.push(rxFrame);
                 it->second.lastActivityTime = getTime();
             }
@@ -109,4 +120,4 @@ CanFrameIds CanFrameHandler::identifiers() const {
     return ids;
 }
 
-}  // namespace micro
+} // namespace micro

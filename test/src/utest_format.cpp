@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include <micro/format/format.hpp>
-#include <micro/utils/types.hpp>
-
 #include <micro/test/utils.hpp>
+#include <micro/utils/types.hpp>
 
 TEST(format, format_empty) {
     char result[100];

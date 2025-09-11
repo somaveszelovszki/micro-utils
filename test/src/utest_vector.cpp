@@ -1,11 +1,9 @@
 #include <micro/container/vector.hpp>
-
 #include <micro/test/utils.hpp>
 
 namespace {
 
-template <typename T>
-void test() {
+template <typename T> void test() {
     micro::vector<T, 4> values;
     values.push_back(T(1));
     values.push_back(T(2));
@@ -36,5 +34,3 @@ TEST(vector, alignment_uint64_t) {
 }
 
 } // namespace
-
-

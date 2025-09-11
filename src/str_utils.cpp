@@ -1,18 +1,17 @@
-#include <micro/utils/str_utils.hpp>
-#include <micro/math/numeric.hpp>
-#include <micro/utils/arrays.hpp>
-
 #include <cstdarg>
 #include <cstring>
+#include <micro/math/numeric.hpp>
+#include <micro/utils/arrays.hpp>
+#include <micro/utils/str_utils.hpp>
 
 namespace micro {
 
-constexpr uint32_t STR_MAX_LEN_INT        = 1 + 10;         // sign + decimal
-constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;          // sign + decimal
-constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;              // fraction
-constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4;  // sign + decimal + '.' + fragment
+constexpr uint32_t STR_MAX_LEN_INT        = 1 + 10;        // sign + decimal
+constexpr uint32_t STR_MAX_LEN_FLOAT_DEC  = 1 + 8;         // sign + decimal
+constexpr uint32_t STR_MAX_LEN_FLOAT_FRAC = 4;             // fraction
+constexpr uint32_t STR_MAX_LEN_FLOAT      = 1 + 8 + 1 + 4; // sign + decimal + '.' + fragment
 
-uint32_t atoi(const char * const s, int32_t *pResult) {
+uint32_t atoi(const char* const s, int32_t* pResult) {
     uint32_t idx = 0;
 
     const uint32_t len = strlen(s);
@@ -40,13 +39,13 @@ uint32_t atoi(const char * const s, int32_t *pResult) {
     return idx;
 }
 
-uint32_t atof(const char * const s, float *pResult) {
+uint32_t atof(const char* const s, float* pResult) {
     int32_t dec, frac;
 
     const uint32_t len = strlen(s);
 
     uint32_t idx = 0;
-    bool neg = s[0] == '-';
+    bool neg     = s[0] == '-';
     if (neg || s[0] == '+') {
         idx = 1;
     }
@@ -54,17 +53,17 @@ uint32_t atof(const char * const s, float *pResult) {
     idx += atoi(&s[idx], &dec);
 
     if ('.' == s[idx]) {
-        if (++idx < len) {  // idx is incremented because of the dot character before the fraction
+        if (++idx < len) { // idx is incremented because of the dot character before the fraction
 
             uint32_t fracCount = atoi(&s[idx], &frac);
             if (fracCount > 0) {
                 idx += fracCount;
                 *pResult = dec + frac / pow(10.0f, fracCount);
             } else {
-                idx = 0;    // if no fraction has been parsed, string is invalid
+                idx = 0; // if no fraction has been parsed, string is invalid
             }
         } else {
-            idx = 0;    // invalid floating point string
+            idx = 0; // invalid floating point string
         }
     } else {
         *pResult = static_cast<float>(dec);
@@ -77,7 +76,7 @@ uint32_t atof(const char * const s, float *pResult) {
     return idx;
 }
 
-uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding) {
+uint32_t itoa(int32_t n, char* const s, uint32_t size, uint32_t padding) {
     bool sign;
 
     if ((sign = n < 0))
@@ -89,9 +88,9 @@ uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding) {
         if (padding) {
             --padding;
         }
-    } while ((n /= 10) > 0 && idx < size) ;
+    } while ((n /= 10) > 0 && idx < size);
 
-    while(padding--) {
+    while (padding--) {
         s[idx++] = '0';
     }
 
@@ -100,7 +99,7 @@ uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding) {
             s[idx++] = '-';
         }
     } else if (sign || n != 0) {
-        idx = 0;    // buffer full
+        idx = 0; // buffer full
     }
 
     s[idx] = '\0';
@@ -109,20 +108,19 @@ uint32_t itoa(int32_t n, char *const s, uint32_t size, uint32_t padding) {
     return idx;
 }
 
-uint32_t ftoa(float n, char * const s, uint32_t size, uint32_t padding) {
-
+uint32_t ftoa(float n, char* const s, uint32_t size, uint32_t padding) {
     (void)size; // TODO
 
     uint32_t idx = 0;
     uint32_t decLen, fracLen;
-    uint32_t sign;       // offset for sign
+    uint32_t sign; // offset for sign
 
     if ((sign = (n < 0.0f) ? 1 : 0)) {
-        n = -n;
+        n        = -n;
         s[idx++] = '-';
     }
 
-    int32_t dec = static_cast<int32_t>(n);
+    int32_t dec  = static_cast<int32_t>(n);
     int32_t frac = static_cast<int32_t>((n - static_cast<float>(dec)) * pow(10, padding));
     if ((decLen = itoa(dec, &s[idx], STR_MAX_LEN_FLOAT_DEC)) > 0) {
         idx += decLen;
@@ -139,7 +137,8 @@ uint32_t ftoa(float n, char * const s, uint32_t size, uint32_t padding) {
     return idx;
 }
 
-uint32_t strncpy_until(char * const dest, const char * const src, const uint32_t size, const char delimiter) {
+uint32_t strncpy_until(char* const dest, const char* const src, const uint32_t size,
+                       const char delimiter) {
     uint32_t i;
     for (i = 0; i < size; ++i) {
         const char c = src[i];
@@ -148,17 +147,16 @@ uint32_t strncpy_until(char * const dest, const char * const src, const uint32_t
         }
         dest[i] = c;
     }
-    if (i < size) dest[i] = '\0';
+    if (i < size)
+        dest[i] = '\0';
     return i;
 }
 
-uint32_t vsprint(char * const str, const uint32_t size, const char *format, va_list args) {
-
+uint32_t vsprint(char* const str, const uint32_t size, const char* format, va_list args) {
     uint32_t r = 0; // will store the index of the current read character
     uint32_t w = 0; // will store the index of the current written character
 
     while (format[r] != '\0') {
-
         if (format[r] != '%')
             str[w++] = format[r];
         else {
@@ -194,7 +192,7 @@ uint32_t vsprint(char * const str, const uint32_t size, const char *format, va_l
     return w;
 }
 
-uint32_t sprint(char * const str, const uint32_t size, const char *format, ...) {
+uint32_t sprint(char* const str, const uint32_t size, const char* format, ...) {
     va_list args;
     va_start(args, format);
     const uint32_t result = vsprint(str, size, format, args);

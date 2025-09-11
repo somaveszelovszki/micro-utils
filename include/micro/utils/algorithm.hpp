@@ -1,9 +1,8 @@
 #pragma once
 
-#include <optional>
-
 #include <micro/container/map.hpp>
 #include <micro/math/numeric.hpp>
+#include <optional>
 
 namespace micro {
 
@@ -29,7 +28,7 @@ std::optional<V> lerp(const micro::map<K, V, N, Compare>& m, const K& key) {
     if (m.empty()) {
         return std::nullopt;
     }
-    
+
     const auto [lower, upper] = bounds(m, key);
     return micro::lerp(key, lower->first, upper->first, lower->second, upper->second);
 }

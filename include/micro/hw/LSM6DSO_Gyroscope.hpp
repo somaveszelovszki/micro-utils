@@ -5,14 +5,13 @@
 #include <micro/port/i2c.hpp>
 #include <micro/port/semaphore.hpp>
 #include <micro/port/spi.hpp>
-#include <micro/utils/units.hpp>
 #include <micro/utils/point3.hpp>
+#include <micro/utils/units.hpp>
 
 namespace micro {
 namespace hw {
 class LSM6DSO_Gyroscope {
-
-public:
+  public:
     struct handle_t {
         const i2c_t i2c;
         const spi_t spi;
@@ -30,7 +29,7 @@ public:
 
     void onCommFinished();
 
-private:
+  private:
     LSM6DSO_Gyroscope(const i2c_t& i2c, const spi_t& spi, const gpio_t& cs);
 
     handle_t handle_;

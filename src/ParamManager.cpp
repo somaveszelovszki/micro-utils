@@ -1,8 +1,7 @@
-#include <utility>
-#include <variant>
-
 #include <micro/debug/ParamManager.hpp>
 #include <micro/math/numeric.hpp>
+#include <utility>
+#include <variant>
 
 namespace micro {
 
@@ -14,22 +13,25 @@ bool ParamManager::Param::sync() {
 bool ParamManager::Param::setCurrent(const value_type newValue) {
     return std::visit(
         [this](const auto& v) {
-            return std::visit([&v](auto& c){
-                using V = std::decay_t<decltype(v)>;
-                using C = std::decay_t<decltype(c.get())>;
+            return std::visit(
+                [&v](auto& c) {
+                    using V = std::decay_t<decltype(v)>;
+                    using C = std::decay_t<decltype(c.get())>;
 
-                if constexpr (!std::is_constructible_v<C, V>) {
+                    if constexpr (!std::is_constructible_v<C, V>) {
+                        return false;
+                    }
+
+                    if (const auto converted = numeric_cast<C>(v)) {
+                        c.get() = *converted;
+                        return true;
+                    }
+
                     return false;
-                }
-
-                if (const auto converted = numeric_cast<C>(v)) {
-                    c.get() = *converted;
-                    return true;
-                }
-
-                return false;
-            }, current);
-        }, newValue);
+                },
+                current);
+        },
+        newValue);
 }
 
 bool ParamManager::update(const Name& name, const value_type& value) {
@@ -38,22 +40,21 @@ bool ParamManager::update(const Name& name, const value_type& value) {
 }
 
 void ParamManager::sync(Values& OUT changedValues) {
-	changedValues.clear();
+    changedValues.clear();
 
     for (auto& [name, param] : params_) {
         if (param.sync()) {
-        	changedValues.insert({name, param.prev});
+            changedValues.insert({name, param.prev});
         }
     }
 }
 
 void ParamManager::getAll(Values& OUT values) const {
-	values.clear();
+    values.clear();
 
     for (auto& [name, param] : params_) {
         values.insert({name, param.prev});
     }
 }
-
 
 } // namespace micro

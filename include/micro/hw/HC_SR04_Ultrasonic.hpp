@@ -8,8 +8,7 @@ namespace micro {
 namespace hw {
 
 class HC_SR04_Ultrasonic {
-
-public:
+  public:
     HC_SR04_Ultrasonic(const gpio_t& gpio_trigger, const gpio_t& gpio_echo);
 
     void initialize();
@@ -18,7 +17,7 @@ public:
 
     void onEchoReceived();
 
-private:
+  private:
     const gpio_t gpio_trigger_;
     const gpio_t gpio_echo_;
 

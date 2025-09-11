@@ -26,20 +26,14 @@ template <typename T> struct point3 {
      **/
     T Z;
 
-    point3(const T& fill = T())
-        : X(fill)
-        , Y(fill)
-        , Z(fill) {}
+    point3(const T& fill = T()) : X(fill), Y(fill), Z(fill) {}
 
-    point3(const T& x, const T& y, const T& z)
-        : X(x)
-        , Y(y)
-        , Z(z) {}
+    point3(const T& x, const T& y, const T& z) : X(x), Y(y), Z(z) {}
 
     /* @brief Adds coordinates of this and the other point.
-    * @param other The other point.
-    * @returns The result of the addition.
-    **/
+     * @param other The other point.
+     * @returns The result of the addition.
+     **/
     point3<T> operator+(const point3<T>& other) const {
         return point3<T>(this->X + other.X, this->Y + other.Y, this->Z + other.Z);
     }
@@ -63,7 +57,8 @@ template <typename T> struct point3 {
         return *this;
     }
 
-    /* @brief Subtracts coordinates of the other point from the coordinates of this point and stores the result in this point.
+    /* @brief Subtracts coordinates of the other point from the coordinates of this point and stores
+     * the result in this point.
      * @param other The other point.
      * @returns This point.
      **/
@@ -80,7 +75,7 @@ template <typename T> struct point3 {
      **/
     template <typename T2, class = typename std::enable_if<std::is_arithmetic<T2>::value>::type>
     point3<T> operator*(const T2& c) const {
-        return point3<T>{ this->X * c, this->Y * c, this->Z * c };
+        return point3<T>{this->X * c, this->Y * c, this->Z * c};
     }
 
     /* @brief Divides coordinates of the point by the given constant.
@@ -89,10 +84,11 @@ template <typename T> struct point3 {
      **/
     template <typename T2, class = typename std::enable_if<std::is_arithmetic<T2>::value>::type>
     point3<T> operator/(const T2& c) const {
-        return point3<T>{ this->X / c, this->Y / c, this->Z / c };
+        return point3<T>{this->X / c, this->Y / c, this->Z / c};
     }
 
-    /* @brief Multiplies coordinates of the point with the given constant and stores the result in the point.
+    /* @brief Multiplies coordinates of the point with the given constant and stores the result in
+     * the point.
      * @param c The constant.
      * @returns This point.
      **/
@@ -104,7 +100,8 @@ template <typename T> struct point3 {
         return *this;
     }
 
-    /* @brief Divides coordinates of the point by the given constant and stores the result in the point.
+    /* @brief Divides coordinates of the point by the given constant and stores the result in the
+     * point.
      * @param c The constant.
      * @returns This point.
      **/
@@ -129,9 +126,9 @@ template <typename T> struct point3 {
     /* @brief Casts point to another type.
      * @returns Point cast to another type.
      **/
-    template <typename T2>
-    operator point3<T2>() const {
-        return point3<T2>{ static_cast<T2>(this->X), static_cast<T2>(this->Y), static_cast<T2>(this->Z) };
+    template <typename T2> operator point3<T2>() const {
+        return point3<T2>{static_cast<T2>(this->X), static_cast<T2>(this->Y),
+                          static_cast<T2>(this->Z)};
     }
 
     /* @brief Checks if two points are equal.
@@ -153,9 +150,7 @@ template <typename T> struct point3 {
     /* @brief Calculates length of the point vector.
      * @returns The length of the point vector.
      **/
-    T length() const {
-        return micro::pythag(this->X, this->Y, this->Z);
-    }
+    T length() const { return micro::pythag(this->X, this->Y, this->Z); }
 
     /* @brief Calculates distance between the two points.
      * @param other The other point.
@@ -172,15 +167,17 @@ template <typename T> struct point3 {
      **/
     point3<T> average(const point3<T>& other, float otherWeight = 1.0f) const {
         float weightSum = 1.0f + otherWeight;
-        return point3<T>((this->X + other.X * otherWeight) / weightSum, (this->Y + other.Y + otherWeight) / weightSum, (this->Z + other.Z + otherWeight) / weightSum);
+        return point3<T>((this->X + other.X * otherWeight) / weightSum,
+                         (this->Y + other.Y + otherWeight) / weightSum,
+                         (this->Z + other.Z + otherWeight) / weightSum);
     }
 
     // @note numPoints must be at least 1
-    static void bbox(const point3<T> points[], uint32_t numPoints, bbox3<T> *pResult);
+    static void bbox(const point3<T> points[], uint32_t numPoints, bbox3<T>* pResult);
 };
 
-typedef point3<float>   point3f, vec3f;          // 32-bit floating point types.
-typedef point3<uint8_t>     point3ui8, vec3ui8;      // 8-bit microigned integer point types.
+typedef point3<float> point3f, vec3f;       // 32-bit floating point types.
+typedef point3<uint8_t> point3ui8, vec3ui8; // 8-bit microigned integer point types.
 
 /* @brief 3-dimensional bounding box.
  * @tparam T Numeric type of the coordinates.
@@ -189,10 +186,10 @@ template <typename T> struct bbox3 {
     point3<T> bl, tr;
 };
 
-template<typename T>
-void point3<T>::bbox(const point3<T> points[], uint32_t numPoints, bbox3<T> *pResult) {
+template <typename T>
+void point3<T>::bbox(const point3<T> points[], uint32_t numPoints, bbox3<T>* pResult) {
     pResult->bl = pResult->tr = points[0];
-    for(uint32_t i = 1; i < numPoints; ++i) {
+    for (uint32_t i = 1; i < numPoints; ++i) {
         point3<T> p = points[i];
 
         if (p.X < pResult->bl.X) {

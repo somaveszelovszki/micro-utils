@@ -21,11 +21,10 @@ radian_t yaw(const quaternion_t& q) {
 }
 
 point3<radian_t> toEuler(const quaternion_t& q) {
-    return { roll(q), pitch(q), yaw(q) };
+    return {roll(q), pitch(q), yaw(q)};
 }
 
-quaternion_t toQuaternion(const point3<radian_t>& euler)
-{
+quaternion_t toQuaternion(const point3<radian_t>& euler) {
     const float cy = cos(euler.Z * 0.5f);
     const float sy = sin(euler.Z * 0.5f);
     const float cp = cos(euler.Y * 0.5f);
@@ -33,12 +32,8 @@ quaternion_t toQuaternion(const point3<radian_t>& euler)
     const float cr = cos(euler.Z * 0.5f);
     const float sr = sin(euler.Z * 0.5f);
 
-    return {
-        cr * cp * cy + sr * sp * sy,
-        sr * cp * cy - cr * sp * sy,
-        cr * sp * cy + sr * cp * sy,
-        cr * cp * sy - sr * sp * cy
-    };
+    return {cr * cp * cy + sr * sp * sy, sr * cp * cy - cr * sp * sy, cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy};
 }
 
 } // namespace micro

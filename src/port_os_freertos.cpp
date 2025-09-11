@@ -1,18 +1,18 @@
 #if defined OS_FREERTOS
 
-#include <micro/port/task.hpp>
-
-#include <cmath>
-
 #include <FreeRTOS.h>
+#include <cmath>
+#include <micro/port/task.hpp>
 #include <task.h>
 
-extern void *pxCurrentTCB;
+extern void* pxCurrentTCB;
 
 namespace micro {
 
 #if !defined STM32
-context_t getContext() { return context_t::TASK; }
+context_t getContext() {
+    return context_t::TASK;
+}
 #endif // !STM32
 
 taskId_t getCurrentTaskId() {

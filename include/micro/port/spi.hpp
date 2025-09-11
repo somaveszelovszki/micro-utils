@@ -21,7 +21,7 @@ namespace micro {
 #if defined STM32F4
 
 struct spi_t {
-    SPI_HandleTypeDef *handle = nullptr;
+    SPI_HandleTypeDef* handle = nullptr;
 };
 
 #else // !STM32F4
@@ -30,6 +30,7 @@ struct spi_t {};
 
 #endif // !STM32F4
 
-Status spi_exchange(const spi_t& spi, const uint8_t * const txBuf, uint8_t * const rxBuf, const uint32_t size);
+Status spi_exchange(const spi_t& spi, const uint8_t* const txBuf, uint8_t* const rxBuf,
+                    const uint32_t size);
 
 } // namespace micro

@@ -1,11 +1,9 @@
 #include <micro/container/set.hpp>
-
 #include <micro/test/utils.hpp>
 
 namespace {
 
-template <typename T>
-void test() {
+template <typename T> void test() {
     micro::set<T, 4> values;
     values.insert(T(1));
     values.insert(T(2));
@@ -36,5 +34,3 @@ TEST(set, alignment_uint64_t) {
 }
 
 } // namespace
-
-

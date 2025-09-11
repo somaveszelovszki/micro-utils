@@ -1,7 +1,6 @@
 #if defined STM32
 
 #include <cstring>
-
 #include <micro/math/numeric.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/gpio.hpp>
@@ -34,16 +33,26 @@
 
 namespace micro {
 
-timer_t timer_system = { nullptr };
+timer_t timer_system = {nullptr};
 
 Status toStatus(HAL_StatusTypeDef status) {
     Status result = Status::ERROR;
     switch (status) {
-    case HAL_OK:      result = Status::OK;      break;
-    case HAL_ERROR:   result = Status::ERROR;   break;
-    case HAL_BUSY:    result = Status::BUSY;    break;
-    case HAL_TIMEOUT: result = Status::TIMEOUT; break;
-    default:          result = Status::ERROR;   break;
+    case HAL_OK:
+        result = Status::OK;
+        break;
+    case HAL_ERROR:
+        result = Status::ERROR;
+        break;
+    case HAL_BUSY:
+        result = Status::BUSY;
+        break;
+    case HAL_TIMEOUT:
+        result = Status::TIMEOUT;
+        break;
+    default:
+        result = Status::ERROR;
+        break;
     }
     return result;
 }
@@ -56,13 +65,13 @@ canFrameId_t can_getId(const canFrame_t& frame) {
     return frame.header.rx.StdId;
 }
 
-canFrame_t can_buildFrame(const canFrameId_t id, const uint8_t * const data, const uint32_t size) {
+canFrame_t can_buildFrame(const canFrameId_t id, const uint8_t* const data, const uint32_t size) {
     canFrame_t frame;
-    frame.header.tx.StdId = id;
-    frame.header.tx.ExtId = 0;
-    frame.header.tx.IDE   = CAN_ID_STD;
-    frame.header.tx.RTR   = CAN_RTR_DATA;
-    frame.header.tx.DLC   = size;
+    frame.header.tx.StdId              = id;
+    frame.header.tx.ExtId              = 0;
+    frame.header.tx.IDE                = CAN_ID_STD;
+    frame.header.tx.RTR                = CAN_RTR_DATA;
+    frame.header.tx.DLC                = size;
     frame.header.tx.TransmitGlobalTime = DISABLE;
     memcpy(frame.data, data, size);
     return frame;
@@ -70,8 +79,9 @@ canFrame_t can_buildFrame(const canFrameId_t id, const uint8_t * const data, con
 
 Status can_transmit(const can_t& can, const canFrame_t& frame) {
     uint32_t txMailbox = 0;
-    return toStatus(HAL_CAN_AddTxMessage(can.handle, const_cast<CAN_TxHeaderTypeDef*>(&frame.header.tx), const_cast<uint8_t*>(frame.data), &txMailbox));
-
+    return toStatus(HAL_CAN_AddTxMessage(can.handle,
+                                         const_cast<CAN_TxHeaderTypeDef*>(&frame.header.tx),
+                                         const_cast<uint8_t*>(frame.data), &txMailbox));
 }
 
 Status can_receive(const can_t& can, canFrame_t& OUT frame) {
@@ -80,20 +90,28 @@ Status can_receive(const can_t& can, canFrame_t& OUT frame) {
 
 #else // !STM32F4
 
-Status can_transmit(const can_t&, const canFrame_t&) { return Status::OK; }
-Status can_receive(const can_t&, canFrame_t& OUT) { return Status::OK; }
+Status can_transmit(const can_t&, const canFrame_t&) {
+    return Status::OK;
+}
+Status can_receive(const can_t&, canFrame_t& OUT) {
+    return Status::OK;
+}
 
 #endif // !STM32F4
 
 // GPIO
 
 Status gpio_read(const gpio_t& gpio, gpioPinState_t& OUT state) {
-    state = HAL_GPIO_ReadPin(reinterpret_cast<GPIO_TypeDef*>(gpio.instance), gpio.pin) == GPIO_PIN_SET ? gpioPinState_t::SET : gpioPinState_t::RESET;
+    state =
+        HAL_GPIO_ReadPin(reinterpret_cast<GPIO_TypeDef*>(gpio.instance), gpio.pin) == GPIO_PIN_SET
+            ? gpioPinState_t::SET
+            : gpioPinState_t::RESET;
     return Status::OK;
 }
 
 Status gpio_write(const gpio_t& gpio, const gpioPinState_t state) {
-    HAL_GPIO_WritePin(reinterpret_cast<GPIO_TypeDef*>(gpio.instance), gpio.pin, state == gpioPinState_t::SET ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(reinterpret_cast<GPIO_TypeDef*>(gpio.instance), gpio.pin,
+                      state == gpioPinState_t::SET ? GPIO_PIN_SET : GPIO_PIN_RESET);
     return Status::OK;
 }
 
@@ -104,38 +122,47 @@ Status gpio_toggle(const gpio_t& gpio) {
 
 // I2C
 
-Status i2c_masterReceive(const i2c_t& i2c, const uint16_t devAddr, uint8_t * const rxBuf, const uint32_t size) {
+Status i2c_masterReceive(const i2c_t& i2c, const uint16_t devAddr, uint8_t* const rxBuf,
+                         const uint32_t size) {
     return toStatus(HAL_I2C_Master_Receive_DMA(i2c.handle, devAddr, rxBuf, size));
 }
 
-Status i2c_masterTransmit(const i2c_t& i2c, const uint16_t devAddr, const uint8_t * const txBuf, const uint32_t size) {
-    return toStatus(HAL_I2C_Master_Transmit_DMA(i2c.handle, devAddr, const_cast<uint8_t*>(txBuf), size));
-
+Status i2c_masterTransmit(const i2c_t& i2c, const uint16_t devAddr, const uint8_t* const txBuf,
+                          const uint32_t size) {
+    return toStatus(
+        HAL_I2C_Master_Transmit_DMA(i2c.handle, devAddr, const_cast<uint8_t*>(txBuf), size));
 }
 
-Status i2c_memoryRead(const i2c_t& i2c, const uint16_t devAddr, const uint16_t memAddr, const uint16_t memAddrSize, uint8_t * const rxBuf, const uint32_t size) {
+Status i2c_memoryRead(const i2c_t& i2c, const uint16_t devAddr, const uint16_t memAddr,
+                      const uint16_t memAddrSize, uint8_t* const rxBuf, const uint32_t size) {
     return toStatus(HAL_I2C_Mem_Read_DMA(i2c.handle, devAddr, memAddr, memAddrSize, rxBuf, size));
 }
 
-Status i2c_memoryWrite(const i2c_t& i2c, const uint16_t devAddr, const uint16_t memAddr, const uint16_t memAddrSize, const uint8_t * const txBuf, const uint32_t size) {
-    return toStatus(HAL_I2C_Mem_Write_DMA(i2c.handle, devAddr, memAddr, memAddrSize, const_cast<uint8_t*>(txBuf), size));
+Status i2c_memoryWrite(const i2c_t& i2c, const uint16_t devAddr, const uint16_t memAddr,
+                       const uint16_t memAddrSize, const uint8_t* const txBuf,
+                       const uint32_t size) {
+    return toStatus(HAL_I2C_Mem_Write_DMA(i2c.handle, devAddr, memAddr, memAddrSize,
+                                          const_cast<uint8_t*>(txBuf), size));
 }
 
 // SPI
 
 #if defined STM32F4
 
-Status spi_exchange(const spi_t& spi, const uint8_t * const txBuf, uint8_t * const rxBuf, const uint32_t size) {
+Status spi_exchange(const spi_t& spi, const uint8_t* const txBuf, uint8_t* const rxBuf,
+                    const uint32_t size) {
     return toStatus(
-        txBuf == nullptr ? HAL_SPI_Receive_DMA(spi.handle, rxBuf, size) :
-        rxBuf == nullptr ? HAL_SPI_Transmit_DMA(spi.handle, const_cast<uint8_t*>(txBuf), size) :
-        HAL_SPI_TransmitReceive_DMA(spi.handle, const_cast<uint8_t*>(txBuf), rxBuf, size)
-    );
+        txBuf == nullptr ? HAL_SPI_Receive_DMA(spi.handle, rxBuf, size)
+        : rxBuf == nullptr
+            ? HAL_SPI_Transmit_DMA(spi.handle, const_cast<uint8_t*>(txBuf), size)
+            : HAL_SPI_TransmitReceive_DMA(spi.handle, const_cast<uint8_t*>(txBuf), rxBuf, size));
 }
 
 #else // !STM32F4
 
-Status spi_exchange(const spi_t&, const uint8_t * const, uint8_t * const, const uint32_t) { return Status::OK; }
+Status spi_exchange(const spi_t&, const uint8_t* const, uint8_t* const, const uint32_t) {
+    return Status::OK;
+}
 
 #endif // !STM32F4
 
@@ -151,7 +178,8 @@ millisecond_t getTime() {
 
 microsecond_t getExactTime() {
     __disable_irq();
-    const microsecond_t time = static_cast<microsecond_t>(getTime()) + microsecond_t(__HAL_TIM_GET_COUNTER(timer_system.handle));
+    const microsecond_t time = static_cast<microsecond_t>(getTime()) +
+                               microsecond_t(__HAL_TIM_GET_COUNTER(timer_system.handle));
     __enable_irq();
     return time;
 }
@@ -169,7 +197,6 @@ Status timer_getCounter(const timer_t& timer, uint32_t& OUT cntr) {
 Status timer_setCounter(const timer_t& timer, const uint32_t cntr) {
     __HAL_TIM_SET_COUNTER(timer.handle, cntr);
     return Status::OK;
-
 }
 
 Status timer_getCompare(const timer_t& timer, const uint32_t channel, uint32_t& OUT compare) {
@@ -185,7 +212,8 @@ Status timer_setCompare(const timer_t& timer, const uint32_t channel, const uint
 Status timer_setDuty(const timer_t& timer, const uint32_t channel, const float duty) {
     uint32_t period = 0;
     timer_getPeriod(timer, period);
-    return timer_setCompare(timer, channel, micro::lerp<float, uint32_t>(duty, 0.0f, 1.0f, 0, period - 1));
+    return timer_setCompare(timer, channel,
+                            micro::lerp<float, uint32_t>(duty, 0.0f, 1.0f, 0, period - 1));
 }
 
 Status timer_getCaptured(const timer_t& timer, const uint32_t channel, uint32_t& OUT captured) {
@@ -195,11 +223,11 @@ Status timer_getCaptured(const timer_t& timer, const uint32_t channel, uint32_t&
 
 // UART
 
-Status uart_receive(const uart_t& uart, uint8_t * const rxBuf, const uint32_t size) {
+Status uart_receive(const uart_t& uart, uint8_t* const rxBuf, const uint32_t size) {
     return toStatus(HAL_UART_Receive_DMA(uart.handle, rxBuf, size));
 }
 
-Status uart_transmit(const uart_t& uart, const uint8_t * const txBuf, const uint32_t size) {
+Status uart_transmit(const uart_t& uart, const uint8_t* const txBuf, const uint32_t size) {
     return toStatus(HAL_UART_Transmit_DMA(uart.handle, const_cast<uint8_t*>(txBuf), size));
 }
 

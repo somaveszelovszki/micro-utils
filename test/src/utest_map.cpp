@@ -1,11 +1,9 @@
 #include <micro/container/map.hpp>
-
 #include <micro/test/utils.hpp>
 
 namespace {
 
-template <typename T>
-void test() {
+template <typename T> void test() {
     micro::map<T, T, 4> values;
     values.insert({T(1), T(10)});
     values.insert({T(2), T(20)});
@@ -36,5 +34,3 @@ TEST(map, alignment_uint64_t) {
 }
 
 } // namespace
-
-

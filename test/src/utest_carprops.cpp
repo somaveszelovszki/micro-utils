@@ -1,6 +1,5 @@
-#include <micro/utils/CarProps.hpp>
-
 #include <micro/test/utils.hpp>
+#include <micro/utils/CarProps.hpp>
 
 using namespace micro;
 
@@ -20,11 +19,13 @@ TEST(CarProps, getSpeedAngle) {
 
         car.frontWheelAngle = degree_t(15);
         car.rearWheelAngle  = degree_t(15);
-        EXPECT_NEAR_UNIT(normalize360(car.pose.angle + degree_t(15)), car.getSpeedAngle(CAR_FRONT_REAR_PIVOT_DIST), degree_t(1));
+        EXPECT_NEAR_UNIT(normalize360(car.pose.angle + degree_t(15)),
+                         car.getSpeedAngle(CAR_FRONT_REAR_PIVOT_DIST), degree_t(1));
 
         car.frontWheelAngle = degree_t(-15);
         car.rearWheelAngle  = degree_t(-15);
-        EXPECT_NEAR_UNIT(normalize360(car.pose.angle - degree_t(15)), car.getSpeedAngle(CAR_FRONT_REAR_PIVOT_DIST), degree_t(1));
+        EXPECT_NEAR_UNIT(normalize360(car.pose.angle - degree_t(15)),
+                         car.getSpeedAngle(CAR_FRONT_REAR_PIVOT_DIST), degree_t(1));
 
         car.frontWheelAngle = degree_t(15);
         car.rearWheelAngle  = degree_t(-15);
