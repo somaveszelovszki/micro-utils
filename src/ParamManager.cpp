@@ -1,7 +1,8 @@
-#include <micro/debug/ParamManager.hpp>
-#include <micro/math/numeric.hpp>
 #include <utility>
 #include <variant>
+
+#include <micro/debug/ParamManager.hpp>
+#include <micro/math/numeric.hpp>
 
 namespace micro {
 

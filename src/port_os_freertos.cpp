@@ -1,9 +1,11 @@
 #if defined OS_FREERTOS
 
-#include <FreeRTOS.h>
 #include <cmath>
-#include <micro/port/task.hpp>
+
+#include <FreeRTOS.h>
 #include <task.h>
+
+#include <micro/port/task.hpp>
 
 extern void* pxCurrentTCB;
 

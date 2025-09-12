@@ -1,7 +1,8 @@
+#include <string.h>
+
 #include <micro/hw/HD44780_Lcd.hpp>
 #include <micro/math/numeric.hpp>
 #include <micro/port/task.hpp>
-#include <string.h>
 
 #define CLEAR_DISPLAY 0x01
 

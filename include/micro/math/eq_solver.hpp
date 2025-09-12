@@ -1,8 +1,9 @@
 #pragma once
 
 #include <limits>
-#include <micro/math/numeric.hpp>
 #include <utility>
+
+#include <micro/math/numeric.hpp>
 
 namespace micro {
 

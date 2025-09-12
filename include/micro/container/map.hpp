@@ -1,8 +1,10 @@
 #pragma once
 
-#include <etl/flat_map.h>
 #include <functional>
 #include <initializer_list>
+
+#include <etl/flat_map.h>
+
 #include <micro/container/aligned_storage.hpp>
 #include <micro/utils/types.hpp>
 

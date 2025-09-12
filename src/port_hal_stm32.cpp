@@ -1,6 +1,7 @@
 #if defined STM32
 
 #include <cstring>
+
 #include <micro/math/numeric.hpp>
 #include <micro/port/can.hpp>
 #include <micro/port/gpio.hpp>

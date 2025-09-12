@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+
 #include <micro/math/unit_utils.hpp>
 
 #if defined OS_FREERTOS

@@ -2,12 +2,13 @@
 
 #ifdef STM32F4
 
+#include <string.h>
+
 #include <micro/log/log.hpp>
 #include <micro/math/unit_utils.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/arrays.hpp>
 #include <micro/utils/timer.hpp>
-#include <string.h>
 
 namespace micro {
 namespace hw {

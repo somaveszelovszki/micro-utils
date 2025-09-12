@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdarg>
+
 #include <micro/utils/types.hpp>
 
 namespace micro {

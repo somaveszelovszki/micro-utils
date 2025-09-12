@@ -1,8 +1,9 @@
 #pragma once
 
+#include <optional>
+
 #include <micro/container/map.hpp>
 #include <micro/math/numeric.hpp>
-#include <optional>
 
 namespace micro {
 

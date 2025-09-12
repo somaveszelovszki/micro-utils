@@ -1,10 +1,12 @@
 #pragma once
 
 #include <cmath>
+
 #include <limits>
+#include <optional>
+
 #include <micro/utils/types.hpp>
 #include <micro/utils/units.hpp>
-#include <optional>
 
 namespace micro {
 

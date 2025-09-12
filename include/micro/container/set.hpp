@@ -1,8 +1,10 @@
 #pragma once
 
-#include <etl/flat_set.h>
 #include <functional>
 #include <initializer_list>
+
+#include <etl/flat_set.h>
+
 #include <micro/container/aligned_storage.hpp>
 
 namespace micro {

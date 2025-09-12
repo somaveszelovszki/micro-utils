@@ -1,6 +1,7 @@
 #if defined STM32
 
 #include <cmath>
+
 #include <micro/port/task.hpp>
 
 #if defined STM32F4

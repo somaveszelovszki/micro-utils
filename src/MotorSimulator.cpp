@@ -1,5 +1,7 @@
 #include <cmath>
+
 #include <iterator>
+
 #include <micro/sim/MotorSimulator.hpp>
 
 namespace micro {

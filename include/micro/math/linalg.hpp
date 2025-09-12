@@ -1,11 +1,12 @@
 #pragma once
 
+#include <limits>
+#include <utility>
+
+#include <micro/utils/point3.hpp>
+
 #include "eq_solver.hpp"
 #include "line2.hpp"
-
-#include <limits>
-#include <micro/utils/point3.hpp>
-#include <utility>
 
 namespace micro {
 

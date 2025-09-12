@@ -1,4 +1,5 @@
 #include <iterator>
+
 #include <micro/math/linalg.hpp>
 #include <micro/math/unit_utils.hpp>
 #include <micro/utils/LinePattern.hpp>

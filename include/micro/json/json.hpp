@@ -1,10 +1,11 @@
 #pragma once
 
 #include <algorithm>
-#include <etl/char_traits.h>
 #include <iterator>
 #include <optional>
 #include <tiny-json.h>
+
+#include <etl/char_traits.h>
 
 namespace micro {
 

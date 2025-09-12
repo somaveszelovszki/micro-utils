@@ -1,8 +1,9 @@
 #pragma once
 
-#include <etl/vector.h>
 #include <initializer_list>
 #include <type_traits>
+
+#include <etl/vector.h>
 
 namespace micro {
 

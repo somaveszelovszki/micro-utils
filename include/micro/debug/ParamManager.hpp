@@ -1,13 +1,15 @@
 #pragma once
 
-#include <etl/string.h>
 #include <functional>
+#include <mutex>
+#include <variant>
+
+#include <etl/string.h>
+
 #include <micro/container/map.hpp>
 #include <micro/log/log.hpp>
 #include <micro/math/numeric.hpp>
 #include <micro/port/mutex.hpp>
-#include <mutex>
-#include <variant>
 
 namespace micro {
 

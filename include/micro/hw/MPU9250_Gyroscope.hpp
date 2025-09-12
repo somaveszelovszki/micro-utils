@@ -2,14 +2,15 @@
 
 #ifdef STM32F4
 
+#include <stm32f4xx_hal_i2c.h>
+#include <stm32f4xx_hal_spi.h>
+
 #include <micro/port/gpio.hpp>
 #include <micro/port/i2c.hpp>
 #include <micro/port/semaphore.hpp>
 #include <micro/port/spi.hpp>
 #include <micro/utils/point3.hpp>
 #include <micro/utils/units.hpp>
-#include <stm32f4xx_hal_i2c.h>
-#include <stm32f4xx_hal_spi.h>
 
 namespace micro {
 namespace hw {

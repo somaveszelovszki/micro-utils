@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include <micro/math/numeric.hpp>
 #include <micro/test/utils.hpp>
 

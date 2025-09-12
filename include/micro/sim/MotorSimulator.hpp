@@ -1,6 +1,7 @@
 #pragma once
 
 #include <etl/circular_buffer.h>
+
 #include <micro/utils/units.hpp>
 
 namespace micro {

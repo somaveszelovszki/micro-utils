@@ -1,9 +1,10 @@
 #pragma once
 
+#include <utility>
+
 #include <micro/format/format.hpp>
 #include <micro/port/queue.hpp>
 #include <micro/utils/types.hpp>
-#include <utility>
 
 namespace micro {
 

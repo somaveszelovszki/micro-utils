@@ -1,5 +1,6 @@
 #include <cstdarg>
 #include <cstring>
+
 #include <micro/math/numeric.hpp>
 #include <micro/utils/arrays.hpp>
 #include <micro/utils/str_utils.hpp>

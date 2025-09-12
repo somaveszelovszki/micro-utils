@@ -1,4 +1,5 @@
 #include <cstring>
+
 #include <micro/hw/LSM6DSO_Gyroscope.hpp>
 #include <micro/math/unit_utils.hpp>
 #include <micro/port/task.hpp>

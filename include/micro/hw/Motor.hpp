@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+
 #include <micro/math/numeric.hpp>
 #include <micro/port/gpio.hpp>
 #include <micro/port/timer.hpp>

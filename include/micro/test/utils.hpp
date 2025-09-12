@@ -1,6 +1,7 @@
 #pragma once
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include <micro/math/unit_utils.hpp>
 
 #define EXPECT_NEAR_DEFAULT(a, b) EXPECT_NEAR((a), (b), decltype(a)(0.0001f))

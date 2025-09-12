@@ -1,8 +1,9 @@
 #include <algorithm>
+#include <mutex>
+
 #include <micro/debug/TaskMonitor.hpp>
 #include <micro/log/log.hpp>
 #include <micro/port/task.hpp>
-#include <mutex>
 
 namespace micro {
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <etl/string.h>
+
 #include <micro/utils/units.hpp>
 
 namespace micro {

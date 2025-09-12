@@ -1,9 +1,11 @@
 #pragma once
 
-#include "vehicleCanTypes.hpp"
+#include <functional>
+#include <mutex>
+#include <optional>
 
 #include <etl/circular_buffer.h>
-#include <functional>
+
 #include <micro/container/map.hpp>
 #include <micro/container/set.hpp>
 #include <micro/container/vector.hpp>
@@ -12,8 +14,8 @@
 #include <micro/port/queue.hpp>
 #include <micro/port/task.hpp>
 #include <micro/utils/timer.hpp>
-#include <mutex>
-#include <optional>
+
+#include "vehicleCanTypes.hpp"
 
 namespace micro {
 

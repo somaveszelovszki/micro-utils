@@ -5,13 +5,16 @@
 // The reason for reimplementing it is that {fmt} has a very large code footprint,
 // and it simply does not fit into the FLASH memory of some microcontrollers.
 
-#include <algorithm>
 #include <cctype>
-#include <etl/string.h>
+
+#include <algorithm>
 #include <iterator>
-#include <micro/math/numeric.hpp>
 #include <type_traits>
 #include <utility>
+
+#include <etl/string.h>
+
+#include <micro/math/numeric.hpp>
 
 namespace micro {
 

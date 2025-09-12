@@ -1,8 +1,8 @@
 #pragma once
 
-#include "types.hpp"
-
 #include <algorithm>
+
+#include "types.hpp"
 
 namespace micro {
 

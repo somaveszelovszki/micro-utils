@@ -1,9 +1,10 @@
 #pragma once
 
-#include "task.hpp"
-
 #include <cmath>
+
 #include <micro/math/unit_utils.hpp>
+
+#include "task.hpp"
 
 #if defined OS_FREERTOS
 #include <FreeRTOS.h>

@@ -1,6 +1,7 @@
+#include <mutex>
+
 #include <micro/panel/CanManager.hpp>
 #include <micro/utils/algorithm.hpp>
-#include <mutex>
 
 namespace micro {
 
