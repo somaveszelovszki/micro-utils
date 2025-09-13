@@ -153,6 +153,40 @@ struct RearLinePattern {
 
 } __attribute__((packed));
 
+struct FrontLineStatistics {
+    static constexpr uint16_t id() { return 0x407; }
+    static constexpr millisecond_t period() {
+        return micro::numeric_limits<millisecond_t>::infinity();
+    }
+    static constexpr millisecond_t timeout() {
+        return micro::numeric_limits<millisecond_t>::infinity();
+    }
+
+    uint32_t processingTime_ms;
+    uint16_t iterationCount;
+
+    FrontLineStatistics(const uint32_t processingTime_ms, const uint16_t iterationCount);
+    void acquire(uint32_t& processingTime_ms, uint16_t& iterationCount) const;
+
+} __attribute__((packed));
+
+struct RearLineStatistics {
+    static constexpr uint16_t id() { return 0x408; }
+    static constexpr millisecond_t period() {
+        return micro::numeric_limits<millisecond_t>::infinity();
+    }
+    static constexpr millisecond_t timeout() {
+        return micro::numeric_limits<millisecond_t>::infinity();
+    }
+
+    uint32_t processingTime_ms;
+    uint16_t iterationCount;
+
+    RearLineStatistics(const uint32_t processingTime_ms, const uint16_t iterationCount);
+    void acquire(uint32_t& processingTime_ms, uint16_t& iterationCount) const;
+
+} __attribute__((packed));
+
 struct LineDetectControl {
     static constexpr uint16_t id() { return 0x501; }
     static constexpr millisecond_t period() { return millisecond_t(50); }

@@ -166,6 +166,26 @@ void RearLinePattern::acquire(LinePattern& pattern) const {
     pattern = detail::convert(this->pattern);
 }
 
+FrontLineStatistics::FrontLineStatistics(const uint32_t processingTime_ms,
+                                         const uint16_t iterationCount)
+    : processingTime_ms(processingTime_ms), iterationCount(iterationCount) {
+}
+
+void FrontLineStatistics::acquire(uint32_t& processingTime_ms, uint16_t& iterationCount) const {
+    processingTime_ms = this->processingTime_ms;
+    iterationCount    = this->iterationCount;
+}
+
+RearLineStatistics::RearLineStatistics(const uint32_t processingTime_ms,
+                                       const uint16_t iterationCount)
+    : processingTime_ms(processingTime_ms), iterationCount(iterationCount) {
+}
+
+void RearLineStatistics::acquire(uint32_t& processingTime_ms, uint16_t& iterationCount) const {
+    processingTime_ms = this->processingTime_ms;
+    iterationCount    = this->iterationCount;
+}
+
 LineDetectControl::LineDetectControl(const bool indicatorLedsEnabled, const uint8_t scanRangeRadius,
                                      const linePatternDomain_t domain)
     : indicatorLedsEnabled(indicatorLedsEnabled), scanRangeRadius(scanRangeRadius),
