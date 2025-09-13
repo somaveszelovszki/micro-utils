@@ -10,3 +10,6 @@
 [submodule "thirdparty/tiny-json"]
 	path = thirdparty/tiny-json
 	url = https://github.com/rafagafe/tiny-json.git
+[submodule "thirdparty/benchmark"]
+	path = thirdparty/benchmark
+	url = https://github.com/google/benchmark.git
