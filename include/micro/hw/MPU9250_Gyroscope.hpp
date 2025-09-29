@@ -1,10 +1,5 @@
 #pragma once
 
-#ifdef STM32F4
-
-#include <stm32f4xx_hal_i2c.h>
-#include <stm32f4xx_hal_spi.h>
-
 #include <micro/port/gpio.hpp>
 #include <micro/port/i2c.hpp>
 #include <micro/port/semaphore.hpp>
@@ -24,29 +19,8 @@ enum class Mscale : uint8_t {
     MFS_16BITS      // 0.15 mG per LSB
 };
 
-#define MMODE_ODR_8Hz 0x02
-#define MMODE_ODR_100Hz 0x06
-
-#if defined STM32
-#define I2C_DEFAULT {nullptr}
-#define SPI_DEFAULT {nullptr}
-#define GPIO_DEFAULT {nullptr, 0}
-#else // !STM32
-#define I2C_DEFAULT                                                                                \
-    {                                                                                              \
-    }
-#define SPI_DEFAULT                                                                                \
-    {                                                                                              \
-    }
-#define GPIO_DEFAULT                                                                               \
-    {                                                                                              \
-    }
-#endif // !STM32
-
 class MPU9250_Gyroscope {
   public:
-    MPU9250_Gyroscope(const i2c_t& i2c, Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode);
-
     MPU9250_Gyroscope(const spi_t& spi, const gpio_t& gpio, Ascale aScale, Gscale gScale,
                       Mscale mScale, uint8_t Mmode);
 
@@ -59,15 +33,8 @@ class MPU9250_Gyroscope {
 
     void initialize();
 
-    void onCommFinished();
-
   private:
-    MPU9250_Gyroscope(const i2c_t& i2c, const spi_t& spi, const gpio_t& cs, Ascale aScale,
-                      Gscale gScale, Mscale mScale, uint8_t Mmode);
-
-    bool waitComm();
-
-    bool writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
+    void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
     char readByte(uint8_t address, uint8_t subAddress);
     bool readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t* dest);
 
@@ -85,14 +52,8 @@ class MPU9250_Gyroscope {
 
     static point3<int16_t> bufferToRaw(const uint8_t rawData[6]);
 
-    struct handle_t {
-        const i2c_t i2c;
-        const spi_t spi;
-        const gpio_t cs;
-        semaphore_t commSemaphore;
-    };
-
-    handle_t handle;
+    const spi_t spi;
+    const gpio_t cs;
     const Ascale aScale;
     const Gscale gScale;
     const Mscale mScale;
@@ -110,5 +71,3 @@ class MPU9250_Gyroscope {
 
 } // namespace hw
 } // namespace micro
-
-#endif // STM32F4

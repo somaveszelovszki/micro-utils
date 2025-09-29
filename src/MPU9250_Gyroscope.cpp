@@ -1,9 +1,6 @@
-#include <micro/hw/MPU9250_Gyroscope.hpp>
-
-#ifdef STM32F4
-
 #include <string.h>
 
+#include <micro/hw/MPU9250_Gyroscope.hpp>
 #include <micro/log/log.hpp>
 #include <micro/math/unit_utils.hpp>
 #include <micro/port/task.hpp>
@@ -175,48 +172,22 @@ namespace hw {
 #define MPU9250_ADDRESS 0x68 << 1 // Device address when ADO = 0
 #endif
 
-MPU9250_Gyroscope::MPU9250_Gyroscope(const i2c_t& i2c, Ascale aScale, Gscale gScale, Mscale mScale,
-                                     uint8_t Mmode)
-    : MPU9250_Gyroscope(i2c, SPI_DEFAULT, GPIO_DEFAULT, aScale, gScale, mScale, Mmode) {
-}
+#define MMODE_ODR_8Hz 0x02
+#define MMODE_ODR_100Hz 0x06
 
-#ifdef STM32F4
 MPU9250_Gyroscope::MPU9250_Gyroscope(const spi_t& spi, const gpio_t& cs, Ascale aScale,
                                      Gscale gScale, Mscale mScale, uint8_t Mmode)
-    : MPU9250_Gyroscope(I2C_DEFAULT, spi, cs, aScale, gScale, mScale, Mmode) {
-}
-#endif // STM32F4
-
-MPU9250_Gyroscope::MPU9250_Gyroscope(const i2c_t& i2c, const spi_t& spi, const gpio_t& cs,
-                                     Ascale aScale, Gscale gScale, Mscale mScale, uint8_t Mmode)
-    : handle{i2c, spi, cs}, aScale(aScale), gScale(gScale), mScale(mScale), aRes(getAres(aScale)),
+    : spi(spi), cs(cs), aScale(aScale), gScale(gScale), mScale(mScale), aRes(getAres(aScale)),
       gRes(getGres(gScale)), mRes(getMres(mScale)), Mmode(Mmode), magCalibration{0.0f, 0.0f, 0.0f},
       gyroBias{0.0f, 0.0f, 0.0f}, gyroThreshold{0.0f, 0.0f, 0.0f}, accelBias{0.0f, 0.0f, 0.0f} {
 }
 
-bool MPU9250_Gyroscope::waitComm() {
-    return this->handle.commSemaphore.take(millisecond_t(2));
-}
+void MPU9250_Gyroscope::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
+    uint8_t txRxData[2] = {subAddress, data};
 
-bool MPU9250_Gyroscope::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
-    bool isOk = false;
-
-#if defined STM32
-    if (this->handle.i2c.handle) {
-        i2c_memoryWrite(this->handle.i2c, address, subAddress, 1, &data, 1);
-        isOk = this->waitComm();
-
-    } else if (this->handle.spi.handle) {
-        uint8_t txRxData[2] = {subAddress, data};
-
-        gpio_write(this->handle.cs, gpioPinState_t::RESET);
-        spi_exchange(this->handle.spi, txRxData, nullptr, 2);
-        isOk = this->waitComm();
-        gpio_write(this->handle.cs, gpioPinState_t::SET);
-    }
-#endif // STM32
-
-    return isOk;
+    gpio_write(this->cs, gpioPinState_t::RESET);
+    spi_exchange(this->spi, txRxData, nullptr, 2);
+    gpio_write(this->cs, gpioPinState_t::SET);
 }
 
 char MPU9250_Gyroscope::readByte(uint8_t address, uint8_t subAddress) {
@@ -228,27 +199,15 @@ bool MPU9250_Gyroscope::readBytes(uint8_t address, uint8_t subAddress, uint8_t c
                                   uint8_t* dest) {
     bool isOk = false;
 
-#if defined STM32
-    if (this->handle.i2c.handle) {
-        i2c_memoryRead(this->handle.i2c, address, subAddress, 1, dest, count);
-        isOk = this->waitComm();
+    constexpr uint8_t MAX_COUNT = 8;
+    uint8_t txRxData[MAX_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
+    const uint8_t transferSize  = std::min<uint8_t>(count, MAX_COUNT - 1);
 
-    } else if (this->handle.spi.handle) {
-        static constexpr uint8_t MAX_COUNT = 8;
-        uint8_t txRxData[MAX_COUNT]        = {0, 0, 0, 0, 0, 0, 0, 0};
-
-        if (count <= MAX_COUNT) {
-            txRxData[0] = subAddress | 0x80;
-            gpio_write(this->handle.cs, gpioPinState_t::RESET);
-            spi_exchange(this->handle.spi, txRxData, txRxData, 1 + count);
-            isOk = this->waitComm();
-            memcpy(dest, &txRxData[1], count);
-            gpio_write(this->handle.cs, gpioPinState_t::SET);
-        } else {
-            isOk = false;
-        }
-    }
-#endif // STM32
+    txRxData[0] = subAddress | 0x80;
+    gpio_write(this->cs, gpioPinState_t::RESET);
+    spi_exchange(this->spi, txRxData, txRxData, transferSize);
+    memcpy(dest, &txRxData[1], transferSize);
+    gpio_write(this->cs, gpioPinState_t::SET);
 
     return isOk;
 }
@@ -412,13 +371,9 @@ void MPU9250_Gyroscope::initMPU9250() {
     os_sleep(millisecond_t(100)); // Delay 100 ms for PLL to get established on x-axis gyro; should
                                   // check for PLL ready interrupt
 
-#if defined STM32
-    if (this->handle.spi.handle) {
-        this->writeByte(
-            MPU9250_ADDRESS, USER_CTRL,
-            0x10); // sets I2C_IF_DIS flag (disables I2C, puts serial interface in SPI mode only)
-    }
-#endif // STM32
+    this->writeByte(
+        MPU9250_ADDRESS, USER_CTRL,
+        0x10); // sets I2C_IF_DIS flag (disables I2C, puts serial interface in SPI mode only)
 
     // get stable time source
     this->writeByte(
@@ -520,11 +475,5 @@ void MPU9250_Gyroscope::initialize() {
               this->gyroBias.Z);
 }
 
-void MPU9250_Gyroscope::onCommFinished() {
-    this->handle.commSemaphore.give();
-}
-
 } // namespace hw
 } // namespace micro
-
-#endif // STM32F4

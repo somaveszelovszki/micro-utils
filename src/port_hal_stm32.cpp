@@ -153,10 +153,11 @@ Status i2c_memoryWrite(const i2c_t& i2c, const uint16_t devAddr, const uint16_t 
 Status spi_exchange(const spi_t& spi, const uint8_t* const txBuf, uint8_t* const rxBuf,
                     const uint32_t size) {
     return toStatus(
-        txBuf == nullptr ? HAL_SPI_Receive_DMA(spi.handle, rxBuf, size)
+        txBuf == nullptr ? HAL_SPI_Receive(spi.handle, rxBuf, size, HAL_MAX_DELAY)
         : rxBuf == nullptr
-            ? HAL_SPI_Transmit_DMA(spi.handle, const_cast<uint8_t*>(txBuf), size)
-            : HAL_SPI_TransmitReceive_DMA(spi.handle, const_cast<uint8_t*>(txBuf), rxBuf, size));
+            ? HAL_SPI_Transmit(spi.handle, const_cast<uint8_t*>(txBuf), size, HAL_MAX_DELAY)
+            : HAL_SPI_TransmitReceive(spi.handle, const_cast<uint8_t*>(txBuf), rxBuf, size,
+                                      HAL_MAX_DELAY));
 }
 
 #else // !STM32F4
